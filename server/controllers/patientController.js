@@ -3,7 +3,13 @@ const db = require('../config/db');
 exports.getAllPatients = async (req, res) => {
   try {
     const [rows] = await db.execute('SELECT * FROM patient');
-    res.json(rows);
+    res.status(200).json({
+      meta: {
+        url: req.protocol + '://' + req.get('host') + req.url,
+        status: 200,
+      },
+      data: rows
+    });
   } catch (err) {
     res.status(500).json({ message: 'Error al obtener pacientes', error: err });
   }
