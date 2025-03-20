@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const patientController = require('../controllers/patientController');
 
-// Rutas CRUD para Patient
 router.get('/', patientController.getAllPatients);
 router.get('/:id', patientController.getPatientById);
 router.post('/', patientController.createPatient);
