@@ -13,9 +13,9 @@ const Dashboard = () => {
     useEffect(() => { fetchAppointments(); }, [])
 
     //borrar
-    useEffect(() => {
+    /*useEffect(() => {
         console.log(appointments)
-    }, [appointments])
+    }, [appointments])*/
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value)
 
@@ -30,12 +30,13 @@ const Dashboard = () => {
                     <Card className='p-6 flex flex-row gap-4'>
                         <Input variant="outlined" label="Nombre" placeholder="Juan Perez" />
                         <Input variant="outlined" label="DNI" placeholder="12345678" />
-                        <DatePicker title="Desde" />
-                        <DatePicker title="Hasta" />
+                        <Input variant="outlined" label="Cirugia" placeholder="Cataratas" />
+                        <Input variant="outlined" label="Medico" placeholder="Dr." />
+                        <DatePicker title="Fecha" />
                     </Card>
                     <Card className='p-8 mt-4'>
                         {appointments.map((appointment) => (
-                            <PatientCard key={appointment.id} openNumber={1} openStatus={open} handleOpenStatus={handleOpen} appointment={appointment}/>
+                            <PatientCard key={appointment.id} openNumber={appointment.id} openStatus={open} handleOpenStatus={handleOpen} appointment={appointment}/>
                         ))}
                     </Card>
                 </div>
