@@ -12,6 +12,7 @@ const Dashboard = () => {
 
     useEffect(() => { fetchAppointments(); }, [])
 
+    //borrar
     useEffect(() => {
         console.log(appointments)
     }, [appointments])
@@ -34,13 +35,8 @@ const Dashboard = () => {
                     </Card>
                     <Card className='p-8 mt-4'>
                         {appointments.map((appointment) => (
-                            <li key={appointment.id}>
-                                {appointment.first_name} {appointment.last_name} - {appointment.surgery_date} {appointment.surgery_time}
-                            </li>
+                            <PatientCard key={appointment.id} openNumber={1} openStatus={open} handleOpenStatus={handleOpen} appointment={appointment}/>
                         ))}
-                        <PatientCard openNumber={1} openStatus={open} handleOpenStatus={handleOpen} />
-                        <PatientCard openNumber={2} openStatus={open} handleOpenStatus={handleOpen} />
-                        <PatientCard openNumber={3} openStatus={open} handleOpenStatus={handleOpen} />
                     </Card>
                 </div>
             </HeaderLayout>
