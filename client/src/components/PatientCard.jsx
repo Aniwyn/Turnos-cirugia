@@ -1,6 +1,7 @@
 import React from 'react'
 import { Accordion, AccordionHeader, AccordionBody, Typography } from "@material-tailwind/react";
 import { ChevronDownIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { format } from "date-fns";
 
 
 function Icon({ id, open }) {
@@ -11,7 +12,7 @@ function Icon({ id, open }) {
     );
 }
 
-const PatientCard = ({ openNumber, openStatus, handleOpenStatus }) => {
+const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) => {
     return(
         <Accordion open={openStatus === openNumber} icon={<Icon id={openNumber} open={openStatus} />}>
             <AccordionHeader onClick={() => handleOpenStatus(openNumber)} className='border-b-0 p-0'> {/*pb-0*/}
@@ -19,10 +20,10 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus }) => {
                     <div className='flex flex-row justify-between w-full'>
                         <div className='flex'>
                             <Typography className={`content-center transition-colors ${ openStatus === openNumber ? "bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent" : ""}`} variant="h5">
-                                Jonathan Alexis Tiano
+                                {`${appointment.last_name}, ${appointment.first_name}`}
                             </Typography>
                             <Typography className='content-center ps-4' variant="lead">
-                                IOSFA
+                                {appointment.health_insurance}
                             </Typography>
                         </div>
                         <div className='flex'>
@@ -30,7 +31,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus }) => {
                                 Fecha:
                             </Typography>
                             <Typography className='content-center ps-1' variant="lead">
-                                10/01/2025
+                                { appointment.surgery_date ? format(new Date(appointment.surgery_date), "dd/MM/yyyy") : "s/f" }
                             </Typography>
                         </div>
                         <div className='flex'>
@@ -38,20 +39,34 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus }) => {
                                 Hora:
                             </Typography>
                             <Typography className='content-center ps-1' variant="lead">
-                                9:00
+                                { appointment.surgery_time ? format(new Date(`1970-01-01T${appointment.surgery_time}`), "HH:mm")  : "s/h" }
                             </Typography>
                         </div>
                         <div className='flex flex-col pe-5'>
                             <div className='flex justify-between'>
                                 <Typography variant='small'>ADM: </Typography>
                                 <div className="flex w-5 h-5 items-center justify-center">
-                                    <div className="h-2 w-2 rounded-full bg-green-500 ring-4 ring-cyan-300/50 shadow-xl shadow-cyan-500/80"></div>
+                                    <div
+                                        className="h-2 w-2 rounded-full ring-4 shadow-xl"
+                                        style={{
+                                            backgroundColor: appointment.admin_color,
+                                            ringColor: `${appointment.admin_color}50`,
+                                            boxShadow: `0px 0px 8px ${appointment.admin_color}`,
+                                        }}
+                                    ></div>
                                 </div>
                             </div>
                             <div className='flex justify-between'>
                                 <Typography variant='small'>ENF: </Typography>
-                                <div className="flex w-5 h- items-center justify-center">
-                                    <div className="h-2 w-2 rounded-full bg-red-500 ring-4 ring-red-300/50 shadow-xl shadow-cyan-500/80"></div>
+                                <div className="flex w-5 h-5 items-center justify-center">
+                                    <div
+                                        className="h-2 w-2 rounded-full ring-4 shadow-xl"
+                                        style={{
+                                            backgroundColor: appointment.medical_color,
+                                            ringColor: `${appointment.medical_color}50`,
+                                            boxShadow: `0px 0px 8px ${appointment.medical_color}`,
+                                        }}
+                                    ></div>
                                 </div>
                             </div>
                         </div>
@@ -202,5 +217,3 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus }) => {
 }
 
 export default PatientCard
-
-/*Bueno ya tengo una Back y un maquetado funcional en React, podrias ayudarme ahora a conectar la bd? me gustaria empezar con poder traer los datos de turnos de la api*/
