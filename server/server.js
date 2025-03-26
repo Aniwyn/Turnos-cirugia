@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.send("API Running...");
+  res.send("API OK..."); //No borrar, se puede cambiar
 });
 
 app.use('/api/', routes);
