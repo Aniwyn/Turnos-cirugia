@@ -20,10 +20,10 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                     <div className='flex flex-row justify-between w-full'>
                         <div className='flex'>
                             <Typography className={`content-center transition-colors ${ openStatus === openNumber ? "bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent" : ""}`} variant="h5">
-                                {`${appointment.last_name}, ${appointment.first_name}`}
+                                {`${appointment.Patient.last_name}, ${appointment.Patient.first_name}`}
                             </Typography>
                             <Typography className='content-center ps-4' variant="lead">
-                                {appointment.health_insurance}
+                                {appointment.Patient.health_insurance}
                             </Typography>
                         </div>
                         <div className='flex'>
@@ -49,9 +49,9 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                     <div
                                         className="h-2 w-2 rounded-full ring-4 shadow-xl"
                                         style={{
-                                            backgroundColor: appointment.admin_color,
-                                            ringColor: `${appointment.admin_color}50`,
-                                            boxShadow: `0px 0px 8px ${appointment.admin_color}`,
+                                            backgroundColor: appointment.AdministrativeStatus.color,
+                                            ringColor: `${appointment.AdministrativeStatus.color}50`,
+                                            boxShadow: `0px 0px 8px ${appointment.AdministrativeStatus.color}`,
                                         }}
                                     ></div>
                                 </div>
@@ -62,66 +62,107 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                     <div
                                         className="h-2 w-2 rounded-full ring-4 shadow-xl"
                                         style={{
-                                            backgroundColor: appointment.medical_color,
-                                            ringColor: `${appointment.medical_color}50`,
-                                            boxShadow: `0px 0px 8px ${appointment.medical_color}`,
+                                            backgroundColor: appointment.MedicalStatus.color,
+                                            ringColor: `${appointment.MedicalStatus.color}50`,
+                                            boxShadow: `0px 0px 8px ${appointment.MedicalStatus.color}`,
                                         }}
                                     ></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className='flex flex-row h-[1rem]'>
-                        <Typography className='ps-12 font-bold w-32'>
-                            OD 
-                        </Typography>
-                        <Typography className='ps-3'>
-                            Glaucoma
-                        </Typography>
-                    </div>
-                    <div className='flex flex-row h-[1rem] pb-8'>
-                        <Typography className='ps-12 font-bold w-32'>
-                            OD 
-                        </Typography>
-                        <Typography className='ps-3'>
-                            Catarata
-                        </Typography>
-                        <Typography className='ps-12 font-bold'>
-                            Lente: 
-                        </Typography>
-                        <Typography className='ps-1'>
-                            EyeIOL 
-                        </Typography>
-                    </div>
+                    {
+                        appointment.Surgery.map((surgery, n) => {
+                            return(
+                                <div className='flex flex-row h-[1rem] pb-8'>
+                                    <Typography className='ps-12 font-bold w-32'>
+                                        {surgery.appointment_surgery.eye}
+                                    </Typography>
+                                    <Typography className='ps-3'>
+                                        {surgery.name}
+                                    </Typography>
+                                    {
+                                        surgery.appointment_surgery.intraocular_lens ?
+                                            <>
+                                            <Typography className='ps-12 font-bold'>
+                                                Lente: 
+                                            </Typography>
+                                            <Typography className='ps-1'>
+                                                {surgery.appointment_surgery.intraocular_lens}
+                                            </Typography>
+                                            </>
+                                        : ""
+                                    }
+                                    
+                                </div>
+                            )
+                        })
+                    }
                 </div>
             </AccordionHeader>
             <AccordionBody className='pb-5'>
                 <div className='flex flex-col'>
                     <div className='flex flex-row justify-start'>
-                        <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
-                            Médico:
-                        </Typography>
-                        <Typography className='content-center ps-1' variant="small">
-                            Zarif A.
-                        </Typography>
-                        <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
-                            Tel 1:
-                        </Typography>
-                        <Typography className='content-center ps-1' variant="small">
-                            38812345678
-                        </Typography>
-                        <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
-                            Tel 2:
-                        </Typography>
-                        <Typography className='content-center ps-1' variant="small">
-                            38887654321
-                        </Typography>
-                        <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
-                            Email:
-                        </Typography>
-                        <Typography className='content-center ps-1' variant="small">
-                            example@not.com.ar
-                        </Typography>
+                        {
+                            appointment.Patient.doctor ?
+                                <>
+                                <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
+                                    Médico:
+                                </Typography>
+                                <Typography className='content-center ps-1' variant="small">
+                                    {appointment.Patient.doctor}
+                                </Typography>
+                                </>
+                            : ""
+                        }
+                        {
+                            appointment.surgeon ?
+                                <>
+                                <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
+                                    Cirujano:
+                                </Typography>
+                                <Typography className='content-center ps-1' variant="small">
+                                    {appointment.surgeon}
+                                </Typography>
+                                </>
+                            : ""
+                        }
+                        {
+                            appointment.Patient.phone1 ?
+                                <>
+                                <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
+                                    Tel 1:
+                                </Typography>
+                                <Typography className='content-center ps-1' variant="small">
+                                    {appointment.Patient.phone1}
+                                </Typography>
+                                </>
+                            : ""
+                        }
+                        {
+                            appointment.Patient.phone2 ?
+                                <>
+                                <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
+                                    Tel 2:
+                                </Typography>
+                                <Typography className='content-center ps-1' variant="small">
+                                    {appointment.Patient.phone2}
+                                </Typography>
+                                </>
+                            : ""
+                        }
+                        {
+                            appointment.Patient.email ?
+                                <>
+                                <Typography className={'content-center transition-colors font-bold ps-5'} variant="small">
+                                    Email:
+                                </Typography>
+                                <Typography className='content-center ps-1' variant="small">
+                                    {appointment.Patient.email}
+                                </Typography>
+                                </>
+                            : ""
+                        }
                         <div className='flex flex-row ms-auto me-10'>
                             <PencilSquareIcon className="h-6 w-6 text-orange-500 mx-2" />
                             <TrashIcon className="h-6 w-6 text-red-500 mx-2" />
@@ -145,10 +186,17 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                     Estado:
                                 </Typography>
                                 <div className="flex w-5 h-5 items-center justify-center">
-                                    <div className="h-2 w-2 rounded-full bg-green-500 ring-4 ring-cyan-300/50 shadow-xl shadow-cyan-500/80"></div>
+                                    <div
+                                        className="h-2 w-2 rounded-full ring-4 shadow-xl"
+                                        style={{
+                                            backgroundColor: appointment.AdministrativeStatus.color,
+                                            ringColor: `${appointment.AdministrativeStatus.color}50`,
+                                            boxShadow: `0px 0px 8px ${appointment.AdministrativeStatus.color}`,
+                                        }}
+                                    ></div>
                                 </div>
                                 <Typography className='ps-1' variant='small'>
-                                    Listo
+                                    {appointment.AdministrativeStatus.name}
                                 </Typography>
                             </div>
                             <div className='flex'>
@@ -156,15 +204,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                     Observaciones:
                                 </Typography>
                                 <Typography className='ps-1' variant='small'>
-                                    Pago completo
-                                </Typography>
-                            </div>
-                            <div className='flex'>
-                                <Typography className='ps-12 pe-3 font-bold' variant='small'>
-                                    Lente pagada:
-                                </Typography>
-                                <Typography className='ps-1' variant='small'>
-                                    Torica
+                                    {appointment.AdministrativeStatus.notes}
                                 </Typography>
                             </div>
                         </div>
@@ -184,11 +224,18 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                 <Typography className='ps-12 pe-3 font-bold' variant='small'>
                                     Estado:
                                 </Typography>
-                                <div className="flex w-5 h- items-center justify-center">
-                                    <div className="h-2 w-2 rounded-full bg-red-500 ring-4 ring-red-300/50 shadow-xl shadow-cyan-500/80"></div>
+                                <div className="flex w-5 h-5 items-center justify-center">
+                                    <div
+                                        className="h-2 w-2 rounded-full ring-4 shadow-xl"
+                                        style={{
+                                            backgroundColor: appointment.MedicalStatus.color,
+                                            ringColor: `${appointment.MedicalStatus.color}50`,
+                                            boxShadow: `0px 0px 8px ${appointment.MedicalStatus.color}`,
+                                        }}
+                                    ></div>
                                 </div>
                                 <Typography className='ps-1' variant='small'>
-                                    Falta documentación prequirurgica
+                                    {appointment.MedicalStatus.name}
                                 </Typography>
                             </div>
                             <div className='flex'>
@@ -196,15 +243,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                     Observaciones:
                                 </Typography>
                                 <Typography className='ps-1' variant='small'>
-                                    Falta electrocrdiograma
-                                </Typography>
-                            </div>
-                            <div className='flex'>
-                                <Typography className='ps-12 pe-3 font-bold' variant='small'>
-                                    Lente sugerida:
-                                </Typography>
-                                <Typography className='ps-1' variant='small'>
-                                    EyeOL
+                                    {appointment.MedicalStatus.notes}
                                 </Typography>
                             </div>
                         </div>
