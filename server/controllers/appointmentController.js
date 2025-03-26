@@ -3,9 +3,34 @@ const db = require('../config/db');
 exports.getAllAppointments = async (req, res) => {
   try {
     const [rows] = await db.execute(`
-      SELECT a.*, p.first_name, p.last_name
+      SELECT
+        a.id,
+        a.patient_id,
+        admin_notes,
+        a.nurse_notes,
+        a.surgery_date,
+        a.surgery_time,
+        a.surgeon,
+        p.first_name,
+        p.last_name,
+        p.doctor,
+        p.phone1,
+        p.phone2,
+        p.email,
+        p.health_insurance,
+        sa.name AS admin_name,
+        sa.color AS admin_color,
+        sm.name AS medical_name,
+        sm.color AS medical_color,
+        s.name,
+        appsur.intraocular_lens,
+        appsur.eye
       FROM appointment a
       JOIN patient p ON a.patient_id = p.id
+      JOIN administrative_status AS sa ON sa.id = a.admin_status_id
+      JOIN medical_status AS sm ON sm.id = a.medical_status_id
+      JOIN appointment_surgery AS appsur ON appsur.appointment_id = a.id
+      JOIN surgery AS s ON s.id = appsur.surgery_id
     `);
     res.json(rows);
   } catch (err) {
