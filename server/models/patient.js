@@ -32,6 +32,10 @@ function patient(sequelize, DataTypes) {
         health_insurance: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        dni: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     }, {
         tableName: 'patient',
