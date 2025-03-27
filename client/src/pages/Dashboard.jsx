@@ -26,15 +26,15 @@ const Dashboard = () => {
     return (
         <SidebarLayout>
             <HeaderLayout>
-                <div className=''>
-                    <Card className='p-6 flex flex-row gap-4'>
+                <div className='flex flex-col h-full'>
+                    <Card className='p-4 flex flex-row gap-4'>
                         <Input variant="outlined" label="Nombre" placeholder="Juan Perez" />
                         <Input variant="outlined" label="DNI" placeholder="12345678" />
                         <Input variant="outlined" label="Cirugia" placeholder="Cataratas" />
                         <Input variant="outlined" label="Medico" placeholder="Dr." />
                         <DatePicker title="Fecha" />
                     </Card>
-                    <Card className='p-8 mt-4'>
+                    <Card className='p-4 my-3 h-full'>
                         {appointments.map((appointment) => (
                             <PatientCard key={appointment.id} openNumber={appointment.id} openStatus={open} handleOpenStatus={handleOpen} appointment={appointment}/>
                         ))}

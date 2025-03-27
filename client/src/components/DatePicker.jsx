@@ -11,7 +11,7 @@ import { es } from "react-day-picker/locale";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
  
 
-const DatePicker = ({ title, initDate }) => {
+const DatePicker = ({ title, initDate,  }) => {
   // LLEVAR AL ESTADO GLOBAL !!!
   const [date, setDate] = React.useState(initDate || null);
   // ^^^^^^^^ LLEVAR AL ESTADO GLOBAL !!!
