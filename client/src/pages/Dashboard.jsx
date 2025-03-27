@@ -9,6 +9,7 @@ import useAppointmentsStore from "../store/useAppointmentsStore";
 const Dashboard = () => {
     const [open, setOpen] = useState(0)
     const { appointments, loading, error, fetchAppointments } = useAppointmentsStore()
+    const [date, setDate] = useState(null)
 
     useEffect(() => { fetchAppointments(); }, [])
 
@@ -32,7 +33,7 @@ const Dashboard = () => {
                         <Input variant="outlined" label="DNI" placeholder="12345678" />
                         <Input variant="outlined" label="Cirugia" placeholder="Cataratas" />
                         <Input variant="outlined" label="Medico" placeholder="Dr." />
-                        <DatePicker title="Fecha" />
+                        <DatePicker title="Fecha" date={date} setDate={setDate}/>
                     </Card>
                     <Card className='p-4 my-3 h-full'>
                         {appointments.map((appointment) => (

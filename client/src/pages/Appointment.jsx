@@ -26,17 +26,26 @@ const tmpPatient = {
     health_insurance: ""
 }
 
-const tmpAppointment = {
-    nurse_notes: ""
+const tmpAppoiment = {
+    nurse_notes: "",
+    MedicalStatus: { id: 1 },
+    Surgery: [
+        {appointment_surgery: {
+            intraocular_lens: "Lente A"
+        }}
+    ]
 }
 
 const Appointment = () => {
     const [open, setOpen] = useState(2)
     const [patient, setPAtient] = useState(tmpPatient)
     const [newPatient, setNewPatient] = useState(true)
-    const [appointment, setAppointment] = useState({})
+    const [appointment, setAppointment] = useState(tmpAppoiment)
     const [statuses, setStatuses] = useState([{ name: "NO", id: 0}])
     const [surgeries, setSurgeries] = useState([{ name: "NO", id: 0}])
+    const [date, setDate] = useState(null)
+    const [hour, setHour] = useState(null)
+    const [minute, seMinute] = useState(null)
 
     useEffect(() => { 
         const fetchMedicalStatuses = async () => {
@@ -65,6 +74,10 @@ const Appointment = () => {
 
     //Manejadores de turno
     const handleNurseNotes = (e)  => {setAppointment((prev) => ({...prev, nurse_notes: e.target.value}))}
+    const handleMedicalStatus = (val)  => {setAppointment((prev) => ({...prev, MedicalStatus: { id : val}}))}
+    const handleHour = (val)  => {setHour(val)}
+    const handleMinute= (val)  => {setMinute(val)}
+    const handleLens = (e)  => {setAppointment((prev) => ({...prev, Surgery: [{appointment_surgery: { intraocular_lens: e.target.value}}] }))}
     
     //modificar base de datos
     const doctors = [
@@ -132,7 +145,11 @@ const Appointment = () => {
                             </AccordionHeader>
                             <AccordionBody className='pb-5'>
                                 <div className='flex'>
-                                    <Select label="Estado">
+                                    <Select
+                                        label="Estado"
+                                        value={appointment.MedicalStatus.id || 1}
+                                        onChange={handleMedicalStatus}
+                                    >
                                         {
                                             statuses.map(status => {return(
                                                 <Option key={status.id}>{status.name}</Option>
@@ -146,7 +163,7 @@ const Appointment = () => {
                                         <Option value='OI'>Ojo Izquierdo</Option>
                                         <Option value='AO'>Ambos Ojos</Option>
                                     </Select>
-                                    <Input variant='outlined' label="Lente sugerido" placeholder='Cataratas' value={""}/>
+                                    <Input variant='outlined' label="Lente sugerido" placeholder='Cataratas' value={appointment.Surgery[0].appointment_surgery.intraocular_lens} onChange={handleLens}/>
                                     <div className='flex'>
                                         <Select label="Cirugias">
                                             {
@@ -171,13 +188,21 @@ const Appointment = () => {
                                     </Select>
                                 </div>
                                 <div className='flex'>
-                                    <DatePicker title="Fecha" />
-                                    <Select label="Hora">
+                                    <DatePicker title="Fecha" date={date} setDate={setDate} />
+                                    <Select
+                                        label="Hora"
+                                        value={hour}
+                                        onChange={handleHour}
+                                    >
                                         <Option>9</Option>
                                         <Option>10</Option>
                                         <Option>11</Option>
                                     </Select>
-                                    <Select label="minuto"> 
+                                    <Select
+                                        label="Minuto"
+                                        value={minute}
+                                        onChange={handleMinute}
+                                    >
                                         <Option>00</Option>
                                         <Option>15</Option>
                                         <Option>30</Option>
