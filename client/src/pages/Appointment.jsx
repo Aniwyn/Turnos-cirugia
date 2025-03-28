@@ -26,12 +26,14 @@ const tmpPatient = {
     health_insurance: ""
 }
 
+//separar relaciones anidadas
 const tmpAppoiment = {
+    admin_notes: "",
     nurse_notes: "",
     MedicalStatus: { id: 1 },
     Surgery: [
         {appointment_surgery: {
-            intraocular_lens: "Lente A"
+            intraocular_lens: ""
         }}
     ]
 }
@@ -44,8 +46,8 @@ const Appointment = () => {
     const [statuses, setStatuses] = useState([{ name: "NO", id: 0}])
     const [surgeries, setSurgeries] = useState([{ name: "NO", id: 0}])
     const [date, setDate] = useState(null)
-    const [hour, setHour] = useState(null)
-    const [minute, seMinute] = useState(null)
+    const [hour, setHour] = useState("")
+    const [minute, setMinute] = useState("")
 
     useEffect(() => { 
         const fetchMedicalStatuses = async () => {
@@ -73,6 +75,7 @@ const Appointment = () => {
     const handleDoctor = (val)  => {setPAtient((prev) => ({...prev, doctor: val}))}
 
     //Manejadores de turno
+    const handleAdminNotes = (e)  => {setAppointment((prev) => ({...prev, admin_notes: e.target.value}))}
     const handleNurseNotes = (e)  => {setAppointment((prev) => ({...prev, nurse_notes: e.target.value}))}
     const handleMedicalStatus = (val)  => {setAppointment((prev) => ({...prev, MedicalStatus: { id : val}}))}
     const handleHour = (val)  => {setHour(val)}
@@ -94,7 +97,38 @@ const Appointment = () => {
             setNewPatient(false)
         }
     }
+
+    const handleNext = () => {
+        const handleNextAsync = async () => {
+            const patientJSON = {
+                dni: patient.id,
+                first_name: patient.fist_name,
+                last_name: patient.last_name,
+                phone1: patient.phone1,
+                phone2: patient.phone2,
+                email: patient.email,
+                health_insurance: patient.health_insurance,
+                doctor_id: patient.doctor,
+            }
     
+            const asd = await "asd(patientJSON)"
+
+            const appointmentJSON = {
+                patientId: asd,
+                adminNotes: appointment.admin_notes,
+                nurseNotes: appointment.nurse_notes,
+                surgeryDate: ,
+                surgeryTime: ,
+                surgeonId: ,
+                adminStatusId: ,
+                medicalStatusId: 
+            }
+
+
+        }
+        handleNextAsync()
+    }
+
     return(
         <SidebarLayout>
             <HeaderLayout>
@@ -130,7 +164,7 @@ const Appointment = () => {
                                     </div>
                                     <div className='flex'>
                                         <Input variant='outlined' label="Tel 1" placeholder='3881234567' value={patient.phone1} onChange={handlePhone1}/>
-                                        <Input variant='outlined' label="Tel 2" placeholder='3881234567' value={patient.phone1} onChange={handlePhone2}/>
+                                        <Input variant='outlined' label="Tel 2" placeholder='3881234567' value={patient.phone2} onChange={handlePhone2}/>
                                     </div>
                                     <div className='flex'>
                                         <Input variant='outlined' label='Email' placeholder='correo@gmail.com' value={patient.email} onChange={handleEmail}/>
@@ -167,13 +201,14 @@ const Appointment = () => {
                                     <div className='flex'>
                                         <Select label="Cirugias">
                                             {
-                                                surgeries.map(surgerie => {return(
-                                                    <Option key={surgerie.id}>{surgerie.name}</Option>
+                                                surgeries.map(surgery => {return(
+                                                    <Option key={surgery.id} value={surgery.id}>{surgery.name}</Option>
                                                 )})
                                             }
                                         </Select>
                                     </div>
                                 </div>
+                                {/* tengo este fragmento de codigo pero como sabes necesito poder cargar 1 o mas cirugias, como deberia ser la logica para poder hacerlo?*/}
                                 <div className='flex'>
                                     <Select 
                                         label="Médico"

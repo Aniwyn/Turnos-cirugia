@@ -48,7 +48,7 @@ exports.createAppointment = async (req, res) => {
             nurseNotes,
             surgeryDate,
             surgeryTime,
-            surgeon,
+            surgeonId,
             adminStatusId,
             medicalStatusId
         });

@@ -46,11 +46,14 @@ exports.createPatient = async (req, res) => {
     const { first_name, last_name, phone1, phone2, health_insurance } = req.body;
     try {
         const patient = await db.Patient.create({
+            dni,
             first_name,
             last_name,
             phone1,
             phone2,
-            health_insurance
+            email,
+            health_insurance,
+            doctor_id
         });
         res.status(201).json({ message: 'Paciente creado', patientId: patient.id });
     } catch (err) {
