@@ -43,23 +43,41 @@ exports.getPatientByDni = async (req, res) => {
 };
 
 exports.createPatient = async (req, res) => {
-    const { first_name, last_name, phone1, phone2, health_insurance } = req.body;
+    const { dni, first_name, last_name, doctor_id, phone1, phone2, email, health_insurance } = req.body;
+
     try {
-        const patient = await db.Patient.create({
-            dni,
-            first_name,
-            last_name,
-            phone1,
-            phone2,
-            email,
-            health_insurance,
-            doctor_id
+        const [patient, created] = await db.Patient.findOrCreate({
+            where: { dni },
+            defaults: {
+                first_name,
+                last_name,
+                doctor_id,
+                phone1,
+                phone2,
+                email,
+                health_insurance
+            }
         });
-        res.status(201).json({ message: 'Paciente creado', patientId: patient.id });
+        
+        if (created) {
+            return res.status(201).json({ message: "Patient created", patient: patient.id });
+        } else {
+            await patient.update({
+                first_name,
+                last_name,
+                doctor_id,
+                phone1,
+                phone2,
+                email,
+                health_insurance
+            });
+            return res.status(200).json({ message: "Patient already exists", patient_id: patient.id });
+        }
     } catch (err) {
-        res.status(500).json({ message: 'Error al crear paciente', error: err });
+        return res.status(500).json({ message: "Error creating patient", error: err });
     }
 };
+
 
 exports.updatePatient = async (req, res) => {
     const { id } = req.params;
