@@ -13,7 +13,7 @@ function patient(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false
         },
-        doctor: {
+        doctor_id: {
             type: DataTypes.STRING,
             allowNull: true
         },
