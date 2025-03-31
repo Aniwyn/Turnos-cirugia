@@ -60,7 +60,7 @@ exports.createPatient = async (req, res) => {
         });
         
         if (created) {
-            return res.status(201).json({ message: "Patient created", patient: patient.id });
+            return res.status(201).json({ message: "Patient created", patient_id: patient.id });
         } else {
             await patient.update({
                 first_name,

@@ -4,7 +4,8 @@ import HeaderLayout from "../layouts/HeaderLayout";
 import { Accordion, AccordionHeader, AccordionBody, Collapse, Button, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import DatePicker from "../components/DatePicker";
-import { getAppointmentByDni, getMedicalStatus, getSurgeries } from "../services/api";
+import AlertMessage from "../components/AlertMessage";
+import { getAppointmentByDni, getMedicalStatus, getSurgeries, updateOrCreatePatient, createAppointment } from "../services/api";
 
 function Icon({ id, open }) {
     return (
@@ -14,29 +15,49 @@ function Icon({ id, open }) {
     )
 }
 
-const tmpPatient = {
+const tmpPatient2 = {
     id: null,
-    fist_name: "",
+    dni: "",
+    first_name: "",
     last_name: "",
-    doctor: null,
+    doctor_id: null,
     phone1: "",
     phone2: "",
     email: "",
-    dni: "",
     health_insurance: ""
+}
+
+const tmpPatient = {
+    id: null,
+    dni: "12345670",
+    first_name: "Pruebas",
+    last_name: "ApePruebas",
+    doctor_id: null,
+    phone1: "123",
+    phone2: "456",
+    email: "pruebas@no.se",
+    health_insurance: "OSASD"
 }
 
 //separar relaciones anidadas
 const tmpAppoiment = {
     admin_notes: "",
     nurse_notes: "",
-    MedicalStatus: { id: 1 },
-    Surgery: [
-        {appointment_surgery: {
-            intraocular_lens: ""
-        }}
+    medical_status_id: "",
+    admin_status_id: "",
+    surgeon_id: "0",
+    surgeries: [
+        {eye: "", intraocular_lens: "", surgery_id: 0}
     ]
 }
+
+    //modificar base de datos
+const doctors = [
+    { id: 1, name: 'Dr. Siufi Lucas' },
+    { id: 2, name: 'Dr. Siufi Ernesto' },
+    { id: 3, name: 'Dr. Abud Valeria' },
+    { id: 4, name: 'Dr. Ase Veronica' },
+]
 
 const Appointment = () => {
     const [open, setOpen] = useState(2)
@@ -45,9 +66,10 @@ const Appointment = () => {
     const [appointment, setAppointment] = useState(tmpAppoiment)
     const [statuses, setStatuses] = useState([{ name: "NO", id: 0}])
     const [surgeries, setSurgeries] = useState([{ name: "NO", id: 0}])
-    const [date, setDate] = useState(null)
-    const [hour, setHour] = useState("")
-    const [minute, setMinute] = useState("")
+    const [surgeryDate, setSurgeryDate] = useState(null)
+    const [surgeryHour, setSurgeryHour] = useState()
+    const [surgeryMinute, setSurgeryMinute] = useState()
+    const [alert, setAlert] = useState(null);
 
     useEffect(() => { 
         const fetchMedicalStatuses = async () => {
@@ -72,58 +94,86 @@ const Appointment = () => {
     const handlePhone2 = (e)  => {setPAtient((prev) => ({...prev, phone2: e.target.value}))}
     const handleEmail = (e)  => {setPAtient((prev) => ({...prev, email: e.target.value}))}
     const handleHealthInsurance = (e)  => {setPAtient((prev) => ({...prev, health_insurance: e.target.value}))}
-    const handleDoctor = (val)  => {setPAtient((prev) => ({...prev, doctor: val}))}
+    const handleDoctor = (val)  => {setPAtient((prev) => ({...prev, doctor_id: val}))}
 
     //Manejadores de turno
     const handleAdminNotes = (e)  => {setAppointment((prev) => ({...prev, admin_notes: e.target.value}))}
     const handleNurseNotes = (e)  => {setAppointment((prev) => ({...prev, nurse_notes: e.target.value}))}
-    const handleMedicalStatus = (val)  => {setAppointment((prev) => ({...prev, MedicalStatus: { id : val}}))}
-    const handleHour = (val)  => {setHour(val)}
-    const handleMinute= (val)  => {setMinute(val)}
-    const handleLens = (e)  => {setAppointment((prev) => ({...prev, Surgery: [{appointment_surgery: { intraocular_lens: e.target.value}}] }))}
-    
-    //modificar base de datos
-    const doctors = [
-        { id: 1, name: 'Dr. Siufi Lucas' },
-        { id: 2, name: 'Dr. Siufi Ernesto' },
-        { id: 3, name: 'Dr. Abud Valeria' },
-        { id: 4, name: 'Dr. Ase Veronica' },
-    ]
+    const handleAdminStatus = (val)  => {setAppointment((prev) => ({...prev, admin_status_id: val}))}
+    const handleMedicalStatus = (val)  => {setAppointment((prev) => ({...prev, medical_status_id: val}))}
+    const handleSurgeryHour = (val)  => {setSurgeryHour(val)}
+    const handleSurgeryMinute= (val)  => {setSurgeryMinute(val)}
+    const handleSurgeon = (val)  => {setAppointment((prev) => ({...prev, surgeon_id: val}))}
 
     const findPatient = async () => {
         const patientFetched = await getAppointmentByDni(patient.dni)
         if (patientFetched) {
             setPAtient(patientFetched)
             setNewPatient(false)
+            setAlert(null)
+        } else {
+            setAlert(`No se pudo encontrar el paciente con DNI ${patient.dni}`)
         }
     }
 
+    //dev
+    /*useEffect(() => {
+        console.log(appointment.medical_status_id)
+    },[appointment])*/
+
+    const addSurgery = () => {
+        setAppointment(prev => ({
+            ...prev,
+            surgeries: [...prev.surgeries, {eye: "", intraocular_lens: "", surgery_id: 0}]
+        }));
+    };
+
+    const removeSurgery = (index) => {
+        setAppointment(prev => ({
+            ...prev,
+            surgeries: prev.surgeries.filter((surgery, i) => i !== index)
+        }));
+    };
+
+    const updateSurgery = (index, field, value) => {
+        setAppointment(prev => ({
+            ...prev,
+            surgeries: prev.surgeries.map((surgery, i) =>
+                i === index ? { ...surgery, [field]: value } : surgery
+            )
+        }));
+    };
+
     const handleNext = () => {
         const handleNextAsync = async () => {
+            //juntar los dos json para la revision, sacar patient_id y agregarlo luego
             const patientJSON = {
-                dni: patient.id,
-                first_name: patient.fist_name,
+                dni: patient.dni,
+                first_name: patient.first_name,
                 last_name: patient.last_name,
                 phone1: patient.phone1,
                 phone2: patient.phone2,
                 email: patient.email,
                 health_insurance: patient.health_insurance,
-                doctor_id: patient.doctor,
+                doctor_id: patient.doctor_id,
             }
-    
-            const asd = await "asd(patientJSON)"
+            const patientDB = await updateOrCreatePatient(patientJSON)
 
             const appointmentJSON = {
-                patientId: asd,
-                adminNotes: appointment.admin_notes,
-                nurseNotes: appointment.nurse_notes,
-                surgeryDate: ,
-                surgeryTime: ,
-                surgeonId: ,
-                adminStatusId: ,
-                medicalStatusId: 
+                patient_id: patientDB.patient_id,
+                admin_notes: appointment.admin_notes == "" ? null : appointment.admin_notes,
+                nurse_notes: appointment.nurse_notes == "" ? null : appointment.nurse_notes,
+                surgery_date: surgeryDate.toISOString().split('T')[0],
+                surgery_time: `${surgeryHour.padStart(2, '0')}:${surgeryMinute.padStart(2, '0')}:00`,
+                surgeon_id: appointment.surgeon_id == "0" ? null : Number(appointment.surgeon_id),
+                admin_status_id: appointment.admin_status_id == "0" ? null : Number(appointment.admin_status_id),
+                medical_status_id: appointment.medical_status_id == "0" ? null : Number(appointment.medical_status_id),
+                surgeries: appointment.surgeries
             }
 
+            console.log(appointmentJSON)
+
+            const appointmentDB = await createAppointment(appointmentJSON)
 
         }
         handleNextAsync()
@@ -132,6 +182,7 @@ const Appointment = () => {
     return(
         <SidebarLayout>
             <HeaderLayout>
+                {alert && <AlertMessage color='red' text={alert} time={2500}></AlertMessage>}
                 <div className='flex'>
                     <div className='mx-40 my-6 rounded-lg bg-gray-200'>
                         <Typography variant='h3' className='text-center'> Registrar turno</Typography>
@@ -181,67 +232,74 @@ const Appointment = () => {
                                 <div className='flex'>
                                     <Select
                                         label="Estado"
-                                        value={appointment.MedicalStatus.id || 1}
                                         onChange={handleMedicalStatus}
                                     >
                                         {
                                             statuses.map(status => {return(
-                                                <Option key={status.id}>{status.name}</Option>
+                                                <Option key={status.id} value={status.id.toString()}>{status.name}</Option>
                                             )})
                                         }
                                     </Select>
                                 </div>
-                                <div className='flex'>
-                                    <Select label="Ojo">
-                                        <Option value='OD'>Ojo Derecho</Option>
-                                        <Option value='OI'>Ojo Izquierdo</Option>
-                                        <Option value='AO'>Ambos Ojos</Option>
-                                    </Select>
-                                    <Input variant='outlined' label="Lente sugerido" placeholder='Cataratas' value={appointment.Surgery[0].appointment_surgery.intraocular_lens} onChange={handleLens}/>
-                                    <div className='flex'>
-                                        <Select label="Cirugias">
-                                            {
-                                                surgeries.map(surgery => {return(
-                                                    <Option key={surgery.id} value={surgery.id}>{surgery.name}</Option>
-                                                )})
-                                            }
+                                {appointment.surgeries.map((surgery, index) => {
+                                    console.log(surgery)
+                                    return(
+                                    <div key={index} className='flex'>
+                                        <Select label="Ojo" onChange={(val) => updateSurgery(index, 'eye', val)}>
+                                            <Option value='OD'>Ojo Derecho</Option>
+                                            <Option value='OI'>Ojo Izquierdo</Option>
+                                            <Option value='AO'>Ambos Ojos</Option>
                                         </Select>
+                                        <Input variant='outlined' label="Lente sugerido" placeholder='Cataratas' value={surgery.intraocular_lens} onChange={(e)  => updateSurgery(index, 'intraocular_lens', e.target.value)}/>
+                                        <div className='flex'>
+                                            <Select 
+                                                label="Cirugias"
+                                                onChange={(val) => updateSurgery(index, 'surgery_id', val)}
+                                            >
+                                                {
+                                                    surgeries.map(surgery => {return(
+                                                        <Option key={surgery.id} value={surgery.id}>{surgery.name}</Option>
+                                                    )})
+                                                }
+                                            </Select>
+                                        </div>
+                                        <Button onClick={() => removeSurgery(index)}>Borrar</Button>
                                     </div>
-                                </div>
-                                {/* tengo este fragmento de codigo pero como sabes necesito poder cargar 1 o mas cirugias, como deberia ser la logica para poder hacerlo?*/}
+                                    )
+                                })}
+                                <Button onClick={addSurgery}>+</Button>
                                 <div className='flex'>
                                     <Select 
-                                        label="Médico"
-                                        value={patient.doctor}
-                                        onChange={handleDoctor}
+                                        label="Cirujano"
+                                        onChange={handleSurgeon}
                                     >
                                         {
                                             doctors.map(doc => {return(
-                                                <Option key={doc.id} value={doc.id}>{doc.name}</Option>
+                                                <Option key={doc.id} value={doc.id.toString()}>{doc.name}</Option>
                                             )})
                                         }
                                     </Select>
                                 </div>
                                 <div className='flex'>
-                                    <DatePicker title="Fecha" date={date} setDate={setDate} />
+                                    <DatePicker title="Fecha" date={surgeryDate} setDate={setSurgeryDate} />
                                     <Select
                                         label="Hora"
-                                        value={hour}
-                                        onChange={handleHour}
+                                        value={surgeryHour || 1}
+                                        onChange={handleSurgeryHour}
                                     >
-                                        <Option>9</Option>
-                                        <Option>10</Option>
-                                        <Option>11</Option>
+                                        <Option value='9'>9</Option>
+                                        <Option value='10'>10</Option>
+                                        <Option value='11'>11</Option>
                                     </Select>
                                     <Select
                                         label="Minuto"
-                                        value={minute}
-                                        onChange={handleMinute}
+                                        value={surgeryMinute}
+                                        onChange={handleSurgeryMinute}
                                     >
-                                        <Option>00</Option>
-                                        <Option>15</Option>
-                                        <Option>30</Option>
-                                        <Option>45</Option>
+                                        <Option value='00'>00</Option>
+                                        <Option value='15'>15</Option>
+                                        <Option value='30'>30</Option>
+                                        <Option value='45'>45</Option>
                                     </Select>
                                 </div>
                                 <div className='flex'>
@@ -259,7 +317,7 @@ const Appointment = () => {
                         </Accordion>
                     </div>
                     <div>
-                        <Button>Siguiente</Button>
+                        <Button onClick={handleNext}>Siguiente</Button>
                         <Button>Cancelar</Button>
                     </div>
                 </div>

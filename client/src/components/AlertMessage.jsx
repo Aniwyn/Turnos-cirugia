@@ -1,6 +1,16 @@
+import { useState, useEffect } from 'react'
 import { Alert } from "@material-tailwind/react";
 
-export const AlertMessage = ({ color, text, showAlert }) => {
+const AlertMessage = ({ color, text, time = 2500 }) => {
+    const [showAlert, setShowAlert] = useState(true)
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowAlert(false)
+        }, time)
+
+        return () => clearTimeout(timer)
+    }, [time])
 
     return(
         <Alert
@@ -12,3 +22,5 @@ export const AlertMessage = ({ color, text, showAlert }) => {
         </Alert>
     )
 }
+
+export default AlertMessage
