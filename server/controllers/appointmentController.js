@@ -40,18 +40,29 @@ exports.getAppointmentById = async (req, res) => {
 };
 
 exports.createAppointment = async (req, res) => {
-    const { patientId, adminNotes, nurseNotes, surgeryDate, surgeryTime, surgeon, adminStatusId, medicalStatusId } = req.body;
+    const { patient_id, admin_notes, nurse_notes, surgery_date, surgery_time, surgeon_id, admin_status_id, medical_status_id, surgeries } = req.body;
+    
     try {
         const appointment = await db.Appointment.create({
-            patientId,
-            adminNotes,
-            nurseNotes,
-            surgeryDate,
-            surgeryTime,
-            surgeonId,
-            adminStatusId,
-            medicalStatusId
+            patient_id,
+            admin_notes,
+            nurse_notes,
+            surgery_date,
+            surgery_time,
+            surgeon_id,
+            admin_status_id,
+            medical_status_id
         });
+
+        if(surgeries && surgeries.length > 0) {
+            const surgeryData = surgeries.map(surgery => ({
+                appointment_id: appointment.id,
+                surgery_id: surgery.surgery_id,
+                eye: surgery.eye,              
+                intraocular_lens: surgery.intraocular_lens
+            }))
+            
+        }
         res.status(201).json({ message: 'Turno creado', appointmentId: appointment.id });
     } catch (err) {
         res.status(500).json({ message: 'Error al crear turno', error: err });
