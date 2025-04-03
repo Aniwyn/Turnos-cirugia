@@ -1,5 +1,3 @@
-const surgery = require("./surgery");
-
 function appointment(sequelize, DataTypes) {
     const Appointment = sequelize.define('Appointment', {
         id: {
@@ -65,8 +63,13 @@ function appointment(sequelize, DataTypes) {
             through: 'appointment_surgery',
             foreignKey: 'appointment_id',
             otherKey: 'surgery_id',
-            as: 'Surgery',
+            as: 'Surgeries',
             timestamps: false
+        });
+
+        Appointment.hasMany(models.AppointmentSurgery, {
+            foreignKey: 'appointment_id',
+            as: 'AppointmentSurgeries'
         });
     
         Appointment.belongsTo(models.AdministrativeStatus, {

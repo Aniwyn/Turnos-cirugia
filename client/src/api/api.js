@@ -1,4 +1,4 @@
-import axios from "axios";
+/*import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000/api"; // CAMBIAR usar .env
 
@@ -9,4 +9,4 @@ const api = axios.create({
   },
 });
 
-export default api;
+export default api;*/

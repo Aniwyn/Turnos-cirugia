@@ -4,8 +4,6 @@ const userController = require("../controllers/userController")
 const { verifyToken } = require("../middlewares/authMiddleware")
 
 router.post("/login", userController.login)
-router.get("/profile", verifyToken, (req, res) => {
-    res.json({ message: "Access granted", user: req.user })
-})
+router.get("/auth", verifyToken, userController.getAuthenticatedUser)
 
 module.exports = router

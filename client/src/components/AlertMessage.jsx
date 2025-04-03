@@ -1,24 +1,23 @@
 import { useState, useEffect } from 'react'
 import { Alert } from "@material-tailwind/react";
 
-const AlertMessage = ({ color, text, time = 2500 }) => {
-    const [showAlert, setShowAlert] = useState(true)
-
+const AlertMessage = ({ time = 2500, alert, setAlert }) => {
     useEffect(() => {
+        setAlert({...alert, show: true})
         const timer = setTimeout(() => {
-            setShowAlert(false)
+            setAlert({...alert, show: false})
         }, time)
 
         return () => clearTimeout(timer)
-    }, [time])
+    }, [])
 
     return(
         <Alert
-            color={color}
+            color={alert.color}
             className='absolute bottom-3 right-3 w-2/5 h-10 py-2 px-4'
-            open={showAlert}
+            open={alert.show}
         >
-            {text}
+            {alert.message}
         </Alert>
     )
 }

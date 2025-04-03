@@ -31,3 +31,25 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: "Internal server error" })
     }
 }
+
+exports.getAuthenticatedUser = async (req, res) => {
+    try {
+        const token = req.header("Authorization")
+        if (!token) {
+            return res.status(401).json({ message: "No token provided" })
+        }
+
+        const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET)
+        const user = await db.User.findByPk(decoded.userId, {
+            attributes: ["id", "name", "role"]
+        })
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" })
+        }
+
+        res.json({ user });
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid or expired token" })
+    }
+};

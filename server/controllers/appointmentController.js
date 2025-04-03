@@ -8,8 +8,8 @@ exports.getAllAppointments = async (req, res) => {
                 { association: 'MedicalStatus' },
                 { association: 'AdministrativeStatus' },
                 { 
-                    association: 'Surgery',
-                    through: { attributes: ['intraocular_lens', 'eye'] } 
+                    association: 'Surgeries',
+                    through: { attributes: ['id', 'intraocular_lens', 'eye'] } 
                 }
             ]
         });
@@ -40,8 +40,19 @@ exports.getAppointmentById = async (req, res) => {
 };
 
 exports.createAppointment = async (req, res) => {
-    const { patient_id, admin_notes, nurse_notes, surgery_date, surgery_time, surgeon_id, admin_status_id, medical_status_id, surgeries } = req.body;
-    
+    const { 
+        patient_id, 
+        admin_notes, 
+        nurse_notes, 
+        surgery_date, 
+        surgery_time, 
+        surgeon_id, 
+        admin_status_id, 
+        medical_status_id, 
+        surgeries 
+    } = req.body
+    const asd = req.body
+    console.log(asd)
     try {
         const appointment = await db.Appointment.create({
             patient_id,
@@ -62,9 +73,11 @@ exports.createAppointment = async (req, res) => {
                 intraocular_lens: surgery.intraocular_lens
             }))
             
+            await db.AppointmentSurgery.bulkCreate(surgeryData);
         }
         res.status(201).json({ message: 'Turno creado', appointmentId: appointment.id });
     } catch (err) {
+        console.log(`\n\nAAAAAArror: ${err}\n\n`)
         res.status(500).json({ message: 'Error al crear turno', error: err });
     }
 };

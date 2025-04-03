@@ -13,17 +13,24 @@ function surgery(sequelize, DataTypes) {
         tableName: 'surgery',
         freezeTableName: true,
         timestamps: false
-    });
+    })
 
     Surgery.associate = (models) => {
         Surgery.belongsToMany(models.Appointment, {
             through: 'appointment_surgery',
             foreignKey: 'surgery_id',
             otherKey: 'appointment_id'
-        });
-    };
+        })
 
-    return Surgery;
+        Surgery.associate = (models) => {
+            Surgery.hasMany(models.AppointmentSurgery, {
+                foreignKey: 'surgery_id',
+                as: 'AppointmentSurgeries'
+            })
+        }
+    }
+
+    return Surgery
 }
 
-module.exports = surgery;
+module.exports = surgery

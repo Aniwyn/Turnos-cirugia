@@ -1,10 +1,34 @@
-import axios from "axios"
+import axios from "axios";
+import useAuthStore from "../store/authStore";
 
-const API_URL = "http://localhost:5000/api"
+const API = axios.create({
+    baseURL: "http://localhost:5000/api",
+});
+
+API.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token")
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
+
+API.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            console.warn("Session expired, redirecting to login...")
+            const logout = useAuthStore.getState().logout
+            logout()
+        }
+        return Promise.reject(error)
+    }
+)
 
 export const getAppointments = async () => {
     try {
-        const response = await axios.get(`${API_URL}/appointments`)
+        const response = await API.get('/appointments')
+        console.log("RESPONSe APPO",response)
         return response.data
     } catch (error) {
         console.error("Error fetching appointments:", error)
@@ -14,7 +38,7 @@ export const getAppointments = async () => {
 
 export const getAppointmentByDni = async (dni) => {
     try {
-        const response = await axios.get(`${API_URL}/patients/dni/${dni}`)
+        const response = await API.get(`/patients/dni/${dni}`)
         console.log(response)
         return response.data
     } catch (error) {
@@ -35,7 +59,7 @@ export const getAppointmentByDni = async (dni) => {
 
 export const getMedicalStatus = async () => {
     try {
-        const response = await axios.get(`${API_URL}/medical-status`)
+        const response = await API.get('/medical-status')
         return response.data
     } catch (error) {
         console.error("Error fetching medical-status:", error)
@@ -45,7 +69,7 @@ export const getMedicalStatus = async () => {
 
 export const getSurgeries = async () => {
     try {
-        const response = await axios.get(`${API_URL}/surgeries`)
+        const response = await API.get('/surgeries')
         return response.data
     } catch (error) {
         console.error("Error fetching surgeries:", error)
@@ -55,7 +79,7 @@ export const getSurgeries = async () => {
 
 export const updateOrCreatePatient = async (patient) => {
     try {
-        const response = await axios.post(`${API_URL}/patients`, patient)
+        const response = await API.post('/patients', patient)
         console.log("RESPONSE PATIENT", response)
         return response.data
     } catch (error) {
@@ -66,7 +90,7 @@ export const updateOrCreatePatient = async (patient) => {
 
 export const createAppointment = async (appointment) => {
     try {
-        const response = await axios.post(`${API_URL}/appointments`, appointment)
+        const response = await API.post('/appointments', appointment)
         console.log("RESPONSE APOINT", response)
         return response.data
     } catch (error) {
@@ -77,7 +101,7 @@ export const createAppointment = async (appointment) => {
 
 export const login = async (name, password) => {
     try {
-        const response = await axios.post(`${API_URL}/users/login`, { name, password })
+        const response = await API.post('/users/login', { name, password })
         const { token, user } = response.data
 
         localStorage.setItem("token", token)
@@ -90,3 +114,5 @@ export const login = async (name, password) => {
         return { success: false, message: error.response?.data?.message || "Login failed" }
     }
 }
+
+export default API;
