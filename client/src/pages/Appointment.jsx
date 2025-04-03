@@ -1,11 +1,14 @@
 import { React, useState, useEffect } from 'react'
-import SidebarLayout from "../layouts/SidebarLayout";
-import HeaderLayout from "../layouts/HeaderLayout";
-import { Accordion, AccordionHeader, AccordionBody, Collapse, Button, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react";
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
-import DatePicker from "../components/DatePicker";
-import AlertMessage from "../components/AlertMessage";
-import { getAppointmentByDni, getMedicalStatus, getSurgeries, updateOrCreatePatient, createAppointment } from "../services/api";
+import SidebarLayout from "../layouts/SidebarLayout"
+import HeaderLayout from "../layouts/HeaderLayout"
+import { Accordion, AccordionHeader, AccordionBody, Collapse, Button, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react"
+import { ChevronDownIcon } from "@heroicons/react/24/outline"
+import DatePicker from "../components/DatePicker"
+import AlertMessage from "../components/AlertMessage"
+import { getAppointmentByDni, getMedicalStatus, getSurgeries, updateOrCreatePatient, createAppointment } from "../services/api"
+import { useNavigate } from 'react-router-dom'
+import useAuthStore from "../store/authStore"
+import { use } from 'react'
 
 function Icon({ id, open }) {
     return (
@@ -15,7 +18,7 @@ function Icon({ id, open }) {
     )
 }
 
-const tmpPatient2 = {
+const tmpPatient = {
     id: null,
     dni: "",
     first_name: "",
@@ -27,7 +30,7 @@ const tmpPatient2 = {
     health_insurance: ""
 }
 
-const tmpPatient = {
+const tmpPatient2 = {
     id: null,
     dni: "12345670",
     first_name: "Pruebas",
@@ -43,15 +46,15 @@ const tmpPatient = {
 const tmpAppoiment = {
     admin_notes: "",
     nurse_notes: "",
-    medical_status_id: "",
-    admin_status_id: "",
+    medical_status_id: null,
+    admin_status_id: null,
     surgeon_id: "0",
     surgeries: [
         {eye: "", intraocular_lens: "", surgery_id: 0}
     ]
 }
 
-    //modificar base de datos
+//modificar base de datos
 const doctors = [
     { id: 1, name: 'Dr. Siufi Lucas' },
     { id: 2, name: 'Dr. Siufi Ernesto' },
@@ -60,7 +63,7 @@ const doctors = [
 ]
 
 const Appointment = () => {
-    const [open, setOpen] = useState(2)
+    const [open, setOpen] = useState(1)
     const [patient, setPAtient] = useState(tmpPatient)
     const [newPatient, setNewPatient] = useState(true)
     const [appointment, setAppointment] = useState(tmpAppoiment)
@@ -69,7 +72,9 @@ const Appointment = () => {
     const [surgeryDate, setSurgeryDate] = useState(null)
     const [surgeryHour, setSurgeryHour] = useState()
     const [surgeryMinute, setSurgeryMinute] = useState()
-    const [alert, setAlert] = useState(null);
+    const [alert, setAlert] = useState({show: false})
+    const navigate = useNavigate()
+    const { user } = useAuthStore();
 
     useEffect(() => { 
         const fetchMedicalStatuses = async () => {
@@ -97,10 +102,20 @@ const Appointment = () => {
     const handleDoctor = (val)  => {setPAtient((prev) => ({...prev, doctor_id: val}))}
 
     //Manejadores de turno
-    const handleAdminNotes = (e)  => {setAppointment((prev) => ({...prev, admin_notes: e.target.value}))}
-    const handleNurseNotes = (e)  => {setAppointment((prev) => ({...prev, nurse_notes: e.target.value}))}
-    const handleAdminStatus = (val)  => {setAppointment((prev) => ({...prev, admin_status_id: val}))}
-    const handleMedicalStatus = (val)  => {setAppointment((prev) => ({...prev, medical_status_id: val}))}
+    const handleNotes = (e) => {
+        if (user.role == "Administracion" || user.role == "Admin") {
+            setAppointment((prev) => ({...prev, admin_notes: e.target.value}))
+        } else if (user.role == "Enfermeria") {
+            setAppointment((prev) => ({...prev, nurse_notes: e.target.value}))
+        }
+    }
+    const handleStatus = (val) => {
+        if (user.role == "Administracion" || user.role == "Admin") {
+            setAppointment((prev) => ({...prev, admin_status_id: val}))
+        } else if (user.role == "Enfermeria") {
+            setAppointment((prev) => ({...prev, medical_status_id: val}))
+        }
+    }
     const handleSurgeryHour = (val)  => {setSurgeryHour(val)}
     const handleSurgeryMinute= (val)  => {setSurgeryMinute(val)}
     const handleSurgeon = (val)  => {setAppointment((prev) => ({...prev, surgeon_id: val}))}
@@ -110,9 +125,12 @@ const Appointment = () => {
         if (patientFetched) {
             setPAtient(patientFetched)
             setNewPatient(false)
-            setAlert(null)
         } else {
-            setAlert(`No se pudo encontrar el paciente con DNI ${patient.dni}`)
+            setAlert({
+                show: true,
+                message: `Paciente con DNI ${patient.dni} no encontrado.`,
+                color: "red"
+            })
         }
     }
 
@@ -125,15 +143,15 @@ const Appointment = () => {
         setAppointment(prev => ({
             ...prev,
             surgeries: [...prev.surgeries, {eye: "", intraocular_lens: "", surgery_id: 0}]
-        }));
-    };
+        }))
+    }
 
     const removeSurgery = (index) => {
         setAppointment(prev => ({
             ...prev,
             surgeries: prev.surgeries.filter((surgery, i) => i !== index)
-        }));
-    };
+        }))
+    }
 
     const updateSurgery = (index, field, value) => {
         setAppointment(prev => ({
@@ -141,8 +159,8 @@ const Appointment = () => {
             surgeries: prev.surgeries.map((surgery, i) =>
                 i === index ? { ...surgery, [field]: value } : surgery
             )
-        }));
-    };
+        }))
+    }
 
     const handleNext = () => {
         const handleNextAsync = async () => {
@@ -165,24 +183,26 @@ const Appointment = () => {
                 nurse_notes: appointment.nurse_notes == "" ? null : appointment.nurse_notes,
                 surgery_date: surgeryDate.toISOString().split('T')[0],
                 surgery_time: `${surgeryHour.padStart(2, '0')}:${surgeryMinute.padStart(2, '0')}:00`,
-                surgeon_id: appointment.surgeon_id == "0" ? null : Number(appointment.surgeon_id),
-                admin_status_id: appointment.admin_status_id == "0" ? null : Number(appointment.admin_status_id),
-                medical_status_id: appointment.medical_status_id == "0" ? null : Number(appointment.medical_status_id),
+                surgeon_id: appointment.surgeon_id == 0 ? null : Number(appointment.surgeon_id),
+                //CAMBIAR ESTO ABAJO, DEBER appointment.admin_status_id == 0 ? null : Number(appointment.admin_status_id),
+                admin_status_id: appointment.admin_status_id ? Number(appointment.admin_status_id) : 0,
+                medical_status_id: appointment.medical_status_id ? Number(appointment.medical_status_id): 0,
                 surgeries: appointment.surgeries
             }
-
-            console.log(appointmentJSON)
-
             const appointmentDB = await createAppointment(appointmentJSON)
 
+            navigate('/')
         }
+
         handleNextAsync()
     }
 
     return(
         <SidebarLayout>
             <HeaderLayout>
-                {alert && <AlertMessage color='red' text={alert} time={2500}></AlertMessage>}
+            {alert.show && (
+                <AlertMessage message="¡Operación exitosa!" type="success" alert={alert} setAlert={setAlert}/>
+            )}
                 <div className='flex'>
                     <div className='mx-40 my-6 rounded-lg bg-gray-200'>
                         <Typography variant='h3' className='text-center'> Registrar turno</Typography>
@@ -232,7 +252,7 @@ const Appointment = () => {
                                 <div className='flex'>
                                     <Select
                                         label="Estado"
-                                        onChange={handleMedicalStatus}
+                                        onChange={handleStatus}
                                     >
                                         {
                                             statuses.map(status => {return(
@@ -242,7 +262,6 @@ const Appointment = () => {
                                     </Select>
                                 </div>
                                 {appointment.surgeries.map((surgery, index) => {
-                                    console.log(surgery)
                                     return(
                                     <div key={index} className='flex'>
                                         <Select label="Ojo" onChange={(val) => updateSurgery(index, 'eye', val)}>
@@ -303,7 +322,7 @@ const Appointment = () => {
                                     </Select>
                                 </div>
                                 <div className='flex'>
-                                    <Textarea variant='outlined' label='Observaciones' value={appointment.nurse_notes} onChange={handleNurseNotes}/>
+                                    <Textarea variant='outlined' label='Observaciones' value={appointment.nurse_notes} onChange={handleNotes}/>
                                 </div>
                             </AccordionBody>
                         </Accordion>

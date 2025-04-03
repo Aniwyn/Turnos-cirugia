@@ -72,9 +72,9 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                         </div>
                     </div>
                     {
-                        appointment.Surgery.map((surgery, n) => {
+                        appointment.Surgeries.map((surgery, n) => {
                             return(
-                                <div className='flex flex-row h-[1rem] pb-8'>
+                                <div key={surgery.appointment_surgery.id} className='flex flex-row h-[1rem] pb-8'>
                                     <Typography className='ps-12 font-bold w-32'>
                                         {surgery.appointment_surgery.eye}
                                     </Typography>
