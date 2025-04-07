@@ -1,34 +1,56 @@
-import { Button, Typography } from "@material-tailwind/react"
 import { Link } from "react-router-dom"
-import useAuthStore from "../store/authStore";
+import { Avatar, Card, Button, List, ListItem, ListItemPrefix, Typography } from "@material-tailwind/react"
+import { ClockIcon, DocumentPlusIcon, PowerIcon } from "@heroicons/react/24/outline"
+import useAuthStore from "../store/authStore"
 
 const SidebarLayout = ({ children }) => {
     const { user, logout } = useAuthStore();
 
     return (
-        <div className="flex h-screen">
-            <aside className="w-64 bg-gray-800 text-white p-4">
-                <Typography variant="h3" className="font-bold">Clínica</Typography>
-                <Typography variant="h4">{ user.name }</Typography>
-                <Typography variant="h4">{ user.role }</Typography>
+        <div className="flex h-full">
+            <Card className="h-[calc(100vh-2.5rem)] w-full max-w-[20rem] bg-gray-800 text-white m-2 p-4 shadow-xl shadow-blue-gray-900/5">
+                <Avatar src={`https://docs.material-tailwind.com/img/face-2.jpg`} alt="avatar" size="xl" className="mx-auto" />
+                <Typography variant="h4" className="text-center">{user.name}</Typography>
+                <Typography variant="h4" className="text-center">{user.role}</Typography>
                 <nav>
-                    <ul>
-                        <li>
-                            <Link to="/" className="block py-2">Dashboard</Link>
-                        </li>
-                        <li>
-                            <Link to="/Appointment" className="block py-2">Registro</Link>
-                        </li>
-                        <li>
-                            <Link to="/Login" className="block py-2">Login</Link>
-                        </li>
-                        <li>
-                            <Link to="/NotFound" className="block py-2">404</Link>
-                        </li>
-                    </ul>
+                    <List className="mt-10">
+                        <Link to="/">
+                            <ListItem className="text-white hover:text-black">
+                                <ListItemPrefix className="mr-2">
+                                    <ClockIcon className="h-5 w-5" />
+                                </ListItemPrefix>
+                                <Typography>Turnos</Typography>
+                            </ListItem>
+                        </Link>
+                        <Link to="/Appointment">
+                            <ListItem className="text-white hover:text-black">
+                                <ListItemPrefix className="mr-2">
+                                    <DocumentPlusIcon className="h-5 w-5" />
+                                </ListItemPrefix>
+                                <Typography>Registro</Typography>
+                            </ListItem>
+                        </Link>
+                        <Link to="/Login">
+                            <ListItem className="text-white hover:text-black">
+                                Login -borrar
+                            </ListItem>
+                        </Link>
+                        <Link to="/NotFound">
+                            <ListItem className="text-white hover:text-black">
+                                404 - borrar
+                            </ListItem>
+                        </Link>
+                        <Link onClick={logout}>
+                            <ListItem className="text-white hover:text-black">
+                                <ListItemPrefix className="mr-2">
+                                    <PowerIcon className="h-5 w-5" />
+                                </ListItemPrefix>
+                                <Typography>Cerrar sesión</Typography>
+                            </ListItem>
+                        </Link>
+                    </List>
                 </nav>
-                <Button onClick={logout}>Cerrar sesión</Button>
-            </aside>
+            </Card>
             <div className="flex-1">{children}</div>
         </div>
     );

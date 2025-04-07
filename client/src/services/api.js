@@ -55,7 +55,17 @@ export const getAppointmentByDni = async (dni) => {
         }
         return null
     }
-};
+}
+
+export const getAdministrativeStatus = async () => {
+    try {
+        const response = await API.get('/administrative-status')
+        return response.data
+    } catch (error) {
+        console.error("Error fetching administrative-status:", error)
+        return []
+    }
+}
 
 export const getMedicalStatus = async () => {
     try {

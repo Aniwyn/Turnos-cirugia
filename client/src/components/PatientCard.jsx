@@ -17,8 +17,9 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
         <Accordion open={openStatus === openNumber} icon={<Icon id={openNumber} open={openStatus} />}>
             <AccordionHeader onClick={() => handleOpenStatus(openNumber)} className='border-b-0 p-0'> {/*pb-0*/}
                 <div className='flex flex-col w-full'>
-                    <div className='flex flex-row justify-between w-full'>
-                        <div className='flex'>
+                    {/*<div className='flex flex-row justify-between w-full'>*/}
+                    <div className='grid grid-cols-12 flex-row justify-between w-full'>
+                        <div className='col-span-6 flex'>
                             <Typography className={`content-center transition-colors ${ openStatus === openNumber ? "bg-gradient-to-r from-pink-500 to-red-500 bg-clip-text text-transparent" : ""}`} variant="h5">
                                 {`${appointment.Patient.last_name}, ${appointment.Patient.first_name}`}
                             </Typography>
@@ -26,7 +27,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                 {appointment.Patient.health_insurance}
                             </Typography>
                         </div>
-                        <div className='flex'>
+                        <div className='col-span-3 flex'>
                             <Typography className={'content-center transition-colors font-bold'} variant="lead">
                                 Fecha:
                             </Typography>
@@ -34,7 +35,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                                 { appointment.surgery_date ? format(new Date(appointment.surgery_date), "dd/MM/yyyy") : "s/f" }
                             </Typography>
                         </div>
-                        <div className='flex'>
+                        <div className='col-span-2 flex'>
                             <Typography className={'content-center transition-colors font-bold'} variant="lead">
                                 Hora:
                             </Typography>
