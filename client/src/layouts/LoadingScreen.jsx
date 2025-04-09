@@ -1,12 +1,21 @@
-import { React } from 'react'
-import { Spinner } from "@material-tailwind/react"
+import { React, useEffect, useState } from 'react'
+import { Spinner, Typography } from "@material-tailwind/react"
 
-const loadingScreen = ( show = false ) => {
+const LoadingScreen = ({ loadingMenssage = "Cargando..." }) => {
+    const [message, setMessage] = useState("")
+
+    useEffect(() => {
+        setMessage(loadingMenssage)
+    }, [])
+    
     return(
-        <div className='h-screen w-screen bg-[#FFFFFF]/20 absolute top-[50px] left-[50px] z-40' visibility={show}>
-            <Spinner color="green" className="h-12 w-12" />
+        <div className='flex h-screen w-screen bg-[#FFFFFF]/20 absolute' >
+            <div className='m-auto'>
+                <Spinner color="green" className="h-12 w-12 mx-auto" />
+                <Typography>{message}</Typography>
+            </div>
         </div>
     )
 }
 
-export default loadingScreen
+export default LoadingScreen

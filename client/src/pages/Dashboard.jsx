@@ -13,24 +13,18 @@ const Dashboard = () => {
 
     useEffect(() => { fetchAppointments(); }, [])
 
-    //borrar
-    /*useEffect(() => {
-        console.log(appointments)
-    }, [appointments])*/
-
     const handleOpen = (value) => setOpen(open === value ? 0 : value)
 
-    // Dev code: quitar
+    // Dev code: mejorar o quitar
     if (loading) return <p>Cargando turnos...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
         <SidebarLayout>
             <HeaderLayout>
-                <div className='flex flex-col h-full'>
+                <Card className='flex flex-col w-full'>
                     <Card className='p-4 flex flex-row gap-4'>
                         <Input variant="outlined" label="Nombre" placeholder="Juan Perez" />
-                        <Input variant="outlined" label="DNI" placeholder="12345678" />
                         <Input variant="outlined" label="Cirugia" placeholder="Cataratas" />
                         <Input variant="outlined" label="Medico" placeholder="Dr." />
                         <DatePicker title="Fecha" date={date} setDate={setDate}/>
@@ -40,7 +34,7 @@ const Dashboard = () => {
                             <PatientCard key={appointment.id} openNumber={appointment.id} openStatus={open} handleOpenStatus={handleOpen} appointment={appointment}/>
                         ))}
                     </Card>
-                </div>
+                </Card>
             </HeaderLayout>
         </SidebarLayout>
     );

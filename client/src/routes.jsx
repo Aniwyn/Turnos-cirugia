@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom"
 import Dashboard from "./pages/Dashboard"
 import Login from "./pages/Login"
 import Appointment from "./pages/Appointment"
 import NotFound from "./pages/NotFound"
+import LoadingScreen from "./layouts/LoadingScreen"
 import useAuthStore from "./store/authStore"
 
 const PrivateRoute = () => {
@@ -37,9 +38,12 @@ const AppRoutes = () => {
 
                 <Route path="/login" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
+
+                {/* BORRAR, SOLO TEST */}
+                <Route path="/load" element={<LoadingScreen />} />
             </Routes>
         </Router>
-    );
-};
+    )
+}
 
-export default AppRoutes;
+export default AppRoutes
