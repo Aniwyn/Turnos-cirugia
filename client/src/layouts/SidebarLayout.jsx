@@ -9,7 +9,7 @@ const SidebarLayout = ({ children }) => {
 
     return (
         <div className="flex h-full">
-            <Card className={`fixed top-0 left-0 h-[calc(100vh-2.5rem)] w-full max-w-[${sideBarWidth}] bg-gray-800 text-white m-[0.5rem] p-4 pt-10 shadow-xl shadow-blue-gray-900/5 z-50`}>
+            <Card className={`fixed top-0 left-0 h-[calc(100vh-2.5rem)] w-full bg-gray-800 text-white m-[0.5rem] p-4 pt-10 shadow-xl shadow-blue-gray-900/5 z-50`} style={{ maxWidth: sideBarWidth }}>
                 <Avatar src={`https://docs.material-tailwind.com/img/face-2.jpg`} alt="avatar" size="xl" className="mx-auto" />
                 <Typography variant="h4" className="text-center">{user.name}</Typography>
                 <Typography variant="h4" className="text-center">{user.role}</Typography>

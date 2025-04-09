@@ -14,7 +14,7 @@ const AlertMessage = ({ time = 2500, alert, setAlert }) => {
     return(
         <Alert
             color={alert.color}
-            className='absolute bottom-3 right-3 w-2/5 h-10 py-2 px-4'
+            className='fixed bottom-3 right-3 w-2/5 h-10 py-2 px-4 z-[9999]'
             open={alert.show}
         >
             {alert.message}

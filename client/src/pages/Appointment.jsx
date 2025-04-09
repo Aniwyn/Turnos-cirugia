@@ -3,20 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { Card, Button, IconButton, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react"
 import { getAppointmentByDni, getAdministrativeStatus, getMedicalStatus, getSurgeries, updateOrCreatePatient, createAppointment } from "../services/api"
 import useAuthStore from "../store/authStore"
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/outline"
+import { XMarkIcon } from "@heroicons/react/24/outline"
 import SidebarLayout from "../layouts/SidebarLayout"
 import HeaderLayout from "../layouts/HeaderLayout"
 import DatePicker from "../components/DatePicker"
 import AlertMessage from "../components/AlertMessage"
-
-
-function Icon({ id, open }) {
-    return (
-        <ChevronDownIcon
-            className={`${id === open ? "rotate-180" : ""} h-6 w-6 text-gray-500`}
-        />
-    )
-}
 
 const tmpPatient = {
     id: null,
@@ -46,8 +37,7 @@ const tmpPatient2 = {
 const tmpAppoiment = {
     admin_notes: "",
     nurse_notes: "",
-    medical_status_id: null,
-    admin_status_id: null,
+    status: null,
     surgeon_id: "0",
     surgeries: [
         { eye: "", intraocular_lens: "", surgery_id: 0 }
@@ -63,7 +53,6 @@ const doctors = [
 ]
 
 const Appointment = () => {
-    const [open, setOpen] = useState(1)
     const [patient, setPatient] = useState(tmpPatient)
     const [newPatient, setNewPatient] = useState(true)
     const [appointment, setAppointment] = useState(tmpAppoiment)
@@ -147,12 +136,7 @@ const Appointment = () => {
             setAppointment((prev) => ({ ...prev, nurse_notes: e.target.value }))
         }*/
     }
-    const handleStatus = (val) => {
-        const field = getStatusField()
-        if (!field) return
-        console.log(`FIELD: ${val.charAt(0)}`)
-        setAppointment((prev) => ({ ...prev, [field]: val.charAt(0) || "" }))
-    }
+    const handleStatus = (val) => { setAppointment((prev) => ({ ...prev, status: val })) }
     const clearStatus = () => {
         const field = getStatusField()
         if (!field) return
@@ -168,6 +152,7 @@ const Appointment = () => {
             setPatient(patientFetched)
             setNewPatient(false)
         } else {
+        console.log("ERROR EN ALERTA")
             setAlert({
                 show: true,
                 message: `Paciente con DNI ${patient.dni} no encontrado.`,
@@ -202,12 +187,6 @@ const Appointment = () => {
                 i === index ? { ...surgery, [field]: value } : surgery
             )
         }))
-    }
-
-    function getStatusField() {
-        if (user.role === "Administracion" || user.role === "Admin") return "admin_status_id"
-        if (user.role === "Enfermeria") return "medical_status_id"
-        return null
     }
 
     const validateForm = () => {
@@ -283,9 +262,9 @@ const Appointment = () => {
         <SidebarLayout>
             <HeaderLayout>
                 {alert.show && (
-                    <AlertMessage message="¡Operación exitosa!" type="success" alert={alert} setAlert={setAlert} />
+                    <AlertMessage message="" type="success" alert={alert} setAlert={setAlert} />
                 )}
-                <Card className='flex px-4 bg-gray-300 rounded-lg'>
+                <Card className='flex px-4 rounded-lg'>
                     <Typography variant='h3' className='text-center'> Registrar turno</Typography>
                     <div className='flex flex-col max-w-[50rem] mx-auto '>
                         <div className='flex flex-col w-full mx-auto pb-5'>
@@ -296,7 +275,7 @@ const Appointment = () => {
                             <div className='flex pb-3'>
                                 <div className='flex w-1/2'>
                                 <Input variant='outlined' label="DNI *" placeholder='12345678' value={patient.dni} onChange={handleDni} className='' disabled={!newPatient} autoFocus />
-                                <Button onClick={findPatient} className='w-full' disabled={!newPatient}>Buscar</Button>
+                                <Button onClick={findPatient} className='w-full' disabled={!newPatient || errors.dni}>Buscar</Button>
                                 </div>
                                 {errors.dni && <Typography color="red" variant="small" className='content-center ps-4'>{errors.dni}</Typography>}
                             </div>
@@ -338,23 +317,23 @@ const Appointment = () => {
                             </div>
                             <div className='flex'>
                                 <Input variant='outlined' label='Email' placeholder='correo@gmail.com' value={patient.email} onChange={handleEmail} />
-                                
                             </div>
                         </div>
-                        <div open={open === 2} icon={<Icon id={2} open={open} />}>
+                        <div>
                             <Typography className='font-bold flex pb-2'>Turno</Typography>
                             <div className='pb-5'>
                                 <div className='flex pb-3'>
                                     <Select
                                         label="Estado"
-                                        value={`${appointment[getStatusField()]}STAT`}
+                                        value={appointment.status}
                                         onChange={handleStatus}
                                     >
                                         <Option value="" disabled>Seleccionar estado...</Option>
                                         {
-                                            statuses.map(status => {
+                                            statuses.map((status, i) => {
+                                                let statusId = `${status.id.toString()}_${i}_STATUS`
                                                 return (
-                                                    <Option key={status.id} value={`${status.id.toString()}STAT`}>{status.name}</Option>
+                                                    <Option key={status.id} value={statusId}>{status.name}</Option>
                                                 )
                                             })
                                         }
