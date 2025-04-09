@@ -7,7 +7,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline"
 import SidebarLayout from "../layouts/SidebarLayout"
 import HeaderLayout from "../layouts/HeaderLayout"
 import DatePicker from "../components/DatePicker"
-import AlertMessage from "../components/AlertMessage" 
+import AlertMessage from "../components/AlertMessage"
 
 const tmpPatient = {
     id: null,
