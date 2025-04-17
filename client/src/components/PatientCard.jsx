@@ -12,7 +12,7 @@ function Icon({ id, open }) {
     );
 }
 
-const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) => {
+const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment, editAppointment }) => {
     return(
         <Accordion open={openStatus === openNumber} icon={<Icon id={openNumber} open={openStatus} />}>
             <AccordionHeader onClick={() => handleOpenStatus(openNumber)} className='border-b-0 p-0'> {/*pb-0*/}
@@ -165,7 +165,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment }) 
                             : ""
                         }
                         <div className='flex flex-row ms-auto me-10'>
-                            <PencilSquareIcon className="h-6 w-6 text-orange-500 mx-2" />
+                            <PencilSquareIcon className="h-6 w-6 text-orange-500 mx-2 cursor-pointer" onClick={() => editAppointment(appointment.id, appointment.patient_id)} />
                             <TrashIcon className="h-6 w-6 text-red-500 mx-2" />
                         </div>
                     </div>

@@ -51,8 +51,6 @@ exports.createAppointment = async (req, res) => {
         medical_status_id, 
         surgeries 
     } = req.body
-    const asd = req.body
-    console.log(asd)
     try {
         const appointment = await db.Appointment.create({
             patient_id,
@@ -77,7 +75,6 @@ exports.createAppointment = async (req, res) => {
         }
         res.status(201).json({ message: 'Turno creado', appointmentId: appointment.id });
     } catch (err) {
-        console.log(`\n\nAAAAAArror: ${err}\n\n`)
         res.status(500).json({ message: 'Error al crear turno', error: err });
     }
 };

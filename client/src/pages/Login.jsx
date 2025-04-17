@@ -29,7 +29,7 @@ const Login = () => {
     return (
         <Card
             shadow={false}
-            className="md:px-24 md:py-14 py-8 my- border border-gray-300 max-w-[600px] mx-auto"
+            className="md:px-24 md:py-14 py-8 my- border border-gray-300 max-w-[600px] m-auto"
         >
             <CardHeader shadow={false} floated={false} className="text-center">
                 <Typography variant="h1" color="blue-gray" className="mb-4 !text-3xl lg:text-4xl" >

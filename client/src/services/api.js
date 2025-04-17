@@ -36,10 +36,29 @@ export const getAppointments = async () => {
     }
 }
 
-export const getAppointmentByDni = async (dni) => {
+export const getAppointment = async (id) => {
+    try {
+        const response = await API.get(`/appointments/${id}`)
+        return response.data
+    } catch (error) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                console.warn('Couldn\'t find appointment.')
+                return null
+            }
+            console.error(`Request error: ${error.response.status} - ${error.response.statusText}`)
+        } else if (error.request) {
+            console.error("No response received from the server.", error.request)
+        } else {
+            console.error("Error setting up the request:", error.message)
+        }
+        return null
+    }
+}
+
+export const getPatientByDni = async (dni) => {
     try {
         const response = await API.get(`/patients/dni/${dni}`)
-        console.log(response)
         return response.data
     } catch (error) {
         if (error.response) {

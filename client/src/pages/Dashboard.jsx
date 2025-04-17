@@ -5,19 +5,29 @@ import { Card, Input } from "@material-tailwind/react";
 import DatePicker from "../components/DatePicker";
 import PatientCard from "../components/PatientCard";
 import useAppointmentsStore from "../store/useAppointmentsStore";
+import useAppointmentStore from "../store/useAppointmentStore";
+import LoadingScreen from '../layouts/LoadingScreen';
+import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
     const [open, setOpen] = useState(0)
     const { appointments, loading, error, fetchAppointments } = useAppointmentsStore()
+    const setSelected = useAppointmentStore((state) => state.setSelected)
     const [date, setDate] = useState(null)
+    const navigate = useNavigate();
 
-    useEffect(() => { fetchAppointments(); }, [])
+    useEffect(() => { fetchAppointments() }, [])
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value)
 
     // Dev code: mejorar o quitar
-    if (loading) return <p>Cargando turnos...</p>;
-    if (error) return <p>Error: {error}</p>;
+    if (loading) return <LoadingScreen loadingMenssage='Cargando turnos...'/>
+    if (error) return <p>Error: {error}</p>
+
+    const editAppointment = (id_appointment, id_patient) => {
+        setSelected({ id_appointment, id_patient })
+        navigate('/appointment-edit')
+    }
 
     return (
         <SidebarLayout>
@@ -31,7 +41,13 @@ const Dashboard = () => {
                     </Card>
                     <Card className='p-4 my-3 h-full'>
                         {appointments.map((appointment) => (
-                            <PatientCard key={appointment.id} openNumber={appointment.id} openStatus={open} handleOpenStatus={handleOpen} appointment={appointment}/>
+                            <PatientCard 
+                                key={appointment.id} 
+                                openNumber={appointment.id} 
+                                openStatus={open} handleOpenStatus={handleOpen} 
+                                appointment={appointment} 
+                                editAppointment={editAppointment}
+                            />
                         ))}
                     </Card>
                 </Card>

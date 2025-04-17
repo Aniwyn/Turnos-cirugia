@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-
 import Dashboard from "./pages/Dashboard"
 import Login from "./pages/Login"
 import Appointment from "./pages/Appointment"
+import EditAppointment from "./pages/EditAppointment"
 import NotFound from "./pages/NotFound"
 import LoadingScreen from "./layouts/LoadingScreen"
 import useAuthStore from "./store/authStore"
@@ -34,6 +35,7 @@ const AppRoutes = () => {
                 <Route element={<PrivateRoute><Outlet /></PrivateRoute>}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/appointment" element={<Appointment />} />
+                    <Route path="/appointment-edit" element={<EditAppointment />} />
                 </Route>
 
                 <Route path="/login" element={<Login />} />

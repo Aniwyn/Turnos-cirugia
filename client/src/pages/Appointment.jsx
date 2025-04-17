@@ -1,9 +1,16 @@
 import { React, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Card, Button, IconButton, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react"
-import { getAppointmentByDni, getAdministrativeStatus, getMedicalStatus, getSurgeries, updateOrCreatePatient, createAppointment } from "../services/api"
+import { 
+    getPatientByDni,
+    getAdministrativeStatus, 
+    getMedicalStatus,
+    getSurgeries,
+    updateOrCreatePatient,
+    createAppointment 
+} from "../services/api"
 import useAuthStore from "../store/authStore"
-import { XMarkIcon } from "@heroicons/react/24/outline"
+import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import SidebarLayout from "../layouts/SidebarLayout"
 import HeaderLayout from "../layouts/HeaderLayout"
 import DatePicker from "../components/DatePicker"
@@ -35,10 +42,8 @@ const tmpPatient2 = {
 
 //separar relaciones anidadas
 const tmpAppoiment = {
-    admin_notes: "",
-    nurse_notes: "",
-    status: null,
     surgeon_id: "0",
+    status: null,
     surgeries: [
         { eye: "", intraocular_lens: "", surgery_id: 0 }
     ]
@@ -52,12 +57,12 @@ const doctors = [
     { id: 4, name: 'Dr. Ase Veronica' },
 ]
 
-const Appointment = () => {
+const Appointment = ({ appointment_id, patient_id }) => {
     const [patient, setPatient] = useState(tmpPatient)
     const [newPatient, setNewPatient] = useState(true)
     const [appointment, setAppointment] = useState(tmpAppoiment)
-    const [statuses, setStatuses] = useState([{ name: "NO", id: 0 }])
-    const [surgeries, setSurgeries] = useState([{ name: "NO", id: 0 }])
+    const [statuses, setStatuses] = useState([])
+    const [surgeries, setSurgeries] = useState([])
     const [surgeryDate, setSurgeryDate] = useState(null)
     const [surgeryHour, setSurgeryHour] = useState()
     const [surgeryMinute, setSurgeryMinute] = useState()
@@ -82,8 +87,19 @@ const Appointment = () => {
             }
         }
 
+        const fetchAppointment = async () => {
+            //const appointment_data = 
+        }
+
+        console.log(appointment_id, "     asda das   ", patient_id)
+
         fetchData()
+        //if (id_appointment && id_patient) fetchAppointment()
     }, [])
+
+    useEffect(() => {
+        console.log(appointment.surgeries)
+    }, [appointment])
 
     //Manejadores de paciente
     /*
@@ -126,10 +142,7 @@ const Appointment = () => {
 
 
     */
-    const handleNotes = (e) => {
-        const field = getStatusField()
-        if (!field) return
-        setAppointment((prev) => ({ ...prev, [field]: e.target.value }))
+    const handleNotes = (e) => { setAppointment((prev) => ({ ...prev, note: e.target.value }))
         /*if (user.role == "Administracion" || user.role == "Admin") {
             setAppointment((prev) => ({ ...prev, admin_notes: e.target.value }))
         } else if (user.role == "Enfermeria") {
@@ -137,17 +150,13 @@ const Appointment = () => {
         }*/
     }
     const handleStatus = (val) => { setAppointment((prev) => ({ ...prev, status: val })) }
-    const clearStatus = () => {
-        const field = getStatusField()
-        if (!field) return
-        setAppointment((prev) => ({ ...prev, [field]: null }))
-    }
+    const clearStatus = () => { setAppointment((prev) => ({ ...prev, status: null })) }
     const handleSurgeryHour = (val) => { setSurgeryHour(val) }
     const handleSurgeryMinute = (val) => { setSurgeryMinute(val) }
     const handleSurgeon = (val) => { setAppointment((prev) => ({ ...prev, surgeon_id: val })) }
 
     const findPatient = async () => {
-        const patientFetched = await getAppointmentByDni(patient.dni)
+        const patientFetched = await getPatientByDni(patient.dni)
         if (patientFetched) {
             setPatient(patientFetched)
             setNewPatient(false)
@@ -187,6 +196,12 @@ const Appointment = () => {
                 i === index ? { ...surgery, [field]: value } : surgery
             )
         }))
+    }
+
+    function getStatusField() {
+        if (user.role === "Administracion" || user.role === "Admin") return "admin_status_id"
+        if (user.role === "Enfermeria") return "medical_status_id"
+        return null
     }
 
     const validateForm = () => {
@@ -239,15 +254,21 @@ const Appointment = () => {
             }
             const patientDB = await updateOrCreatePatient(patientJSON)
 
+            let userRole
+            if (user.role === "Administracion" || user.role === "Admin") 
+                userRole = "admin"
+            else if (user.role === "Enfermeria") return "medical_status_id"
+                userRole = "nurse"
+
             const appointmentJSON = {
                 patient_id: patientDB.patient_id,
-                admin_notes: appointment.admin_notes == "" ? null : appointment.admin_notes,
-                nurse_notes: appointment.nurse_notes == "" ? null : appointment.nurse_notes,
+                admin_notes: appointment.userRole == "admin" ? appointment.notes : null,
+                nurse_notes: appointment.userRole == "nurse" ? appointment.notes : null,
                 surgery_date: surgeryDate.toISOString().split('T')[0],
                 surgery_time: `${surgeryHour.padStart(2, '0')}:${surgeryMinute.padStart(2, '0')}:00`,
                 surgeon_id: appointment.surgeon_id == 0 ? null : Number(appointment.surgeon_id),
-                admin_status_id: appointment.admin_status_id ? Number(appointment.admin_status_id) : null,
-                medical_status_id: appointment.medical_status_id ? Number(appointment.medical_status_id) : null,
+                admin_status_id: appointment.userRole == "admin" ? Number(appointment.status) : null,
+                medical_status_id: appointment.userRole == "nurse" ? Number(appointment.status) : null,
                 surgeries: appointment.surgeries
             }
             const appointmentDB = await createAppointment(appointmentJSON)
@@ -269,7 +290,7 @@ const Appointment = () => {
                     <div className='flex flex-col max-w-[50rem] mx-auto '>
                         <div className='flex flex-col w-full mx-auto pb-5'>
                             <div className='flex'>
-                                <Typography className='font-bold flex pb-2'>Paciente</Typography>
+                                <Typography className='font-bold flex pb-3'>Paciente</Typography>
                                 <Typography className='text-red-800'>*</Typography>
                             </div>
                             <div className='flex pb-3'>
@@ -297,11 +318,12 @@ const Appointment = () => {
                                         label="Médico"
                                         value={patient.doctor_id}
                                         onChange={handleDoctor}
+                                        name='FUNCIONA'
                                     >
                                         {
                                             doctors.map(doc => {
                                                 return (
-                                                    <Option key={doc.id} value={doc.id}>{doc.name}</Option>
+                                                    <Option key={doc.id} value={doc.id.toString()}>{doc.name}</Option>
                                                 )
                                             })
                                         }
@@ -320,25 +342,24 @@ const Appointment = () => {
                             </div>
                         </div>
                         <div>
-                            <Typography className='font-bold flex pb-2'>Turno</Typography>
+                            <Typography className='font-bold flex pb-3'>Turno</Typography>
                             <div className='pb-5'>
                                 <div className='flex pb-3'>
                                     <Select
                                         label="Estado"
                                         value={appointment.status}
                                         onChange={handleStatus}
+                                        key={statuses.length}
                                     >
-                                        <Option value="" disabled>Seleccionar estado...</Option>
                                         {
-                                            statuses.map((status, i) => {
-                                                let statusId = `${status.id.toString()}_${i}_STATUS`
+                                            statuses.map(status => {
                                                 return (
-                                                    <Option key={status.id} value={statusId}>{status.name}</Option>
+                                                    <Option key={status.id} value={status.id.toString()}>{`${status.name}`}</Option>
                                                 )
                                             })
                                         }
                                     </Select>
-                                    <IconButton variant="text" onClick={clearStatus} disabled={!appointment[getStatusField()]}>
+                                    <IconButton variant="text" onClick={clearStatus} disabled={!appointment.status}>
                                         <XMarkIcon className="h-6 w-6 text-red-500" />
                                     </IconButton>
                                 </div>
@@ -346,22 +367,22 @@ const Appointment = () => {
                                     <DatePicker title="Fecha" date={surgeryDate} setDate={setSurgeryDate} />
                                     <Select
                                         label="Hora"
-                                        value={surgeryHour || 9}
+                                        value={surgeryHour}
                                         onChange={handleSurgeryHour}
                                     >
-                                        <Option value='9'>6</Option>
-                                        <Option value='10'>7</Option>
-                                        <Option value='11'>8</Option>
+                                        <Option value='6'>6</Option>
+                                        <Option value='7'>7</Option>
+                                        <Option value='8'>8</Option>
                                         <Option value='9'>9</Option>
                                         <Option value='10'>10</Option>
                                         <Option value='11'>11</Option>
-                                        <Option value='9'>12</Option>
-                                        <Option value='10'>13</Option>
-                                        <Option value='11'>14</Option>
+                                        <Option value='12'>12</Option>
+                                        <Option value='13'>13</Option>
+                                        <Option value='14'>14</Option>
                                     </Select>
                                     <Select
                                         label="Minuto"
-                                        value={surgeryMinute || '00'}
+                                        value={surgeryMinute}
                                         onChange={handleSurgeryMinute}
                                     >
                                         <Option value='00'>00</Option>
@@ -372,13 +393,13 @@ const Appointment = () => {
                                 </div>
                                 {appointment.surgeries.map((surgery, index) => {
                                     return (
-                                        <div key={index} className='flex'>
+                                        <div className='flex gap-3 py-1'>
                                             <Select label="Ojo" onChange={(val) => updateSurgery(index, 'eye', val)}>
                                                 <Option value='OD'>Ojo Derecho</Option>
                                                 <Option value='OI'>Ojo Izquierdo</Option>
                                                 <Option value='AO'>Ambos Ojos</Option>
                                             </Select>
-                                            <Input variant='outlined' label="Lente sugerido" placeholder='Cataratas' value={surgery.intraocular_lens} onChange={(e) => updateSurgery(index, 'intraocular_lens', e.target.value)} />
+                                            <Input variant='outlined' label="Lente sugerido" placeholder='EyeOL' value={surgery.intraocular_lens} onChange={(e) => updateSurgery(index, 'intraocular_lens', e.target.value)} />
                                             <div className='flex'>
                                                 <Select
                                                     label="Cirugias"
@@ -393,12 +414,18 @@ const Appointment = () => {
                                                     }
                                                 </Select>
                                             </div>
-                                            <Button onClick={() => removeSurgery(index)}>Borrar</Button>
+                                            <IconButton variant="text" onClick={() => removeSurgery(index)} className='px-3' >
+                                                <XMarkIcon className="h-6 w-6 text-red-500" />
+                                            </IconButton>
                                         </div>
                                     )
                                 })}
-                                <Button onClick={addSurgery}>+</Button>
-                                <div className='flex'>
+                                <div className='flex justify-center my-3'>
+                                    <IconButton onClick={addSurgery} variant='outlined'>
+                                        <PlusIcon className="h-5 w-5" />
+                                    </IconButton>
+                                </div>
+                                <div className='flex pb-3'>
                                     <Select
                                         label="Cirujano"
                                         onChange={handleSurgeon}
@@ -430,7 +457,7 @@ const Appointment = () => {
                         </div>
                         <div className='flex justify-end gap-3 pb-10'>
                             <Button variant="outlined">Cancelar</Button>
-                            <Button onClick={handleNext}>Siguiente</Button>
+                            <Button onClick={handleNext}>Aceptar</Button>
                         </div>
                     </div>
                 </Card>

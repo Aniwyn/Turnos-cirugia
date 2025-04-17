@@ -1,8 +1,8 @@
-const db = require('../models');
+const db = require('../models')
 
 exports.getAllPatients = async (req, res) => {
     try {
-        const patients = await db.Patient.findAll();
+        const patients = await db.Patient.findAll()
 
         res.status(200).json({
             meta: {
@@ -10,40 +10,40 @@ exports.getAllPatients = async (req, res) => {
                 status: 200,
             },
             data: patients
-        });
+        })
     } catch (err) {
-        res.status(500).json({ message: 'Error al obtener pacientes', error: err });
+        res.status(500).json({ message: 'Error al obtener pacientes', error: err })
     }
-};
+}
 
 exports.getPatientById = async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params
     try {
-        const patient = await db.Patient.findByPk(id);
+        const patient = await db.Patient.findByPk(id)
         if (!patient) {
-            return res.status(404).json({ message: 'Paciente no encontrado' });
+            return res.status(404).json({ message: 'Paciente no encontrado' })
         }
-        res.json(patient);
+        res.json(patient)
     } catch (err) {
-        res.status(500).json({ message: 'Error al obtener el paciente', error: err });
+        res.status(500).json({ message: 'Error al obtener el paciente', error: err })
     }
-};
+}
 
 exports.getPatientByDni = async (req, res) => {
-    const { dni } = req.params;
+    const { dni } = req.params
     try {
-        const patient = await db.Patient.findOne({ where: { dni: dni } });
+        const patient = await db.Patient.findOne({ where: { dni: dni } })
         if (!patient) {
-            return res.status(404).json({ message: 'Paciente no encontrado' });
+            return res.status(404).json({ message: 'Paciente no encontrado' })
         }
-        res.json(patient);
+        res.json(patient)
     } catch (err) {
-        res.status(500).json({ message: 'Error al obtener el paciente', error: err });
+        res.status(500).json({ message: 'Error al obtener el paciente', error: err })
     }
-};
+}
 
 exports.createPatient = async (req, res) => {
-    const { dni, first_name, last_name, doctor_id, phone1, phone2, email, health_insurance } = req.body;
+    const { dni, first_name, last_name, doctor_id, phone1, phone2, email, health_insurance } = req.body
 
     try {
         const [patient, created] = await db.Patient.findOrCreate({
@@ -57,10 +57,10 @@ exports.createPatient = async (req, res) => {
                 email,
                 health_insurance
             }
-        });
+        })
         
         if (created) {
-            return res.status(201).json({ message: "Patient created", patient_id: patient.id });
+            return res.status(201).json({ message: "Patient created", patient_id: patient.id })
         } else {
             await patient.update({
                 first_name,
@@ -70,22 +70,22 @@ exports.createPatient = async (req, res) => {
                 phone2,
                 email,
                 health_insurance
-            });
-            return res.status(200).json({ message: "Patient already exists", patient_id: patient.id });
+            })
+            return res.status(200).json({ message: "Patient already exists", patient_id: patient.id })
         }
     } catch (err) {
-        return res.status(500).json({ message: "Error creating patient", error: err });
+        return res.status(500).json({ message: "Error creating patient", error: err })
     }
-};
+}
 
 
 exports.updatePatient = async (req, res) => {
-    const { id } = req.params;
-    const { first_name, last_name, phone1, phone2, health_insurance } = req.body;
+    const { id } = req.params
+    const { first_name, last_name, phone1, phone2, health_insurance } = req.body
     try {
-        const patient = await Patient.findByPk(id);
+        const patient = await Patient.findByPk(id)
         if (!patient) {
-            return res.status(404).json({ message: 'Paciente no encontrado' });
+            return res.status(404).json({ message: 'Paciente no encontrado' })
         }
 
         await patient.update({
@@ -94,10 +94,10 @@ exports.updatePatient = async (req, res) => {
             phone1,
             phone2,
             health_insurance
-        });
+        })
 
-        res.json({ message: 'Paciente actualizado' });
+        res.json({ message: 'Paciente actualizado' })
     } catch (err) {
-        res.status(500).json({ message: 'Error al actualizar paciente', error: err });
+        res.status(500).json({ message: 'Error al actualizar paciente', error: err })
     }
-};
+}
