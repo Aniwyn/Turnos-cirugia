@@ -1,13 +1,15 @@
 import { React, useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Card, Button, IconButton, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react"
-import { 
+import {
     getPatientByDni,
-    getAdministrativeStatus, 
+    getPatient,
+    getAdministrativeStatus,
     getMedicalStatus,
     getSurgeries,
     updateOrCreatePatient,
-    createAppointment 
+    createAppointment,
+    getAppointment
 } from "../services/api"
 import useAuthStore from "../store/authStore"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline"
@@ -15,39 +17,7 @@ import SidebarLayout from "../layouts/SidebarLayout"
 import HeaderLayout from "../layouts/HeaderLayout"
 import DatePicker from "../components/DatePicker"
 import AlertMessage from "../components/AlertMessage"
-
-const tmpPatient = {
-    id: null,
-    dni: "",
-    first_name: "",
-    last_name: "",
-    doctor_id: null,
-    phone1: "",
-    phone2: "",
-    email: "",
-    health_insurance: ""
-}
-
-const tmpPatient2 = {
-    id: null,
-    dni: "12345670",
-    first_name: "Pruebas",
-    last_name: "ApePruebas",
-    doctor_id: null,
-    phone1: "123",
-    phone2: "456",
-    email: "pruebas@no.se",
-    health_insurance: "OSASD"
-}
-
-//separar relaciones anidadas
-const tmpAppoiment = {
-    surgeon_id: "0",
-    status: null,
-    surgeries: [
-        { eye: "", intraocular_lens: "", surgery_id: 0 }
-    ]
-}
+import LoadingScreen from "../layouts/LoadingScreen"
 
 //modificar base de datos
 const doctors = [
@@ -58,16 +28,18 @@ const doctors = [
 ]
 
 const Appointment = ({ appointment_id, patient_id }) => {
-    const [patient, setPatient] = useState(tmpPatient)
+    const [patient, setPatient] = useState({})
     const [newPatient, setNewPatient] = useState(true)
-    const [appointment, setAppointment] = useState(tmpAppoiment)
+    const [appointment, setAppointment] = useState({})
     const [statuses, setStatuses] = useState([])
     const [surgeries, setSurgeries] = useState([])
+    const [selectedSurgeries, setSelectedSurgeries] = useState()
     const [surgeryDate, setSurgeryDate] = useState(null)
     const [surgeryHour, setSurgeryHour] = useState()
     const [surgeryMinute, setSurgeryMinute] = useState()
     const [alert, setAlert] = useState({ show: false })
     const [errors, setErrors] = useState({})
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const { user } = useAuthStore()
 
@@ -88,13 +60,39 @@ const Appointment = ({ appointment_id, patient_id }) => {
         }
 
         const fetchAppointment = async () => {
-            //const appointment_data = 
+            setLoading(true)
+            const patient_data = await getPatient(patient_id)
+            setPatient(patient_data)
+
+            const appointment_data = await getAppointment(appointment_id)
+            setAppointment({
+                surgeon: appointment_data.surgeon
+
+            })
+
+            const userRole = getRole()
+
+            if (userRole == "admin") {
+                setAppointment({
+                    ...appointment, 
+                    status: appointment_data.admin_status_id.toString(),
+                    notes: appointment_data.admin_notes
+                })
+            } else if (userRole == "nurse") {
+                setAppointment({
+                    ...appointment, 
+                    status: appointment_data.medical_status_id.toString(),
+                    notes: appointment_data.nurse_notes
+                })
+            }
+            
+            console.log(appointment_data, appointment_data.admin_status_id)
+            await setLoading(false)
+            console.log ("AAA", appointment)
         }
 
-        console.log(appointment_id, "     asda das   ", patient_id)
-
         fetchData()
-        //if (id_appointment && id_patient) fetchAppointment()
+        if (appointment_id && patient_id) fetchAppointment()
     }, [])
 
     useEffect(() => {
@@ -131,29 +129,20 @@ const Appointment = ({ appointment_id, patient_id }) => {
     const handleDoctor = (val) => { setPatient((prev) => ({ ...prev, doctor_id: val })) }
 
     //Manejadores de turno
-    /*
-    IDEM PATIENT - completar name en los input
-    const handleChangeAppointment = (field, value) => {
-        setAppointment(prev => ({ ...prev, [field]: value }));
-    };
-
-    Los select
-    <Select label="Estado" onChange={(val) => handleChangeAppointment(user.role == "Administracion" || user.role == "Admin" ? 'admin_status_id' : 'medical_status_id', val)}>
-
-
-    */
-    const handleNotes = (e) => { setAppointment((prev) => ({ ...prev, note: e.target.value }))
-        /*if (user.role == "Administracion" || user.role == "Admin") {
-            setAppointment((prev) => ({ ...prev, admin_notes: e.target.value }))
-        } else if (user.role == "Enfermeria") {
-            setAppointment((prev) => ({ ...prev, nurse_notes: e.target.value }))
-        }*/
-    }
+    const handleNotes = (e) => { setAppointment((prev) => ({ ...prev, notes: e.target.value })) }
     const handleStatus = (val) => { setAppointment((prev) => ({ ...prev, status: val })) }
     const clearStatus = () => { setAppointment((prev) => ({ ...prev, status: null })) }
     const handleSurgeryHour = (val) => { setSurgeryHour(val) }
     const handleSurgeryMinute = (val) => { setSurgeryMinute(val) }
     const handleSurgeon = (val) => { setAppointment((prev) => ({ ...prev, surgeon_id: val })) }
+
+    const getRole = () => {
+        if (user.role === "Administracion" || user.role === "Admin")
+            return "admin"
+        else if (user.role === "Enfermeria")
+            return "nurse"
+        return "ERROR"
+    }
 
     const findPatient = async () => {
         const patientFetched = await getPatientByDni(patient.dni)
@@ -161,7 +150,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
             setPatient(patientFetched)
             setNewPatient(false)
         } else {
-        console.log("ERROR EN ALERTA")
+            console.log("ERROR EN ALERTA")
             setAlert({
                 show: true,
                 message: `Paciente con DNI ${patient.dni} no encontrado.`,
@@ -198,12 +187,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
         }))
     }
 
-    function getStatusField() {
-        if (user.role === "Administracion" || user.role === "Admin") return "admin_status_id"
-        if (user.role === "Enfermeria") return "medical_status_id"
-        return null
-    }
-
     const validateForm = () => {
         if (!patient.dni || !patient.first_name || !patient.last_name) {
             setAlert({ show: true, message: "Debe completar los datos del paciente.", color: "red" })
@@ -236,7 +219,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
         }));
     }
 
-
     const handleNext = () => {
         if (!validateForm()) return
 
@@ -254,30 +236,29 @@ const Appointment = ({ appointment_id, patient_id }) => {
             }
             const patientDB = await updateOrCreatePatient(patientJSON)
 
-            let userRole
-            if (user.role === "Administracion" || user.role === "Admin") 
-                userRole = "admin"
-            else if (user.role === "Enfermeria") return "medical_status_id"
-                userRole = "nurse"
+            const userRole = getRole()
 
             const appointmentJSON = {
                 patient_id: patientDB.patient_id,
-                admin_notes: appointment.userRole == "admin" ? appointment.notes : null,
-                nurse_notes: appointment.userRole == "nurse" ? appointment.notes : null,
+                admin_notes: userRole == "admin" ? appointment.notes : "",
+                nurse_notes: userRole == "nurse" ? appointment.notes : "",
                 surgery_date: surgeryDate.toISOString().split('T')[0],
                 surgery_time: `${surgeryHour.padStart(2, '0')}:${surgeryMinute.padStart(2, '0')}:00`,
                 surgeon_id: appointment.surgeon_id == 0 ? null : Number(appointment.surgeon_id),
-                admin_status_id: appointment.userRole == "admin" ? Number(appointment.status) : null,
-                medical_status_id: appointment.userRole == "nurse" ? Number(appointment.status) : null,
+                admin_status_id: userRole == "admin" ? Number(appointment.status) : 1,
+                medical_status_id: userRole == "nurse" ? Number(appointment.status) : 1,
                 surgeries: appointment.surgeries
             }
+            console.log("TURNO: ", appointmentJSON)
+
             const appointmentDB = await createAppointment(appointmentJSON)
-            console.log(appointmentJSON)
             navigate('/')
         }
 
         handleNextAsync()
     }
+
+    if (loading) return <LoadingScreen loadingMenssage="Cargando turno" />
 
     return (
         <SidebarLayout>
@@ -295,8 +276,8 @@ const Appointment = ({ appointment_id, patient_id }) => {
                             </div>
                             <div className='flex pb-3'>
                                 <div className='flex w-1/2'>
-                                <Input variant='outlined' label="DNI *" placeholder='12345678' value={patient.dni} onChange={handleDni} className='' disabled={!newPatient} autoFocus />
-                                <Button onClick={findPatient} className='w-full' disabled={!newPatient || errors.dni}>Buscar</Button>
+                                    <Input variant='outlined' label="DNI *" placeholder='12345678' value={patient.dni} onChange={handleDni} className='' disabled={!newPatient} autoFocus />
+                                    <Button onClick={findPatient} className='w-full' disabled={!newPatient || errors.dni || !patient.dni}>Buscar</Button>
                                 </div>
                                 {errors.dni && <Typography color="red" variant="small" className='content-center ps-4'>{errors.dni}</Typography>}
                             </div>
@@ -310,9 +291,9 @@ const Appointment = ({ appointment_id, patient_id }) => {
                                     {errors.last_name && <Typography color="red" variant="small">{errors.last_name}</Typography>}
                                 </div>
                             </div>
-                            
+
                             <div className='flex pb-3 gap-3'>
-                                <Input variant='outlined' label="Obra social" placeholder='PAMI' value={patient.health_insurance} onChange={handleHealthInsurance} />
+                                <Input variant='outlined' label="Obra social" placeholder='PAMI' value={patient?.health_insurance} onChange={handleHealthInsurance} />
                                 <div className='flex w-full'>
                                     <Select
                                         label="Médico"
@@ -329,7 +310,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
                                         }
                                     </Select>
                                     <IconButton variant="text" disabled={!patient.doctor_id}>
-                                        <XMarkIcon className="h-6 w-6 text-red-500" onClick={() => setPatient((prev) => ({ ...prev, doctor_id: null }))}/>
+                                        <XMarkIcon className="h-6 w-6 text-red-500" onClick={() => setPatient((prev) => ({ ...prev, doctor_id: null }))} />
                                     </IconButton>
                                 </div>
                             </div>
@@ -391,7 +372,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
                                         <Option value='45'>45</Option>
                                     </Select>
                                 </div>
-                                {appointment.surgeries.map((surgery, index) => {
+                                {appointment?.surgeries?.map((surgery, index) => {
                                     return (
                                         <div className='flex gap-3 py-1'>
                                             <Select label="Ojo" onChange={(val) => updateSurgery(index, 'eye', val)}>
@@ -439,17 +420,12 @@ const Appointment = ({ appointment_id, patient_id }) => {
                                         }
                                     </Select>
                                 </div>
-                                
+
                                 <div className='flex'>
                                     <Textarea
                                         variant='outlined'
                                         label='Observaciones'
-                                        value={
-                                            user.role == "Administracion" || user.role == "Admin" ?
-                                                appointment.admin_notes
-                                                :
-                                                appointment.nurse_notes
-                                        }
+                                        value={appointment.notes}
                                         onChange={handleNotes}
                                     />
                                 </div>

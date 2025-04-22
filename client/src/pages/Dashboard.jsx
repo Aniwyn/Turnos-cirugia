@@ -3,7 +3,7 @@ import SidebarLayout from "../layouts/SidebarLayout";
 import HeaderLayout from "../layouts/HeaderLayout";
 import { Card, Input } from "@material-tailwind/react";
 import DatePicker from "../components/DatePicker";
-import PatientCard from "../components/PatientCard";
+import PatientCard from "../components/dashboard/PatientCard";
 import useAppointmentsStore from "../store/useAppointmentsStore";
 import useAppointmentStore from "../store/useAppointmentStore";
 import LoadingScreen from '../layouts/LoadingScreen';
@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 const Dashboard = () => {
     const [open, setOpen] = useState(0)
     const { appointments, loading, error, fetchAppointments } = useAppointmentsStore()
-    const setSelected = useAppointmentStore((state) => state.setSelected)
+    const { setSelected } = useAppointmentStore()
     const [date, setDate] = useState(null)
     const navigate = useNavigate();
 
@@ -20,12 +20,11 @@ const Dashboard = () => {
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value)
 
-    // Dev code: mejorar o quitar
     if (loading) return <LoadingScreen loadingMenssage='Cargando turnos...'/>
     if (error) return <p>Error: {error}</p>
 
     const editAppointment = (id_appointment, id_patient) => {
-        setSelected({ id_appointment, id_patient })
+        setSelected({ appointmentId: id_appointment, patientId: id_patient })
         navigate('/appointment-edit')
     }
 

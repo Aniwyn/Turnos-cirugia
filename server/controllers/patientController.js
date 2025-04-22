@@ -2,7 +2,11 @@ const db = require('../models')
 
 exports.getAllPatients = async (req, res) => {
     try {
-        const patients = await db.Patient.findAll()
+        const patients = await db.Patient.findAll({
+            include: [
+                { association: 'Medic' }
+            ]
+        })
 
         res.status(200).json({
             meta: {
@@ -58,7 +62,7 @@ exports.createPatient = async (req, res) => {
                 health_insurance
             }
         })
-        
+
         if (created) {
             return res.status(201).json({ message: "Patient created", patient_id: patient.id })
         } else {

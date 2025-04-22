@@ -76,6 +76,26 @@ export const getPatientByDni = async (dni) => {
     }
 }
 
+export const getPatient = async (id) => {
+    try {
+        const response = await API.get(`/patients/${id}`)
+        return response.data
+    } catch (error) {
+        if (error.response) {
+            if (error.response.status === 404) {
+                console.warn('Couldn\'t find patient.')
+                return null
+            }
+            console.error(`Request error: ${error.response.status} - ${error.response.statusText}`)
+        } else if (error.request) {
+            console.error("No response received from the server.", error.request)
+        } else {
+            console.error("Error setting up the request:", error.message)
+        }
+        return null
+    }
+}
+
 export const getAdministrativeStatus = async () => {
     try {
         const response = await API.get('/administrative-status')

@@ -13,8 +13,8 @@ function patient(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false
         },
-        doctor_id: {
-            type: DataTypes.STRING,
+        medic_id: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         phone1: {
@@ -40,15 +40,19 @@ function patient(sequelize, DataTypes) {
     }, {
         tableName: 'patient',
         timestamps: false
-    });
+    })
 
     Patient.associate = (models) => {
         Patient.hasMany(models.Appointment, { 
             foreignKey: 'patient_id'
-        });
-    };
+        })
 
-    return Patient;
+        Patient.belongsTo(models.Medic, { 
+            foreignKey: 'medic_id'
+        })
+    }
+
+    return Patient
 }
 
-module.exports = patient;
+module.exports = patient

@@ -29,8 +29,8 @@ function appointment(sequelize, DataTypes) {
             type: DataTypes.TIME,
             allowNull: true
         },
-        surgeon: {
-            type: DataTypes.STRING,
+        surgeon_id: {
+            type: DataTypes.INTEGER,
             allowNull: true
         },
         admin_status_id: {
@@ -78,6 +78,10 @@ function appointment(sequelize, DataTypes) {
       
         Appointment.belongsTo(models.MedicalStatus, {
             foreignKey: 'medical_status_id'
+        });
+
+        Appointment.belongsTo(models.Medic, {
+            foreignKey: 'surgeon_id'
         });
     };
 
