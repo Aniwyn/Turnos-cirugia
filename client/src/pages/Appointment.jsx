@@ -1,39 +1,32 @@
 import { React, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card, Button, IconButton, Input, Option, Select, Textarea, Typography } from "@material-tailwind/react"
+import { Card, Button, Typography } from "@material-tailwind/react"
 import {
     getPatientByDni,
     getPatient,
     getAdministrativeStatus,
     getMedicalStatus,
     getSurgeries,
+    getMedics,
     updateOrCreatePatient,
     createAppointment,
     getAppointment
 } from "../services/api"
 import useAuthStore from "../store/authStore"
-import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import SidebarLayout from "../layouts/SidebarLayout"
 import HeaderLayout from "../layouts/HeaderLayout"
-import DatePicker from "../components/DatePicker"
+import PatientForm from '../components/appointment/PatientForm'
+import AppointmentForm from '../components/appointment/AppointmentForm'
 import AlertMessage from "../components/AlertMessage"
 import LoadingScreen from "../layouts/LoadingScreen"
 
-//modificar base de datos
-const doctors = [
-    { id: 1, name: 'Dr. Siufi Lucas' },
-    { id: 2, name: 'Dr. Siufi Ernesto' },
-    { id: 3, name: 'Dr. Abud Valeria' },
-    { id: 4, name: 'Dr. Ase Veronica' },
-]
-
 const Appointment = ({ appointment_id, patient_id }) => {
+    const [appointment, setAppointment] = useState({surgeries: [{ eye: "", intraocular_lens: "", surgery_id: 0 }]})
     const [patient, setPatient] = useState({})
     const [newPatient, setNewPatient] = useState(true)
-    const [appointment, setAppointment] = useState({})
     const [statuses, setStatuses] = useState([])
     const [surgeries, setSurgeries] = useState([])
-    const [selectedSurgeries, setSelectedSurgeries] = useState()
+    const [medics, setMedics] = useState([])
     const [surgeryDate, setSurgeryDate] = useState(null)
     const [surgeryHour, setSurgeryHour] = useState()
     const [surgeryMinute, setSurgeryMinute] = useState()
@@ -44,16 +37,20 @@ const Appointment = ({ appointment_id, patient_id }) => {
     const { user } = useAuthStore()
 
     useEffect(() => {
+        const userRole = getRole()
+
         const fetchData = async () => {
             try {
-                const statusesFetched = user.role === "Administracion" || user.role === "Admin"
+                const statusesFetched = userRole === "admin"
                     ? await getAdministrativeStatus()
                     : await getMedicalStatus()
-
                 setStatuses(statusesFetched)
 
                 const surgeriesFetched = await getSurgeries()
                 setSurgeries(surgeriesFetched)
+
+                const medicsFetched = await getMedics()
+                setMedics(medicsFetched)
             } catch (error) {
                 console.error("Error fetching data:", error)
             }
@@ -67,10 +64,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
             const appointment_data = await getAppointment(appointment_id)
             setAppointment({
                 surgeon: appointment_data.surgeon
-
             })
-
-            const userRole = getRole()
 
             if (userRole == "admin") {
                 setAppointment({
@@ -86,50 +80,26 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 })
             }
             
-            console.log(appointment_data, appointment_data.admin_status_id)
-            await setLoading(false)
-            console.log ("AAA", appointment)
+            setLoading(false)
         }
 
         fetchData()
         if (appointment_id && patient_id) fetchAppointment()
     }, [])
 
-    useEffect(() => {
-        console.log(appointment.surgeries)
-    }, [appointment])
-
     //Manejadores de paciente
-    /*
-    Manejar de forma dinamica, agregar "name" a los input y 
-    const handleChangePatient = (e) => {
-        const { name, value } = e.target;
-        setPatient(prev => ({ ...prev, [name]: value }));
-    };
-    Algo asi (?
-    */
-
-    //generalizar para los demas campos
-    const handleDni = (e) => {
-        setPatient((prev) => ({ ...prev, dni: e.target.value }))
-        validateField("dni", e.target.value)
+    const handlePatient = (e) => {
+        const { name, value } = e.target
+        setPatient((prev) => ({...prev, [name]: value}))
     }
-    const handleFirsName = (e) => {
-        setPatient((prev) => ({ ...prev, first_name: e.target.value }))
-        validateField("first_name", e.target.value)
-    }
-    const handleLastName = (e) => {
-        setPatient((prev) => ({ ...prev, last_name: e.target.value }))
-        validateField("last_name", e.target.value)
-    }
-    const handlePhone1 = (e) => { setPatient((prev) => ({ ...prev, phone1: e.target.value })) }
-    const handlePhone2 = (e) => { setPatient((prev) => ({ ...prev, phone2: e.target.value })) }
-    const handleEmail = (e) => { setPatient((prev) => ({ ...prev, email: e.target.value })) }
-    const handleHealthInsurance = (e) => { setPatient((prev) => ({ ...prev, health_insurance: e.target.value })) }
     const handleDoctor = (val) => { setPatient((prev) => ({ ...prev, doctor_id: val })) }
+    const clearMedic = () => { setPatient((prev) => ({ ...prev, doctor_id: null })) }
 
     //Manejadores de turno
-    const handleNotes = (e) => { setAppointment((prev) => ({ ...prev, notes: e.target.value })) }
+    const handleAppointment = (e) => {
+        const { name, value } = e.target
+        setAppointment((prev) => ({...prev, [name]: value}))
+    }
     const handleStatus = (val) => { setAppointment((prev) => ({ ...prev, status: val })) }
     const clearStatus = () => { setAppointment((prev) => ({ ...prev, status: null })) }
     const handleSurgeryHour = (val) => { setSurgeryHour(val) }
@@ -143,14 +113,13 @@ const Appointment = ({ appointment_id, patient_id }) => {
             return "nurse"
         return "ERROR"
     }
-
+    
     const findPatient = async () => {
         const patientFetched = await getPatientByDni(patient.dni)
         if (patientFetched) {
             setPatient(patientFetched)
             setNewPatient(false)
         } else {
-            console.log("ERROR EN ALERTA")
             setAlert({
                 show: true,
                 message: `Paciente con DNI ${patient.dni} no encontrado.`,
@@ -158,11 +127,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
             })
         }
     }
-
-    //dev
-    /*useEffect(() => {
-        console.log(appointment.medical_status_id)
-    },[appointment])*/
 
     const addSurgery = () => {
         setAppointment(prev => ({
@@ -258,7 +222,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
         handleNextAsync()
     }
 
-    if (loading) return <LoadingScreen loadingMenssage="Cargando turno" />
+    if (loading) return <LoadingScreen loadingMenssage="Cargando turno..." />
 
     return (
         <SidebarLayout>
@@ -269,168 +233,35 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 <Card className='flex px-4 rounded-lg'>
                     <Typography variant='h3' className='text-center'> Registrar turno</Typography>
                     <div className='flex flex-col max-w-[50rem] mx-auto '>
-                        <div className='flex flex-col w-full mx-auto pb-5'>
-                            <div className='flex'>
-                                <Typography className='font-bold flex pb-3'>Paciente</Typography>
-                                <Typography className='text-red-800'>*</Typography>
-                            </div>
-                            <div className='flex pb-3'>
-                                <div className='flex w-1/2'>
-                                    <Input variant='outlined' label="DNI *" placeholder='12345678' value={patient.dni} onChange={handleDni} className='' disabled={!newPatient} autoFocus />
-                                    <Button onClick={findPatient} className='w-full' disabled={!newPatient || errors.dni || !patient.dni}>Buscar</Button>
-                                </div>
-                                {errors.dni && <Typography color="red" variant="small" className='content-center ps-4'>{errors.dni}</Typography>}
-                            </div>
-                            <div className='flex pb-3 gap-3'>
-                                <div className='flex-col w-full'>
-                                    <Input variant='outlined' label="Nombre/s *" placeholder='Perez' value={patient.first_name} onChange={handleFirsName} />
-                                    {errors.first_name && <Typography color="red" variant="small">{errors.first_name}</Typography>}
-                                </div>
-                                <div className='flex flex-col w-full'>
-                                    <Input variant='outlined' label="Apellido/s *" placeholder='Juan Pablo' value={patient.last_name} onChange={handleLastName} />
-                                    {errors.last_name && <Typography color="red" variant="small">{errors.last_name}</Typography>}
-                                </div>
-                            </div>
-
-                            <div className='flex pb-3 gap-3'>
-                                <Input variant='outlined' label="Obra social" placeholder='PAMI' value={patient?.health_insurance} onChange={handleHealthInsurance} />
-                                <div className='flex w-full'>
-                                    <Select
-                                        label="Médico"
-                                        value={patient.doctor_id}
-                                        onChange={handleDoctor}
-                                        name='FUNCIONA'
-                                    >
-                                        {
-                                            doctors.map(doc => {
-                                                return (
-                                                    <Option key={doc.id} value={doc.id.toString()}>{doc.name}</Option>
-                                                )
-                                            })
-                                        }
-                                    </Select>
-                                    <IconButton variant="text" disabled={!patient.doctor_id}>
-                                        <XMarkIcon className="h-6 w-6 text-red-500" onClick={() => setPatient((prev) => ({ ...prev, doctor_id: null }))} />
-                                    </IconButton>
-                                </div>
-                            </div>
-                            <div className='flex pb-3 gap-3'>
-                                <Input variant='outlined' label="Tel 1" placeholder='3881234567' value={patient.phone1} onChange={handlePhone1} />
-                                <Input variant='outlined' label="Tel 2" placeholder='3881234567' value={patient.phone2} onChange={handlePhone2} />
-                            </div>
-                            <div className='flex'>
-                                <Input variant='outlined' label='Email' placeholder='correo@gmail.com' value={patient.email} onChange={handleEmail} />
-                            </div>
-                        </div>
-                        <div>
-                            <Typography className='font-bold flex pb-3'>Turno</Typography>
-                            <div className='pb-5'>
-                                <div className='flex pb-3'>
-                                    <Select
-                                        label="Estado"
-                                        value={appointment.status}
-                                        onChange={handleStatus}
-                                        key={statuses.length}
-                                    >
-                                        {
-                                            statuses.map(status => {
-                                                return (
-                                                    <Option key={status.id} value={status.id.toString()}>{`${status.name}`}</Option>
-                                                )
-                                            })
-                                        }
-                                    </Select>
-                                    <IconButton variant="text" onClick={clearStatus} disabled={!appointment.status}>
-                                        <XMarkIcon className="h-6 w-6 text-red-500" />
-                                    </IconButton>
-                                </div>
-                                <div className='flex pb-3 gap-3'>
-                                    <DatePicker title="Fecha" date={surgeryDate} setDate={setSurgeryDate} />
-                                    <Select
-                                        label="Hora"
-                                        value={surgeryHour}
-                                        onChange={handleSurgeryHour}
-                                    >
-                                        <Option value='6'>6</Option>
-                                        <Option value='7'>7</Option>
-                                        <Option value='8'>8</Option>
-                                        <Option value='9'>9</Option>
-                                        <Option value='10'>10</Option>
-                                        <Option value='11'>11</Option>
-                                        <Option value='12'>12</Option>
-                                        <Option value='13'>13</Option>
-                                        <Option value='14'>14</Option>
-                                    </Select>
-                                    <Select
-                                        label="Minuto"
-                                        value={surgeryMinute}
-                                        onChange={handleSurgeryMinute}
-                                    >
-                                        <Option value='00'>00</Option>
-                                        <Option value='15'>15</Option>
-                                        <Option value='30'>30</Option>
-                                        <Option value='45'>45</Option>
-                                    </Select>
-                                </div>
-                                {appointment?.surgeries?.map((surgery, index) => {
-                                    return (
-                                        <div className='flex gap-3 py-1'>
-                                            <Select label="Ojo" onChange={(val) => updateSurgery(index, 'eye', val)}>
-                                                <Option value='OD'>Ojo Derecho</Option>
-                                                <Option value='OI'>Ojo Izquierdo</Option>
-                                                <Option value='AO'>Ambos Ojos</Option>
-                                            </Select>
-                                            <Input variant='outlined' label="Lente sugerido" placeholder='EyeOL' value={surgery.intraocular_lens} onChange={(e) => updateSurgery(index, 'intraocular_lens', e.target.value)} />
-                                            <div className='flex'>
-                                                <Select
-                                                    label="Cirugias"
-                                                    onChange={(val) => updateSurgery(index, 'surgery_id', val)}
-                                                >
-                                                    {
-                                                        surgeries.map(surgery => {
-                                                            return (
-                                                                <Option key={surgery.id} value={surgery.id}>{surgery.name}</Option>
-                                                            )
-                                                        })
-                                                    }
-                                                </Select>
-                                            </div>
-                                            <IconButton variant="text" onClick={() => removeSurgery(index)} className='px-3' >
-                                                <XMarkIcon className="h-6 w-6 text-red-500" />
-                                            </IconButton>
-                                        </div>
-                                    )
-                                })}
-                                <div className='flex justify-center my-3'>
-                                    <IconButton onClick={addSurgery} variant='outlined'>
-                                        <PlusIcon className="h-5 w-5" />
-                                    </IconButton>
-                                </div>
-                                <div className='flex pb-3'>
-                                    <Select
-                                        label="Cirujano"
-                                        onChange={handleSurgeon}
-                                    >
-                                        {
-                                            doctors.map(doc => {
-                                                return (
-                                                    <Option key={doc.id} value={doc.id.toString()}>{doc.name}</Option>
-                                                )
-                                            })
-                                        }
-                                    </Select>
-                                </div>
-
-                                <div className='flex'>
-                                    <Textarea
-                                        variant='outlined'
-                                        label='Observaciones'
-                                        value={appointment.notes}
-                                        onChange={handleNotes}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <PatientForm 
+                            patient={patient}
+                            medics={medics}
+                            clearMedic={clearMedic}
+                            handlePatient={handlePatient}
+                            handleDoctor={handleDoctor}
+                            newPatient={newPatient}
+                            findPatient={findPatient}
+                            errors={errors}
+                        />
+                        <AppointmentForm
+                            appointment={appointment}
+                            statuses={statuses}
+                            clearStatus={clearStatus}
+                            surgeryDate={surgeryDate}
+                            surgeryHour={surgeryHour}
+                            surgeryMinute={surgeryMinute}
+                            surgeries={surgeries}
+                            surgeons={medics}
+                            handleAppointment={handleAppointment}
+                            handleStatus={handleStatus}
+                            handleSurgeon={handleSurgeon}
+                            handleSurgeryHour={handleSurgeryHour}
+                            handleSurgeryMinute={handleSurgeryMinute}
+                            setSurgeryDate={setSurgeryDate}
+                            addSurgery={addSurgery}
+                            removeSurgery={removeSurgery}
+                            updateSurgery={updateSurgery}
+                        />
                         <div className='flex justify-end gap-3 pb-10'>
                             <Button variant="outlined">Cancelar</Button>
                             <Button onClick={handleNext}>Aceptar</Button>

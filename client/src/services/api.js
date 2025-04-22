@@ -126,6 +126,16 @@ export const getSurgeries = async () => {
     }
 }
 
+export const getMedics = async () => {
+    try {
+        const response = await API.get('/medics')
+        return response.data
+    } catch (error) {
+        console.error("Error fetching medics:", error)
+        return []
+    }
+}
+
 export const updateOrCreatePatient = async (patient) => {
     try {
         const response = await API.post('/patients', patient)
