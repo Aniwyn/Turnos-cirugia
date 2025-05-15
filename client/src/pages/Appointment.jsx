@@ -8,8 +8,8 @@ import {
     getMedicalStatus,
     getSurgeries,
     getMedics,
-    updateOrCreatePatient,
     createAppointment,
+    updateAppointment,
     getAppointment
 } from "../services/api"
 import useAuthStore from "../store/authStore"
@@ -21,7 +21,9 @@ import AlertMessage from "../components/AlertMessage"
 import LoadingScreen from "../layouts/LoadingScreen"
 
 const Appointment = ({ appointment_id, patient_id }) => {
-    const [appointment, setAppointment] = useState({surgeries: [{ eye: "", intraocular_lens: "", surgery_id: 0 }]})
+    const [appointment, setAppointment] = useState({
+        surgeries: [{ eye: undefined, intraocular_lens: "", surgery_id: undefined }]
+    })
     const [patient, setPatient] = useState({})
     const [newPatient, setNewPatient] = useState(true)
     const [statuses, setStatuses] = useState([])
@@ -55,53 +57,95 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 console.error("Error fetching data:", error)
             }
         }
-
         const fetchAppointment = async () => {
-            setLoading(true)
-            const patient_data = await getPatient(patient_id)
-            setPatient(patient_data)
+            try {
+                setLoading(true)
 
-            const appointment_data = await getAppointment(appointment_id)
-            setAppointment({
-                surgeon: appointment_data.surgeon
-            })
+                const patient_data = await getPatient(patient_id)
+                const appointment_data = await getAppointment(appointment_id)
 
-            if (userRole == "admin") {
-                setAppointment({
-                    ...appointment, 
-                    status: appointment_data.admin_status_id.toString(),
-                    notes: appointment_data.admin_notes
-                })
-            } else if (userRole == "nurse") {
-                setAppointment({
-                    ...appointment, 
-                    status: appointment_data.medical_status_id.toString(),
-                    notes: appointment_data.nurse_notes
-                })
+                const basePatient = {
+                    ...patient_data,
+                    medic_id: { value: patient_data.Medic?.id, label: patient_data.Medic?.name }
+                }
+                const baseAppointment = {
+                    status: undefined,
+                    notes: "",
+                    surgeries: []
+                }
+
+                if (appointment_data.surgery_date) {
+                    const parsedDate = new Date(appointment_data.surgery_date + 'T00:00:00')
+                    setSurgeryDate(parsedDate)
+                }
+
+                if (appointment_data.surgery_time) {
+                    const [surgeryHour_data, surgeryMinute_data] = appointment_data.surgery_time.split(":")
+                    setSurgeryHour({ value: surgeryHour_data, label: surgeryHour_data })
+                    setSurgeryMinute({ value: surgeryMinute_data, label: surgeryMinute_data })
+                }
+
+                if (appointment_data.Surgeries) {
+                    for (let i = 0; i < appointment_data.Surgeries.length; i++) {
+                        baseAppointment.surgeries.push({
+                            eye: { value: appointment_data.Surgeries[i].appointment_surgery.eye, label: appointment_data.Surgeries[i].appointment_surgery.eye },
+                            intraocular_lens: appointment_data.Surgeries[i].appointment_surgery.intraocular_lens,
+                            surgery_id: { value: appointment_data.Surgeries[i].id, label: appointment_data.Surgeries[i].name }
+                        })
+                    }
+                }
+
+                if (appointment_data.Medic) {
+                    baseAppointment.surgeon_id = { value: appointment_data.Medic.id, label: appointment_data.Medic.name }
+                }
+
+                if (userRole === "admin") {
+                    baseAppointment.status = {
+                        value: appointment_data.AdministrativeStatus.id,
+                        label: appointment_data.AdministrativeStatus.name
+                    } || {}
+                    baseAppointment.notes = appointment_data.admin_notes || ""
+                } else if (userRole === "nurse") {
+                    baseAppointment.status = {
+                        value: appointment_data.MedicalStatus.id,
+                        label: appointment_data.MedicalStatus.name
+                    } || {}
+                    baseAppointment.notes = appointment_data.nurse_notes || ""
+                }
+
+                setPatient(basePatient)
+                setAppointment(baseAppointment)
+            } catch (err) {
+                console.error("Error fetching appointment:", err)
+            } finally {
+                setLoading(false)
             }
-            
-            setLoading(false)
         }
 
         fetchData()
         if (appointment_id && patient_id) fetchAppointment()
     }, [])
 
+    //borrar
+    useEffect(() => {
+        console.log(surgeryDate)
+    }, [surgeryDate])
+
     //Manejadores de paciente
     const handlePatient = (e) => {
         const { name, value } = e.target
-        setPatient((prev) => ({...prev, [name]: value}))
+        validateField(name, value)
+        setPatient((prev) => ({ ...prev, [name]: value }))
+        console.log(patient)
     }
-    const handleDoctor = (val) => { setPatient((prev) => ({ ...prev, doctor_id: val })) }
-    const clearMedic = () => { setPatient((prev) => ({ ...prev, doctor_id: null })) }
+    const handleMedic = (val) => { console.log(val); setPatient((prev) => ({ ...prev, medic_id: val })) }
 
     //Manejadores de turno
     const handleAppointment = (e) => {
         const { name, value } = e.target
-        setAppointment((prev) => ({...prev, [name]: value}))
+        setAppointment((prev) => ({ ...prev, [name]: value }))
     }
     const handleStatus = (val) => { setAppointment((prev) => ({ ...prev, status: val })) }
-    const clearStatus = () => { setAppointment((prev) => ({ ...prev, status: null })) }
     const handleSurgeryHour = (val) => { setSurgeryHour(val) }
     const handleSurgeryMinute = (val) => { setSurgeryMinute(val) }
     const handleSurgeon = (val) => { setAppointment((prev) => ({ ...prev, surgeon_id: val })) }
@@ -113,11 +157,16 @@ const Appointment = ({ appointment_id, patient_id }) => {
             return "nurse"
         return "ERROR"
     }
-    
+
     const findPatient = async () => {
         const patientFetched = await getPatientByDni(patient.dni)
+        console.log(patientFetched)
         if (patientFetched) {
-            setPatient(patientFetched)
+            const basePatient = {
+                ...patientFetched,
+                medic_id: { value: patientFetched.Medic?.id, label: patientFetched.Medic?.name }
+            }
+            setPatient(basePatient)
             setNewPatient(false)
         } else {
             setAlert({
@@ -131,7 +180,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
     const addSurgery = () => {
         setAppointment(prev => ({
             ...prev,
-            surgeries: [...prev.surgeries, { eye: "", intraocular_lens: "", surgery_id: 0 }]
+            surgeries: [...(prev.surgeries || []), { eye: undefined, intraocular_lens: "", surgery_id: undefined }]
         }))
     }
 
@@ -155,16 +204,12 @@ const Appointment = ({ appointment_id, patient_id }) => {
         if (!patient.dni || !patient.first_name || !patient.last_name) {
             setAlert({ show: true, message: "Debe completar los datos del paciente.", color: "red" })
             return false
-        }
-        if (!surgeryDate || !surgeryHour || !surgeryMinute) {
-            setAlert({ show: true, message: "Debe seleccionar una fecha y hora de cirugía.", color: "red" })
-            return false
-        }
-        return true
+        } else return true
     }
 
     const validateField = (field, value) => {
-        let errorMessage = "";
+        if (field != "dni" && field != "first_name" && field != "last_name") return
+        let errorMessage = ""
 
         if (!value) {
             errorMessage = "Este campo es obligatorio.";
@@ -184,11 +229,29 @@ const Appointment = ({ appointment_id, patient_id }) => {
     }
 
     const handleNext = () => {
+        console.log("DNI: ", patient.dni, " Nombre: ", patient.first_name, " Apellido: ", patient.last_name, "\n")
         if (!validateForm()) return
 
+
         const handleNextAsync = async () => {
-            //juntar los dos json para la revision, sacar patient_id y agregarlo luego
-            const patientJSON = {
+            let surgery_time_picked
+            if (surgeryHour && !surgeryMinute)
+                surgery_time_picked = surgeryHour ? `${surgeryHour?.value.padStart(2, '0')}:00:00` : undefined;
+            else
+                surgery_time_picked = surgeryHour && surgeryMinute ? `${surgeryHour?.value.padStart(2, '0')}:${surgeryMinute?.value.padStart(2, '0')}:00` : undefined
+
+            const surgeriesToBack = []
+            for (let i = 0; i < appointment.surgeries.length; i++) {
+                if (appointment.surgeries[i].surgery_id) {
+                    surgeriesToBack.push({
+                        eye: appointment.surgeries[i].eye?.value,
+                        intraocular_lens: appointment.surgeries[i].intraocular_lens,
+                        surgery_id: appointment.surgeries[i].surgery_id.value
+                    })
+                }
+            }
+
+            const appointmentJSON = {
                 dni: patient.dni,
                 first_name: patient.first_name,
                 last_name: patient.last_name,
@@ -196,30 +259,33 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 phone2: patient.phone2,
                 email: patient.email,
                 health_insurance: patient.health_insurance,
-                doctor_id: patient.doctor_id,
-            }
-            const patientDB = await updateOrCreatePatient(patientJSON)
-
-            const userRole = getRole()
-
-            const appointmentJSON = {
-                patient_id: patientDB.patient_id,
-                admin_notes: userRole == "admin" ? appointment.notes : "",
-                nurse_notes: userRole == "nurse" ? appointment.notes : "",
-                surgery_date: surgeryDate.toISOString().split('T')[0],
-                surgery_time: `${surgeryHour.padStart(2, '0')}:${surgeryMinute.padStart(2, '0')}:00`,
-                surgeon_id: appointment.surgeon_id == 0 ? null : Number(appointment.surgeon_id),
-                admin_status_id: userRole == "admin" ? Number(appointment.status) : 1,
-                medical_status_id: userRole == "nurse" ? Number(appointment.status) : 1,
-                surgeries: appointment.surgeries
+                medic_id: patient.medic_id?.value,
+                notes: appointment.notes,
+                surgery_date: surgeryDate?.toISOString().split('T')[0],
+                surgery_time: surgery_time_picked,
+                surgeon_id: appointment.surgeon_id?.value,
+                status_id: appointment.status ? appointment.status?.value : 1,
+                surgeries: surgeriesToBack
             }
             console.log("TURNO: ", appointmentJSON)
 
-            const appointmentDB = await createAppointment(appointmentJSON)
+            if (appointment_id && patient_id) {
+                const appointmentDB = await updateAppointment(appointment_id, appointmentJSON)
+            } else {
+                const appointmentDB = await createAppointment(appointmentJSON)
+            }
             navigate('/')
         }
 
         handleNextAsync()
+    }
+
+    const handleCancel = () => {
+        navigate('/')
+    }
+
+    const handleDelete = () => {
+        navigate('/')
     }
 
     if (loading) return <LoadingScreen loadingMenssage="Cargando turno..." />
@@ -230,15 +296,14 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 {alert.show && (
                     <AlertMessage message="" type="success" alert={alert} setAlert={setAlert} />
                 )}
-                <Card className='flex px-4 rounded-lg'>
+                <Card className='flex px-4 rounded-lg min-w-[800px]'>
                     <Typography variant='h3' className='text-center'> Registrar turno</Typography>
-                    <div className='flex flex-col max-w-[50rem] mx-auto '>
-                        <PatientForm 
+                    <div className='flex flex-col min-w-[700px] max-w-[50rem] mx-auto '>
+                        <PatientForm
                             patient={patient}
                             medics={medics}
-                            clearMedic={clearMedic}
                             handlePatient={handlePatient}
-                            handleDoctor={handleDoctor}
+                            handleMedic={handleMedic}
                             newPatient={newPatient}
                             findPatient={findPatient}
                             errors={errors}
@@ -246,7 +311,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
                         <AppointmentForm
                             appointment={appointment}
                             statuses={statuses}
-                            clearStatus={clearStatus}
                             surgeryDate={surgeryDate}
                             surgeryHour={surgeryHour}
                             surgeryMinute={surgeryMinute}
@@ -262,9 +326,14 @@ const Appointment = ({ appointment_id, patient_id }) => {
                             removeSurgery={removeSurgery}
                             updateSurgery={updateSurgery}
                         />
-                        <div className='flex justify-end gap-3 pb-10'>
-                            <Button variant="outlined">Cancelar</Button>
-                            <Button onClick={handleNext}>Aceptar</Button>
+                        <div className='flex justify-between'>
+                            <div className='flex justify-end gap-3 pb-10'>
+                                <Button onClick={handleDelete} variant="outlined" color='red'>Eliminar</Button>
+                            </div>
+                            <div className='flex justify-end gap-3 pb-10'>
+                                <Button variant="outlined" onClick={handleCancel}>Cancelar</Button>
+                                <Button onClick={handleNext}>Aceptar</Button>
+                            </div>
                         </div>
                     </div>
                 </Card>

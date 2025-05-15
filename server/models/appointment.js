@@ -48,6 +48,20 @@ function appointment(sequelize, DataTypes) {
                 model: 'medical_status',
                 key: 'id'
             }
+        },
+        admin_user_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: 'user',
+                key: 'id'
+            }
+        },
+        medical_user_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: 'user',
+                key: 'id'
+            }
         }
     }, {
         tableName: 'appointment',
@@ -82,6 +96,16 @@ function appointment(sequelize, DataTypes) {
 
         Appointment.belongsTo(models.Medic, {
             foreignKey: 'surgeon_id'
+        });
+
+        Appointment.belongsTo(models.User, {
+            foreignKey: 'admin_user_id',
+            as: 'AdminUser'
+        });
+
+        Appointment.belongsTo(models.User, {
+            foreignKey: 'medical_user_id',
+            as: 'MedicalUser'
         });
     };
 

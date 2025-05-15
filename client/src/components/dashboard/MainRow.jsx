@@ -18,7 +18,7 @@ const MainRow = ({ appointment, openStatus, openNumber }) => {
                     Fecha:
                 </Typography>
                 <Typography className='content-center ps-1' variant="lead">
-                    {appointment.surgery_date ? format(new Date(appointment.surgery_date), "dd/MM/yyyy") : "s/f"}
+                    {appointment.surgery_date ? format(new Date(appointment.surgery_date + 'T00:00:00'), "dd/MM/yyyy") : "s/f"}
                 </Typography>
             </div>
             <div className='col-span-2 flex'>

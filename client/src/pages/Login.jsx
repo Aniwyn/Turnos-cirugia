@@ -10,9 +10,7 @@ const Login = () => {
     const navigate = useNavigate()
     const { login, isAuthenticated } = useAuthStore()
 
-    useEffect(() => {
-        if (isAuthenticated) navigate('/')
-    },[])
+    useEffect(() => { if (isAuthenticated) navigate('/') }, [])
 
     const handleUser = (e) => { setUser(e.target.value) }
     const handlePass = (e) => { setPass(e.target.value) }

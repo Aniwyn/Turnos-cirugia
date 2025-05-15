@@ -23,7 +23,11 @@ exports.getAllPatients = async (req, res) => {
 exports.getPatientById = async (req, res) => {
     const { id } = req.params
     try {
-        const patient = await db.Patient.findByPk(id)
+        const patient = await db.Patient.findByPk(id, {
+            include: [
+                { association: 'Medic' }
+            ]
+        })
         if (!patient) {
             return res.status(404).json({ message: 'Paciente no encontrado' })
         }
@@ -36,7 +40,10 @@ exports.getPatientById = async (req, res) => {
 exports.getPatientByDni = async (req, res) => {
     const { dni } = req.params
     try {
-        const patient = await db.Patient.findOne({ where: { dni: dni } })
+        const patient = await db.Patient.findOne({ 
+            where: { dni: dni },
+            include: [{ association: 'Medic' }]
+        })
         if (!patient) {
             return res.status(404).json({ message: 'Paciente no encontrado' })
         }

@@ -22,6 +22,16 @@ function user(sequelize, DataTypes) {
         timestamps: false
     });
 
+    User.associate = (models) => {
+        User.hasMany(models.Appointment, {
+            foreignKey: 'admin_user_id'
+        });
+
+        User.hasMany(models.Appointment, {
+            foreignKey: 'medical_user_id'
+        });
+    }
+
     return User;
 }
 

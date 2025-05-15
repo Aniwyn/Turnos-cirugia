@@ -35,26 +35,25 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment, ed
             </AccordionHeader>
             <AccordionBody className='pb-5'>
                 <div className='flex flex-col'>
-                    <InfoRow 
-                        surgeon={appointment.Medic?.name}
-                        patient={appointment.Patient}
+                    <InfoRow
+                        appointment={appointment}
                         editAppointment={editAppointment}
                     />
                     <div className='flex flex-row w-full'>
                         <div className='pt-2 w-[45%]'>
                             <UserState
                                 title="Administración"
-                                userName="Judith"
+                                userName={appointment.AdminUser?.name}
                                 status={appointment.AdministrativeStatus}
-                                note={appointment.nurse_notes}
+                                note={appointment.admin_notes}
                             />
                         </div>
                         <div className='pt-2'>
                             <UserState
                                 title="Enfermería"
-                                userName="Yanina"
+                                userName={appointment.MedicalUser?.name}
                                 status={appointment.MedicalStatus}
-                                note={appointment.admin_notes}
+                                note={appointment.nurse_notes}
                             />
                         </div>
                     </div>

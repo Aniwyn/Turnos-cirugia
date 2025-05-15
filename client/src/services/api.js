@@ -139,7 +139,6 @@ export const getMedics = async () => {
 export const updateOrCreatePatient = async (patient) => {
     try {
         const response = await API.post('/patients', patient)
-        console.log("RESPONSE PATIENT", response)
         return response.data
     } catch (error) {
         console.error("Error fetching surgeries:", error)
@@ -150,6 +149,17 @@ export const updateOrCreatePatient = async (patient) => {
 export const createAppointment = async (appointment) => {
     try {
         const response = await API.post('/appointments', appointment)
+        return response.data
+    } catch (error) {
+        console.error("Error fetching surgeries:", error)
+        return []
+    }
+}
+
+export const updateAppointment = async (appointment_id, appointment) => {
+    console.log("DATOS PARa UPDATEAR ", appointment_id, appointment)
+    try {
+        const response = await API.put(`/appointments/${appointment_id}`, appointment)
         console.log("RESPONSE APOINT", response)
         return response.data
     } catch (error) {

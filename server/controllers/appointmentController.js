@@ -1,23 +1,31 @@
 const db = require('../models')
- // se puede añadir un include dentro de un include? tengo esta consulta de appointment que asocia con Patient, hasta ahi todo bien, pero me gustaria tener un include dentro de Patient con su sub relacion con Medic
+const { createOrUpdatePatient, createAppointment, updateAppointment } = require('../services/appointmentService.js')
+
 exports.getAllAppointments = async (req, res) => {
     try {
         const appointments = await db.Appointment.findAll({
             include: [
-                { 
+                {
                     association: 'Patient',
                     include: [
                         { association: 'Medic' }
                     ]
-                 },
+                },
                 { association: 'MedicalStatus' },
                 { association: 'AdministrativeStatus' },
                 { association: 'Medic' },
-                { 
+                { association: 'AdminUser', attributes: ['name'] },
+                { association: 'MedicalUser', attributes: ['name'] },
+                {
                     association: 'Surgeries',
-                    through: { attributes: ['id', 'intraocular_lens', 'eye'] } 
+                    through: {
+                        attributes: ['id', 'intraocular_lens', 'eye']
+                    }
                 }
-            ]
+            ],
+            where: {
+                state: 1
+            }
         })
         res.json(appointments)
     } catch (err) {
@@ -35,9 +43,11 @@ exports.getAppointmentById = async (req, res) => {
                 { association: 'MedicalStatus' },
                 { association: 'AdministrativeStatus' },
                 { association: 'Medic' },
-                { 
+                { association: 'AdminUser', attributes: ['name'] },
+                { association: 'MedicalUser', attributes: ['name'] },
+                {
                     association: 'Surgeries',
-                    through: { attributes: ['id', 'intraocular_lens', 'eye'] } 
+                    through: { attributes: ['id', 'intraocular_lens', 'eye'] }
                 }
             ]
         })
@@ -51,73 +61,141 @@ exports.getAppointmentById = async (req, res) => {
 }
 
 exports.createAppointment = async (req, res) => {
-    const { 
-        patient_id, 
-        admin_notes, 
-        nurse_notes, 
-        surgery_date, 
-        surgery_time, 
-        surgeon_id, 
-        admin_status_id, 
-        medical_status_id, 
-        surgeries 
-    } = req.body
-
     try {
-        const appointment = await db.Appointment.create({
-            patient_id,
+        const user = req.user 
+
+        const {
+            dni,
+            first_name,
+            last_name,
+            phone1,
+            phone2,
+            email,
+            health_insurance,
+            medic_id,
+            surgery_date,
+            surgery_time,
+            surgeon_id,
+            surgeries,
+            notes,
+            status_id
+        } = req.body
+
+        let admin_notes
+        let nurse_notes
+        let admin_status_id
+        let medical_status_id
+        let admin_user_id
+        let medical_user_id
+
+        if (user.role == "admin" || user.role == "Administracion") {
+            admin_notes = notes
+            admin_status_id = status_id
+            admin_user_id = user.userId
+            medical_status_id = 0
+        } else if (user.role == "nurse" || user.role == "Enfermería") {
+            nurse_notes = notes
+            medical_status_id = status_id
+            medical_user_id = user.userId
+            admin_status_id = 0
+        }
+        
+        const { patient, created } = await createOrUpdatePatient({
+            dni,
+            first_name,
+            last_name,
+            medic_id,
+            phone1,
+            phone2,
+            email,
+            health_insurance
+        })
+
+        const appointment = await createAppointment({
+            patient_id: patient.id,
             admin_notes,
             nurse_notes,
             surgery_date,
             surgery_time,
             surgeon_id,
             admin_status_id,
-            medical_status_id
-        });
+            medical_status_id,
+            admin_user_id,
+            medical_user_id,
+            surgeries
+        })
 
-        console.log("APPO: ", req.body)
-
-        if(surgeries && surgeries.length > 0) {
-            const surgeryData = surgeries.map(surgery => ({
-                appointment_id: appointment.id,
-                surgery_id: surgery.surgery_id,
-                eye: surgery.eye,              
-                intraocular_lens: surgery.intraocular_lens
-            }))
-            
-            await db.AppointmentSurgery.bulkCreate(surgeryData);
-        }
-        res.status(201).json({ message: 'Turno creado', appointmentId: appointment.id })
-    } catch (err) {
-        res.status(500).json({ message: 'Error al crear turno', error: err })
+        res.status(201).json({
+            message: created ? 'Paciente y turno creados' : 'Turno creado a paciente existente',
+            appointmentId: appointment.id
+        })
+    } catch (err) { 
+        console.error('ERROR:', err)
+        res.status(500).json({ message: 'Error al crear el turno', error: err })
     }
 }
 
 exports.updateAppointment = async (req, res) => {
-    const { id } = req.params;
-    const { patientId, adminNotes, nurseNotes, surgeryDate, surgeryTime, surgeon, adminStatusId, medicalStatusId } = req.body;
     try {
-        const appointment = await db.Appointment.findByPk(id)
-        if (!appointment) {
-            return res.status(404).json({ message: 'Turno no encontrado' })
-        }
+        const user = req.user
+        const { id } = req.params
 
-        await appointment.update({
-            patientId,
-            adminNotes,
-            nurseNotes,
-            surgeryDate,
-            surgeryTime,
-            surgeon,
-            adminStatusId,
-            medicalStatusId
+        const {
+            dni,
+            first_name,
+            last_name,
+            phone1,
+            phone2,
+            email,
+            health_insurance,
+            medic_id,
+            surgery_date,
+            surgery_time,
+            surgeon_id,
+            surgeries,
+            notes,
+            status_id
+        } = req.body
+
+        const { patient, created } = await createOrUpdatePatient({
+            dni,
+            first_name,
+            last_name,
+            medic_id,
+            phone1,
+            phone2,
+            email,
+            health_insurance
         })
 
-        res.json({ message: 'Turno actualizado' })
+        let updateData = {
+            surgery_date,
+            surgery_time,
+            surgeon_id
+        }
+
+        if (user.role === "admin" || user.role === "Administracion") {
+            updateData.admin_notes = notes
+            updateData.admin_status_id = status_id
+            updateData.admin_user_id = user.userId
+        } else if (user.role === "nurse" || user.role === "Enfermería") {
+            updateData.nurse_notes = notes
+            updateData.medical_status_id = status_id
+            updateData.medical_user_id = user.userId
+        }
+
+        const appointment = await updateAppointment(id, updateData, surgeries)
+
+        if (!appointment) {
+            return res.status(404).json({ message: "Turno no encontrado" })
+        }
+
+        res.json({ message: "Turno actualizado" })
     } catch (err) {
-        res.status(500).json({ message: 'Error al actualizar turno', error: err })
+        console.error('ERROR:', err)
+        res.status(500).json({ message: 'Error al actualizar el turno', error: err })
     }
-};
+}
 
 exports.deleteAppointment = async (req, res) => {
     const { id } = req.params
@@ -127,7 +205,7 @@ exports.deleteAppointment = async (req, res) => {
             return res.status(404).json({ message: 'Turno no encontrado' })
         }
 
-        await appointment.destroy()
+        await appointment.update({state: 0})
         res.json({ message: 'Turno eliminado' })
     } catch (err) {
         res.status(500).json({ message: 'Error al eliminar turno', error: err })
