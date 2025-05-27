@@ -1,8 +1,10 @@
 import axios from "axios";
 import useAuthStore from "../store/authStore";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 const API = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: BASE_URL,
 });
 
 API.interceptors.request.use((config) => {
@@ -184,6 +186,16 @@ export const confirmSuccessAppointment = async (appointment_id) => {
         return response.data
     } catch (error) {
         console.error("Error fetching surgeries:", error)
+        return []
+    }
+}
+
+export const cancelAppointment = async () => {
+    try {
+        const response = await API.delete(`/appointments/${appointment_id}`)
+        return response.data
+    } catch {
+console.error("Error fetching surgeries:", error)
         return []
     }
 }
