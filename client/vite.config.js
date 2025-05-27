@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import dotenv from 'dotenv'
 
 dotenv.config()
-const PORT = parseInt(process.env.VITE_BACK_URL) || 5173
+const PORT = parseInt(process.env.VITE_PORT) || 5173
 
 export default defineConfig({
   plugins: [react()],
