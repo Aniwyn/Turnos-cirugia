@@ -24,7 +24,7 @@ const SidebarLayout = ({ children }) => {
                     e.target.src = "/profile_images/user.jpg"
                 }}
                 />
-                <Typography variant="h4" className="text-center pt-2 bg-gradient-to-r from-green-600 to-teal-300 bg-clip-text text-transparent">{charAt(0).toUpperCase() + this.slice(1)}</Typography>
+                <Typography variant="h4" className="text-center pt-2 bg-gradient-to-r from-green-600 to-teal-300 bg-clip-text text-transparent">{user.name.charAt(0).toUpperCase() + user.name.slice(1)}</Typography>
                 <Typography variant="small" className="text-center">{getRoleName()}</Typography>
                 <List className="flex flex-col h-full mt-8">
                     <Link to="/Appointment">

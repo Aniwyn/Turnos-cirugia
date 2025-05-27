@@ -8,7 +8,7 @@ exports.login = async (req, res) => {
     const lowerName = name.toLowerCase()
 
     try {
-        const user = await db.User.findOne({ where: { lowerName } })
+        const user = await db.User.findOne({ where: { name: lowerName } })
 
         if (!user) { return res.status(404).json({ message: "User not found" }) }
 

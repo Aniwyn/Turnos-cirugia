@@ -26,4 +26,4 @@ export function ConfirmDialog({ open, setOpen, title, subTitle, confirmFunction 
             </DialogFooter>
         </Dialog>
     )
-}
+} //cual es la forma correcta de implementar un dialogo de confirmacion

@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import dotenv from 'dotenv'
 
-const PORT = import.meta.env.VITE_BACK_URL
+dotenv.config()
+const PORT = parseInt(process.env.VITE_BACK_URL) || 5173
 
 export default defineConfig({
   plugins: [react()],
@@ -10,5 +12,3 @@ export default defineConfig({
     port: PORT,
   },
 })
-
-// https://vitejs.dev/config/

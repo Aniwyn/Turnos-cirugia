@@ -185,17 +185,17 @@ export const confirmSuccessAppointment = async (appointment_id) => {
         const response = await API.put(`/appointments/success/${appointment_id}`)
         return response.data
     } catch (error) {
-        console.error("Error fetching surgeries:", error)
+        console.error("Error to confirm success appointment:", error)
         return []
     }
 }
 
-export const cancelAppointment = async () => {
+export const cancelAppointment = async (appointment_id) => {
     try {
         const response = await API.delete(`/appointments/${appointment_id}`)
         return response.data
-    } catch {
-console.error("Error fetching surgeries:", error)
+    } catch (error) {
+        console.error("Error to cancel appointment:", error)
         return []
     }
 }

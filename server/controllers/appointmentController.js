@@ -26,7 +26,11 @@ exports.getAllAppointments = async (req, res) => {
             where: {
                 state: 1,
                 success: 1
-            }
+            },
+            order: [
+                ['surgery_date', 'ASC'],
+                ['surgery_time', 'ASC']
+            ]
         })
         res.json(appointments)
     } catch (err) {

@@ -10,7 +10,8 @@ import {
     getMedics,
     createAppointment,
     updateAppointment,
-    getAppointment
+    getAppointment,
+    cancelAppointment
 } from "../services/api"
 import useAuthStore from "../store/authStore"
 import SidebarLayout from "../layouts/SidebarLayout"
@@ -19,6 +20,7 @@ import PatientForm from '../components/appointment/PatientForm'
 import AppointmentForm from '../components/appointment/AppointmentForm'
 import AlertMessage from "../components/AlertMessage"
 import LoadingScreen from "../layouts/LoadingScreen"
+import { ConfirmDialog } from '../components/ConfirmDialog'
 
 const Appointment = ({ appointment_id, patient_id }) => {
     const [appointment, setAppointment] = useState({
@@ -33,6 +35,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
     const [surgeryHour, setSurgeryHour] = useState()
     const [surgeryMinute, setSurgeryMinute] = useState()
     const [alert, setAlert] = useState({ show: false })
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false)
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
@@ -288,7 +291,12 @@ const Appointment = ({ appointment_id, patient_id }) => {
     }
 
     const handleDelete = () => {
-        navigate('/')
+        const deleteAppointment = async () => {
+            await cancelAppointment(appointment_id)
+            navigate('/')
+        }
+
+        deleteAppointment()
     }
 
     if (loading) return <LoadingScreen loadingMenssage="Cargando turno..." />
@@ -299,6 +307,13 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 {alert.show && (
                     <AlertMessage message="" type="success" alert={alert} setAlert={setAlert} />
                 )}
+                <ConfirmDialog
+                    open={openConfirmDialog}
+                    setOpen={setOpenConfirmDialog}
+                    title="Eliminar Turno"
+                    subTitle="¿Estas seguro que desea eliminar el turno?"
+                    confirmFunction={handleDelete}
+                />
                 <Card className='flex px-4 rounded-lg min-w-[800px]'>
                     <Typography variant='h3' className='text-center'> Registrar turno</Typography>
                     <div className='flex flex-col min-w-[700px] max-w-[50rem] mx-auto '>
@@ -330,9 +345,13 @@ const Appointment = ({ appointment_id, patient_id }) => {
                             updateSurgery={updateSurgery}
                         />
                         <div className='flex justify-between'>
-                            <div className='flex justify-end gap-3 pb-10'>
-                                <Button onClick={handleDelete} variant="outlined" color='red'>Eliminar</Button>
-                            </div>
+                            {appointment_id && patient_id ?
+                                <div className='flex justify-end gap-3 pb-10'>
+                                    <Button onClick={() => setOpenConfirmDialog(true)} variant="outlined" color='red'>Eliminar</Button>
+                                </div>
+                                :
+                                <div className='flex justify-end gap-3 pb-10'></div>
+                            }
                             <div className='flex justify-end gap-3 pb-10'>
                                 <Button variant="outlined" onClick={handleCancel}>Cancelar</Button>
                                 <Button onClick={handleNext}>Aceptar</Button>
