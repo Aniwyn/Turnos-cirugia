@@ -11,8 +11,23 @@ async function createOrUpdatePatient(patientData) {
         return { patient, created: true }
     }
 
-    await patient.update(patientData)
-    return { patient, created: false }
+    const changes = {}
+    const fields = ['first_name', 'last_name', 'medic_id', 'phone1', 'phone2', 'email', 'health_insurance']
+
+    fields.forEach(field => {
+        if (patientData[field] !== undefined && patient[field] !== patientData[field]) {
+            changes[field] = {
+                before: patient[field],
+                after: patientData[field]
+            }
+        }
+    })
+
+    if (Object.keys(changes).length > 0) {
+        await patient.update(patientData)
+    }
+
+    return { patient, created: false, changes }
 }
 
 async function createAppointment(data) {
@@ -59,8 +74,33 @@ async function createAppointment(data) {
 async function updateAppointment(id, updateData, surgeries) {
     const appointment = await db.Appointment.findByPk(id)
     if (!appointment) return null
+
+    const changesAppointment = {}
+    const fields = [
+        'surgery_date',
+        'surgery_time',
+        'surgeon_id',
+        'admin_notes',
+        'admin_status_id',
+        'admin_user_id',
+        'nurse_notes',
+        'medical_status_id',
+        'medical_user_id'
+    ]
     
-    await appointment.update(updateData)
+    fields.forEach(field => {
+        if (updateData[field] !== undefined && appointment[field] !== updateData[field]) {
+            changesAppointment[field] = {
+                before: appointment[field],
+                after: updateData[field]
+            }
+        }
+    })
+
+    if (Object.keys(changesAppointment).length > 0) {
+        await appointment.update(updateData)
+    }
+
     await db.AppointmentSurgery.destroy({ where: { appointment_id: id } })
 
     if (Array.isArray(surgeries) && surgeries.length > 0) {
@@ -73,7 +113,7 @@ async function updateAppointment(id, updateData, surgeries) {
         await db.AppointmentSurgery.bulkCreate(surgeryData)
     }
 
-    return appointment
+    return { appointment, changesAppointment }
 }
 
 

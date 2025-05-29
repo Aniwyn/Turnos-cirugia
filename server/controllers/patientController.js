@@ -1,4 +1,5 @@
 const db = require('../models')
+const logAudit = require('../services/auditLogger')
 
 exports.getAllPatients = async (req, res) => {
     try {
@@ -55,6 +56,11 @@ exports.getPatientByDni = async (req, res) => {
 
 exports.createPatient = async (req, res) => {
     const { dni, first_name, last_name, doctor_id, phone1, phone2, email, health_insurance } = req.body
+    const audit = {
+        user_id: req.user.userId,
+        action: '[POST] CREATE_PATIENT',
+        affected_entity: 'patient'
+    }
 
     try {
         const [patient, created] = await db.Patient.findOrCreate({
@@ -70,7 +76,11 @@ exports.createPatient = async (req, res) => {
             }
         })
 
+        audit.record_id = patient.id
+
+
         if (created) {
+            await logAudit(audit)
             return res.status(201).json({ message: "Patient created", patient_id: patient.id })
         } else {
             await patient.update({
@@ -82,9 +92,12 @@ exports.createPatient = async (req, res) => {
                 email,
                 health_insurance
             })
+            await logAudit({ ...audit, action: '[PUT] UPDATE_PATIENT' })
             return res.status(200).json({ message: "Patient already exists", patient_id: patient.id })
         }
     } catch (err) {
+        audit.error = err.message
+        await logAudit(audit)
         return res.status(500).json({ message: "Error creating patient", error: err })
     }
 }

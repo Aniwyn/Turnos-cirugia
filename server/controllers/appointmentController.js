@@ -1,5 +1,6 @@
 const db = require('../models')
 const { createOrUpdatePatient, createAppointment, updateAppointment } = require('../services/appointmentService.js')
+const logAudit = require('../services/auditLogger')
 
 exports.getAllAppointments = async (req, res) => {
     try {
@@ -34,7 +35,7 @@ exports.getAllAppointments = async (req, res) => {
         })
         res.json(appointments)
     } catch (err) {
-        console.log("ERROR: ", err)
+        console.error("ERROR: ", err)
         res.status(500).json({ message: 'Error al obtener turnos', error: err })
     }
 }
@@ -68,7 +69,7 @@ exports.getAllSuccessAppointments = async (req, res) => {
         })
         res.json(appointments)
     } catch (err) {
-        console.log("ERROR: ", err)
+        console.error("ERROR: ", err)
         res.status(500).json({ message: 'Error al obtener turnos', error: err })
     }
 }
@@ -100,8 +101,15 @@ exports.getAppointmentById = async (req, res) => {
 }
 
 exports.createAppointment = async (req, res) => {
+    const user = req.user
+    console.log(user)
+    const audit = {
+        user_id: user.userId,
+        action: '[POST] CREATE_APPOINTMENT',
+        affected_entity: 'appointment'
+    }
+
     try {
-        const user = req.user 
 
         const {
             dni,
@@ -120,12 +128,9 @@ exports.createAppointment = async (req, res) => {
             status_id
         } = req.body
 
-        let admin_notes
-        let nurse_notes
-        let admin_status_id
-        let medical_status_id
-        let admin_user_id
-        let medical_user_id
+        let admin_notes, nurse_notes
+        let admin_status_id, medical_status_id
+        let admin_user_id, medical_user_id
 
         if (user.role == "admin" || user.role == "Administracion") {
             admin_notes = notes
@@ -138,8 +143,8 @@ exports.createAppointment = async (req, res) => {
             medical_user_id = user.userId
             admin_status_id = 0
         }
-        
-        const { patient, created } = await createOrUpdatePatient({
+
+        const { patient, created, changes } = await createOrUpdatePatient({
             dni,
             first_name,
             last_name,
@@ -149,6 +154,18 @@ exports.createAppointment = async (req, res) => {
             email,
             health_insurance
         })
+
+        if (!created && changes && Object.keys(changes).length > 0) {
+            const auditUser = {
+                user_id: user.userId,
+                action: '[PUT] UPDATE_PATIENT (FROM APPOINTMENT)',
+                affected_entity: 'patient',
+                record_id: patient.id,
+                data: JSON.stringify({ patient_changes: changes })
+            }
+
+            await logAudit(auditUser)
+        }
 
         const appointment = await createAppointment({
             patient_id: patient.id,
@@ -164,21 +181,33 @@ exports.createAppointment = async (req, res) => {
             surgeries
         })
 
+        audit.record_id = appointment.id
+        await logAudit(audit)
+
         res.status(201).json({
             message: created ? 'Paciente y turno creados' : 'Turno creado a paciente existente',
             appointmentId: appointment.id
         })
-    } catch (err) { 
+    } catch (err) {
+        audit.error = err.message
+        await logAudit(audit)
         console.error('ERROR:', err)
         res.status(500).json({ message: 'Error al crear el turno', error: err })
     }
 }
 
 exports.updateAppointment = async (req, res) => {
-    try {
-        const user = req.user
-        const { id } = req.params
+    const user = req.user
+    const { id } = req.params
 
+    const auditAppointment = {
+        user_id: user.userId,
+        action: '[PUT] UPDATE_APPOINTMENT',
+        affected_entity: 'appointment',
+        record_id: id
+    }
+
+    try {
         const {
             dni,
             first_name,
@@ -196,7 +225,7 @@ exports.updateAppointment = async (req, res) => {
             status_id
         } = req.body
 
-        const { patient, created } = await createOrUpdatePatient({
+        const { patient, created, changes } = await createOrUpdatePatient({
             dni,
             first_name,
             last_name,
@@ -206,6 +235,18 @@ exports.updateAppointment = async (req, res) => {
             email,
             health_insurance
         })
+
+        if (!created && changes && Object.keys(changes).length > 0) {
+            const auditPatient = {
+                user_id: user.userId,
+                action: '[PUT] UPDATE_PATIENT (FROM APPOINTMENT)',
+                affected_entity: 'patient',
+                record_id: patient.id,
+                data: JSON.stringify({ patient_changes: changes })
+            }
+
+            await logAudit(auditPatient)
+        }
 
         let updateData = {
             surgery_date,
@@ -223,30 +264,49 @@ exports.updateAppointment = async (req, res) => {
             updateData.medical_user_id = user.userId
         }
 
-        const appointment = await updateAppointment(id, updateData, surgeries)
+        const { appointment, changesAppointment } = await updateAppointment(id, updateData, surgeries)
 
         if (!appointment) {
             return res.status(404).json({ message: "Turno no encontrado" })
         }
 
+        console.log("\n\n", changesAppointment)
+        if (changesAppointment && Object.keys(changesAppointment).length > 0) {
+            auditAppointment.data = JSON.stringify({ appointment_changes: changesAppointment })
+            await logAudit(auditAppointment)
+        }
+
         res.json({ message: "Turno actualizado" })
     } catch (err) {
         console.error('ERROR:', err)
+        auditAppointment.error = err.message
+        await logAudit(auditAppointment)
         res.status(500).json({ message: 'Error al actualizar el turno', error: err })
     }
 }
 
 exports.deleteAppointment = async (req, res) => {
     const { id } = req.params
+    const audit = {
+        user_id: req.user.userId,
+        action: '[DELETE] DELETE_APPOINTMENT',
+        affected_entity: 'appointment',
+        record_id: id
+    }
+
     try {
         const appointment = await db.Appointment.findByPk(id)
         if (!appointment) {
             return res.status(404).json({ message: 'Turno no encontrado' })
         }
 
-        await appointment.update({state: 0})
+        await appointment.update({ state: 0 })
+        await logAudit(audit)
+
         res.json({ message: 'Turno eliminado' })
     } catch (err) {
+        audit.error = err.message
+        await logAudit(audit)
         res.status(500).json({ message: 'Error al eliminar turno', error: err })
     }
 }
@@ -254,19 +314,30 @@ exports.deleteAppointment = async (req, res) => {
 exports.successAppointment = async (req, res) => {
     const user = req.user
     const { id } = req.params
+    const audit = {
+        user_id: user.userId,
+        action: '[PUT] SUCCESS_APPOINTMENT',
+        affected_entity: 'appointment',
+        record_id: id
+    }
+
+
     try {
         if (user.role !== "admin") {
             return res.status(401).json({ message: 'Usuario no autorizado' })
-        } 
+        }
 
         const appointment = await db.Appointment.findByPk(id)
         if (!appointment) {
             return res.status(404).json({ message: 'Turno no encontrado' })
         }
 
-        await appointment.update({success: 2})
+        await appointment.update({ success: 2 })
+        await logAudit(audit)
         res.json({ message: 'Turno finalizado' })
     } catch (err) {
+        audit.error = err.message
+        await logAudit(audit)
         res.status(500).json({ message: 'Error al intentar marcar como realizado el turno', error: err })
     }
 }
