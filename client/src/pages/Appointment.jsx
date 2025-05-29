@@ -53,6 +53,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 setStatuses(statusesFetched)
 
                 const surgeriesFetched = await getSurgeries()
+                console.log(surgeriesFetched)
                 setSurgeries(surgeriesFetched)
 
                 const medicsFetched = await getMedics()

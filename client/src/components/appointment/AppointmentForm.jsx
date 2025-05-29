@@ -39,7 +39,7 @@ const AppointmentForm = ({ appointment, statuses, surgeryDate, surgeryHour, surg
 
     let surgeriesOptions = []
     surgeries.map(surgery => {
-        surgeriesOptions.push({ value: surgery.id, label: surgery.name })
+        surgeriesOptions.push({ value: surgery.id, label: surgery.name, useLens: surgery.useLens })
     })
 
     let surgeonsOptions = []
@@ -125,10 +125,10 @@ const AppointmentForm = ({ appointment, statuses, surgeryDate, surgeryHour, surg
                                     variant='outlined'
                                     label="Lente sugerido"
                                     placeholder='EyeOL'
-                                    value={surgery.surgery_id?.label === "Cataratas" ? surgery.intraocular_lens : ""}
+                                    value={surgery.surgery_id?.useLens == 1 ? surgery.intraocular_lens : ""}
                                     onChange={(e) => updateSurgery(index, 'intraocular_lens', e.target.value)}
                                     className='bg-white'
-                                    disabled={surgery.surgery_id?.label !== "Cataratas"}
+                                    disabled={surgery.surgery_id?.useLens != 1}
                                 />
                             </div>
                             <div className='col-span-5 flex ps-3'>

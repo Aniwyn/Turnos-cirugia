@@ -8,6 +8,9 @@ function surgery(sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        useLens: {
+            type: DataTypes.INTEGER
         }
     }, {
         tableName: 'surgery',
