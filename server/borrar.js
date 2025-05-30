@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 
-const password = "12345";
+const password = "CO45jujuy!";
 const saltRounds = 10;
 
 bcrypt.hash(password, saltRounds, (err, hash) => {
@@ -10,5 +10,3 @@ bcrypt.hash(password, saltRounds, (err, hash) => {
         console.log("Hash generado:", hash);
     }
 });
-
-/** Podrias ayudarme? tengo un proyecto que estaba trabajadno en github y por ciertos motivos tuve que sacar una copia para trabajar offline, en esta copia borre node_module y .git, ahora necesito volver a subir el repositorio a github */
