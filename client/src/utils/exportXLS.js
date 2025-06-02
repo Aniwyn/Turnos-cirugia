@@ -16,8 +16,6 @@ export const exportAppointmentsToExcel = (appointments) => {
             'CIRUGIA': surgeryName,
             'MEDICO': medic,
             'OBRA SOCIAL': appt.Patient.health_insurance || '',
-            'TELEFONO': appt.Patient.phone1 || '',
-            'TELEFONO2': appt.Patient.phone2 || '',
             'FECHA': appt.surgery_date || '',
             'OBSERVACION': lens,
             'ATENDIO': nurse
@@ -25,6 +23,17 @@ export const exportAppointmentsToExcel = (appointments) => {
     })
 
     const worksheet = XLSX.utils.json_to_sheet(excelData)
+    worksheet['!cols'] = [
+        { wch: 6 }, // HORA
+        { wch: 25 }, // APELLIDO Y NOMBRE
+        { wch: 4 }, // OJO
+        { wch: 14 }, // CIRUGIA
+        { wch: 15 }, // MEDICO
+        { wch: 12 }, // OBRA SOCIAL
+        { wch: 10 }, // FECHA
+        { wch: 20 }, // OBSERVACIONES (lente)
+        { wch: 8 } // ATENDIO
+    ]
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Turnos')
 
