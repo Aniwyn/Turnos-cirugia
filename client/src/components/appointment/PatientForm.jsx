@@ -37,17 +37,6 @@ const PatientForm = ({ patient, medics, handlePatient, handleMedic, newPatient, 
                 {errors.dni && <Typography color="red" variant="small" className='content-center ps-4'>{errors.dni}</Typography>}
             </div>
             <div className='flex pb-3 gap-3'>
-                <div className='flex-col w-full'>
-                    <Input
-                        name='first_name'
-                        variant='outlined'
-                        label="Nombre/s *"
-                        placeholder='Perez'
-                        value={patient.first_name}
-                        onChange={handlePatient}
-                    />
-                    {errors.first_name && <Typography color="red" variant="small">{errors.first_name}</Typography>}
-                </div>
                 <div className='flex flex-col w-full'>
                     <Input
                         name='last_name'
@@ -58,6 +47,17 @@ const PatientForm = ({ patient, medics, handlePatient, handleMedic, newPatient, 
                         onChange={handlePatient}
                     />
                     {errors.last_name && <Typography color="red" variant="small">{errors.last_name}</Typography>}
+                </div>
+                <div className='flex-col w-full'>
+                    <Input
+                        name='first_name'
+                        variant='outlined'
+                        label="Nombre/s *"
+                        placeholder='Perez'
+                        value={patient.first_name}
+                        onChange={handlePatient}
+                    />
+                    {errors.first_name && <Typography color="red" variant="small">{errors.first_name}</Typography>}
                 </div>
             </div>
             <div className='flex pb-3 gap-3'>

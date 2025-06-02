@@ -45,7 +45,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
         const userRole = getRole()
 
         const fetchData = async () => {
-            console.log(userRole)
             try {
                 const statusesFetched = userRole === "admin"
                     ? await getAdministrativeStatus()
@@ -137,7 +136,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
         const { name, value } = e.target
         validateField(name, value)
         setPatient((prev) => ({ ...prev, [name]: value }))
-        console.log(patient)
     }
     const handleMedic = (val) => { console.log(val); setPatient((prev) => ({ ...prev, medic_id: val })) }
 
@@ -245,7 +243,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
             for (let i = 0; i < appointment.surgeries.length; i++) {
                 if (appointment.surgeries[i].surgery_id) {
                     let lens
-                    if (appointment.surgeries[i].surgery_id.value == 1) { //Si la cirugia no es cataratas omitir dato de la lente
+                    if (appointment.surgeries[i].surgery_id.useLens == 1) { //Si la cirugia no es una que usa lentes omitir dato
                         lens = appointment.surgeries[i].intraocular_lens
                     } else {
                         lens = ""

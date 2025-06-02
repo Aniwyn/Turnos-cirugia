@@ -5,7 +5,6 @@ import { PencilSquareIcon, CheckCircleIcon } from "@heroicons/react/24/outline"
 
 const InfoRow = ({ appointment, editAppointment, openButtonDialog }) => {
     const location = useLocation()
-    console.log(location.pathname)
 
     return (
         <div className='flex flex-row justify-start'>

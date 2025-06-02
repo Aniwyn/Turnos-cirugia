@@ -1,7 +1,8 @@
-import { React, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import SidebarLayout from "../layouts/SidebarLayout";
 import HeaderLayout from "../layouts/HeaderLayout";
-import { Card, Input } from "@material-tailwind/react";
+import { Card, Input, IconButton } from "@material-tailwind/react";
+import { DocumentChartBarIcon } from "@heroicons/react/24/outline";
 import DatePicker from "../components/DatePicker";
 import PatientCard from "../components/dashboard/PatientCard";
 import useAppointmentsStore from "../store/useAppointmentsStore";
@@ -10,6 +11,7 @@ import LoadingScreen from '../layouts/LoadingScreen';
 import { useNavigate } from 'react-router-dom'
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { confirmSuccessAppointment } from "../services/api"
+import { exportAppointmentsToExcel } from '../utils/exportXLS'
 
 const Dashboard = () => {
     const [open, setOpen] = useState(0)
@@ -37,7 +39,6 @@ const Dashboard = () => {
                 const matchesSurgery = lowerSurgery === '' || (appointment.Surgeries.length > 0 && appointment.Surgeries[0].name.toLocaleLowerCase().includes(lowerSurgery))
                 const matchesDate = date === '' || appointment.surgery_date === date?.toISOString().split('T')[0]
 
-                console.log(matchesNameOrDni, matchesSurgery, matchesDate)
                 return matchesNameOrDni && matchesSurgery && matchesDate
             })
 
@@ -46,10 +47,6 @@ const Dashboard = () => {
         } else setAppointmentsData(appointments)
 
     }, [nameDni, surgery, date])
-
-    useEffect(() => {
-        console.log("TURNOS: ", appointmentsData)
-    }, [appointmentsData])
 
     const handleOpen = (value) => setOpen(open === value ? 0 : value)
     const handleNameDni = (e) => setNameDni(e.target.value)
@@ -70,6 +67,10 @@ const Dashboard = () => {
         setOpenConfirmDialog(true)
     }
 
+    const exportToExcel = () => {
+        exportAppointmentsToExcel(appointmentsData)
+    }
+
     if (loading) return <LoadingScreen loadingMenssage='Cargando turnos...' />
     if (error) return <p>Error: {error}</p>
 
@@ -88,6 +89,9 @@ const Dashboard = () => {
                         <Input variant="outlined" label="Nombre o DNI" placeholder="Juan Perez" value={nameDni} onChange={handleNameDni} />
                         <Input variant="outlined" label="Cirugia" placeholder="Cataratas" value={surgery} onChange={handleSurgery} />
                         <DatePicker title="Fecha" date={date} setDate={setDate} />
+                        <IconButton size="lg" className='min-w-10 h-10 hover:shadow-[#55FF55]/10' color='green' onClick={exportToExcel}>
+                            <DocumentChartBarIcon className="h-5 w-5 text-white" />
+                        </IconButton>
                     </Card>
                     <Card className='pt-4 px-4 my-3 h-full'>
                         {appointmentsData.map((appointment) => {

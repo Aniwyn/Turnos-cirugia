@@ -138,7 +138,6 @@ const AppointmentForm = ({ appointment, statuses, surgeryDate, surgeryHour, surg
                                     value={surgery.surgery_id}
                                     onChange={(val) => updateSurgery(index, 'surgery_id', val)}
                                     className='w-full'
-                                    defaultValue={{ value: 1, label: "Cataratas" }}
                                     styles={{
                                         control: (baseStyles, state) => ({
                                             ...baseStyles,

@@ -30,7 +30,6 @@ API.interceptors.response.use(
 export const getAppointments = async () => {
     try {
         const response = await API.get('/appointments')
-        console.log("RESPONSe APPO",response)
         return response.data
     } catch (error) {
         console.error("Error fetching appointments:", error)
@@ -169,10 +168,8 @@ export const createAppointment = async (appointment) => {
 }
 
 export const updateAppointment = async (appointment_id, appointment) => {
-    console.log("DATOS PARa UPDATEAR ", appointment_id, appointment)
     try {
         const response = await API.put(`/appointments/${appointment_id}`, appointment)
-        console.log("RESPONSE APOINT", response)
         return response.data
     } catch (error) {
         console.error("Error fetching surgeries:", error)
