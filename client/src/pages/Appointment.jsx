@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, Button, Typography } from "@material-tailwind/react"
 import {
@@ -95,7 +95,11 @@ const Appointment = ({ appointment_id, patient_id }) => {
                         baseAppointment.surgeries.push({
                             eye: { value: appointment_data.Surgeries[i].appointment_surgery.eye, label: appointment_data.Surgeries[i].appointment_surgery.eye },
                             intraocular_lens: appointment_data.Surgeries[i].appointment_surgery.intraocular_lens,
-                            surgery_id: { value: appointment_data.Surgeries[i].id, label: appointment_data.Surgeries[i].name }
+                            surgery_id: { 
+                                value: appointment_data.Surgeries[i].id,
+                                label: appointment_data.Surgeries[i].name,
+                                useLens: appointment_data.Surgeries[i].useLens 
+                            },
                         })
                     }
                 }

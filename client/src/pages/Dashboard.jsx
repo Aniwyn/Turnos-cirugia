@@ -30,7 +30,6 @@ const Dashboard = () => {
     useEffect(() => {
         const lowerName = nameDni.toLocaleLowerCase()
         const lowerSurgery = surgery.toLocaleLowerCase()
-        console.log("Nombre: ", lowerName, "\nCirugia: ", lowerSurgery, "\nFecha: ", date)
 
         if (nameDni || surgery || date) {
             const appointmentsFiltered = appointments.filter(appointment => {
@@ -40,10 +39,8 @@ const Dashboard = () => {
                 const matchesSurgery = lowerSurgery === '' || (appointment.Surgeries.length > 0 && appointment.Surgeries[0].name.toLocaleLowerCase().includes(lowerSurgery))
                 const matchesDate = date === '' || date === undefined || appointment.surgery_date === date?.toISOString().split('T')[0]
 
-                
                 return matchesNameOrDni && matchesSurgery && matchesDate
             })
-
             setAppointmentsData(appointmentsFiltered)
 
         } else setAppointmentsData(appointments)
