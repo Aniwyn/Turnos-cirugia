@@ -16,6 +16,7 @@ export const exportAppointmentsToExcel = (appointments) => {
             'CIRUGIA': surgeryName,
             'MEDICO': medic,
             'OBRA SOCIAL': appt.Patient.health_insurance || '',
+            'TEL 1': appt.Patient.phone1,
             'FECHA': appt.surgery_date || '',
             'OBSERVACION': lens,
             'ATENDIO': nurse
@@ -30,6 +31,7 @@ export const exportAppointmentsToExcel = (appointments) => {
         { wch: 14 }, // CIRUGIA
         { wch: 15 }, // MEDICO
         { wch: 12 }, // OBRA SOCIAL
+        { wch: 8 }, // TEL 1
         { wch: 10 }, // FECHA
         { wch: 20 }, // OBSERVACIONES (lente)
         { wch: 8 } // ATENDIO
