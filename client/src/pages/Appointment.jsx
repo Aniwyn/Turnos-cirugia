@@ -40,7 +40,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const { user } = useAuthStore()
-
+    
     useEffect(() => {
         const userRole = getRole()
 
@@ -235,13 +235,12 @@ const Appointment = ({ appointment_id, patient_id }) => {
         console.log("DNI: ", patient.dni, " Nombre: ", patient.first_name, " Apellido: ", patient.last_name, "\n")
         if (!validateForm()) return
 
-
         const handleNextAsync = async () => {
             let surgery_time_picked
             if (surgeryHour && !surgeryMinute)
-                surgery_time_picked = surgeryHour ? `${surgeryHour?.value.padStart(2, '0')}:00:00` : undefined;
+                surgery_time_picked = surgeryHour ? `${surgeryHour?.value.padStart(2, '0')}:00:00` : null;
             else
-                surgery_time_picked = surgeryHour && surgeryMinute ? `${surgeryHour?.value.padStart(2, '0')}:${surgeryMinute?.value.padStart(2, '0')}:00` : undefined
+                surgery_time_picked = surgeryHour && surgeryMinute ? `${surgeryHour?.value.padStart(2, '0')}:${surgeryMinute?.value.padStart(2, '0')}:00` : null
 
             const surgeriesToBack = []
             for (let i = 0; i < appointment.surgeries.length; i++) {
@@ -270,7 +269,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 health_insurance: patient.health_insurance,
                 medic_id: patient.medic_id?.value,
                 notes: appointment.notes,
-                surgery_date: surgeryDate?.toISOString().split('T')[0],
+                surgery_date: surgeryDate ? surgeryDate?.toISOString().split('T')[0] : null,
                 surgery_time: surgery_time_picked,
                 surgeon_id: appointment.surgeon_id?.value,
                 status_id: appointment.status ? appointment.status?.value : 1,
