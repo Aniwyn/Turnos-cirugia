@@ -323,7 +323,7 @@ exports.successAppointment = async (req, res) => {
 
 
     try {
-        if (user.role !== "admin") {
+        if (user.role !== "nurse") {
             return res.status(401).json({ message: 'Usuario no autorizado' })
         }
 
