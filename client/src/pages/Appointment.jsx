@@ -232,7 +232,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
     }
 
     const handleNext = () => {
-        console.log("DNI: ", patient.dni, " Nombre: ", patient.first_name, " Apellido: ", patient.last_name, "\n")
         if (!validateForm()) return
 
         const handleNextAsync = async () => {
@@ -275,7 +274,6 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 status_id: appointment.status ? appointment.status?.value : 1,
                 surgeries: surgeriesToBack
             }
-            console.log("TURNO: ", appointmentJSON)
 
             if (appointment_id && patient_id) {
                 const appointmentDB = await updateAppointment(appointment_id, appointmentJSON)

@@ -1,4 +1,3 @@
-import { React } from 'react'
 import Appointment from './Appointment'
 import useAppointmentStore from '../store/useAppointmentStore'
  

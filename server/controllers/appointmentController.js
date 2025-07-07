@@ -254,14 +254,17 @@ exports.updateAppointment = async (req, res) => {
             surgeon_id
         }
 
+        const appointmentFetch = await db.Appointment.findByPk(id)
+        console.log("FETCH", appointmentFetch)
+
         if (user.role === "admin" || user.role === "Administracion") {
             updateData.admin_notes = notes
             updateData.admin_status_id = status_id
-            updateData.admin_user_id = user.userId
+            if (!appointmentFetch.admin_user_id) updateData.admin_user_id = user.userId
         } else if (user.role === "nurse" || user.role === "Enfermería") {
             updateData.nurse_notes = notes
             updateData.medical_status_id = status_id
-            updateData.medical_user_id = user.userId
+            if (!appointmentFetch.medical_user_id) updateData.medical_user_id = user.userId
         }
 
         const { appointment, changesAppointment } = await updateAppointment(id, updateData, surgeries)
@@ -270,7 +273,6 @@ exports.updateAppointment = async (req, res) => {
             return res.status(404).json({ message: "Turno no encontrado" })
         }
 
-        console.log("\n\n", changesAppointment)
         if (changesAppointment && Object.keys(changesAppointment).length > 0) {
             auditAppointment.data = JSON.stringify({ appointment_changes: changesAppointment })
             await logAudit(auditAppointment)
