@@ -34,7 +34,9 @@ async function createAppointment(data) {
     const {
         patient_id,
         admin_notes,
+        admin_incidents,
         nurse_notes,
+        nurse_incidents,
         surgery_date,
         surgery_time,
         surgeon_id,
@@ -48,7 +50,9 @@ async function createAppointment(data) {
     const appointment = await db.Appointment.create({
         patient_id,
         admin_notes,
+        admin_incidents,
         nurse_notes,
+        nurse_incidents,
         surgery_date,
         surgery_time,
         surgeon_id,
@@ -81,9 +85,11 @@ async function updateAppointment(id, updateData, surgeries) {
         'surgery_time',
         'surgeon_id',
         'admin_notes',
+        'admin_incidents',
         'admin_status_id',
         'admin_user_id',
         'nurse_notes',
+        'nurse_incidents',
         'medical_status_id',
         'medical_user_id'
     ]

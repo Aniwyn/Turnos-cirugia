@@ -21,6 +21,7 @@ import AppointmentForm from '../components/appointment/AppointmentForm'
 import AlertMessage from "../components/AlertMessage"
 import LoadingScreen from "../layouts/LoadingScreen"
 import { ConfirmDialog } from '../components/ConfirmDialog'
+import IncidentForm from '../components/appointment/IncidentForm'
 
 const Appointment = ({ appointment_id, patient_id }) => {
     const [appointment, setAppointment] = useState({
@@ -76,6 +77,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 const baseAppointment = {
                     status: undefined,
                     notes: "",
+                    incidents: "",
                     surgeries: []
                 }
 
@@ -114,12 +116,14 @@ const Appointment = ({ appointment_id, patient_id }) => {
                         label: appointment_data.AdministrativeStatus.name
                     } || {}
                     baseAppointment.notes = appointment_data.admin_notes || ""
+                    baseAppointment.incidents = appointment_data.admin_incidents || ""
                 } else if (userRole === "nurse") {
                     baseAppointment.status = {
                         value: appointment_data.MedicalStatus.id,
                         label: appointment_data.MedicalStatus.name
                     } || {}
                     baseAppointment.notes = appointment_data.nurse_notes || ""
+                    baseAppointment.incidents = appointment_data.nurse_incidents || ""
                 }
 
                 setPatient(basePatient)
@@ -215,20 +219,20 @@ const Appointment = ({ appointment_id, patient_id }) => {
         let errorMessage = ""
 
         if (!value) {
-            errorMessage = "Este campo es obligatorio.";
+            errorMessage = "Este campo es obligatorio."
         } else {
             if (field === "dni" && !/^\d{7,8}$/.test(value)) {
-                errorMessage = "El DNI debe tener entre 7 y 8 dígitos.";
+                errorMessage = "El DNI debe tener entre 7 y 8 dígitos."
             }
             if (field === "email" && !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
-                errorMessage = "Correo electrónico inválido.";
+                errorMessage = "Correo electrónico inválido."
             }
         }
 
         setErrors((prevErrors) => ({
             ...prevErrors,
             [field]: errorMessage,
-        }));
+        }))
     }
 
     const handleNext = () => {
@@ -237,7 +241,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
         const handleNextAsync = async () => {
             let surgery_time_picked
             if (surgeryHour && !surgeryMinute)
-                surgery_time_picked = surgeryHour ? `${surgeryHour?.value.padStart(2, '0')}:00:00` : null;
+                surgery_time_picked = surgeryHour ? `${surgeryHour?.value.padStart(2, '0')}:00:00` : null
             else
                 surgery_time_picked = surgeryHour && surgeryMinute ? `${surgeryHour?.value.padStart(2, '0')}:${surgeryMinute?.value.padStart(2, '0')}:00` : null
 
@@ -268,6 +272,7 @@ const Appointment = ({ appointment_id, patient_id }) => {
                 health_insurance: patient.health_insurance,
                 medic_id: patient.medic_id?.value,
                 notes: appointment.notes,
+                incidents: appointment.incidents,
                 surgery_date: surgeryDate ? surgeryDate?.toISOString().split('T')[0] : null,
                 surgery_time: surgery_time_picked,
                 surgeon_id: appointment.surgeon_id?.value,
@@ -343,6 +348,10 @@ const Appointment = ({ appointment_id, patient_id }) => {
                             addSurgery={addSurgery}
                             removeSurgery={removeSurgery}
                             updateSurgery={updateSurgery}
+                        />
+                        <IncidentForm
+                            appointment={appointment}
+                            handleAppointment={handleAppointment}
                         />
                         <div className='flex justify-between'>
                             {appointment_id && patient_id ?
