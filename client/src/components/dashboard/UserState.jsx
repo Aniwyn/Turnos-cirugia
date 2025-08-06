@@ -26,10 +26,15 @@ const UserState = ({ title, userName, status, note, incident }) => {
             <Typography className='ps-12 pe-3 font-bold' variant='small'>Observaciones:</Typography>
             <Typography className='ps-1' variant='small'>{note}</Typography>
         </div>
-        <div className='flex'>
-            <Typography className='ps-12 pe-3 font-bold' variant='small'>Errores:</Typography>
-            <Typography className='ps-1' variant='small'>{incident}</Typography>
-        </div>
+        {incident ?
+            <div className='flex'>
+                <Typography className='ps-12 pe-3 font-bold text-red-800' variant='small'>Errores:</Typography>
+                <Typography className='ps-1 text-red-700' variant='small'>{incident}</Typography>
+            </div>
+            :
+            <></>
+        }
+
     </>)
 }
 
