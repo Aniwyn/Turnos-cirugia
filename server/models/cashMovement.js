@@ -49,7 +49,7 @@ function cashMovement(sequelize, DataTypes) {
         CashMovement.belongsTo(models.CashBox, {
             foreignKey: 'cash_box_id'
         })
-
+        
         CashMovement.belongsTo(models.User, {
             foreignKey: 'user_id',
             as: "user"

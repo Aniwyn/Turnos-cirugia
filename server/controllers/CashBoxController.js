@@ -62,7 +62,7 @@ exports.createCashBox = async (req, res) => { }
 
 exports.updateCashBox = async (req, res) => { }
 
-exports.closeCashBoxold = async (req, res) => {
+exports.closeCashBox = async (req, res) => {
     try {
         const { id } = req.params
         const { description } = req.body
