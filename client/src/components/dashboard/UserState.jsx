@@ -1,7 +1,7 @@
 import React from 'react'
 import { Typography } from "@material-tailwind/react"
 
-const UserState = ({ title, userName, status, note }) => {
+const UserState = ({ title, userName, status, note, incident }) => {
     return (<>
         <Typography className='ps-5 font-bold' variant='paragraph'>{title}</Typography>
         <div className='flex'>
@@ -26,6 +26,15 @@ const UserState = ({ title, userName, status, note }) => {
             <Typography className='ps-12 pe-3 font-bold' variant='small'>Observaciones:</Typography>
             <Typography className='ps-1' variant='small'>{note}</Typography>
         </div>
+        {incident ?
+            <div className='flex'>
+                <Typography className='ps-12 pe-3 font-bold text-red-800' variant='small'>Errores:</Typography>
+                <Typography className='ps-1 text-red-700' variant='small'>{incident}</Typography>
+            </div>
+            :
+            <></>
+        }
+
     </>)
 }
 

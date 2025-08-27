@@ -13,6 +13,10 @@ function user(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false
         },
+        role_group: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         password_hash: {
             type: DataTypes.STRING,
             allowNull: false
@@ -25,11 +29,19 @@ function user(sequelize, DataTypes) {
     User.associate = (models) => {
         User.hasMany(models.Appointment, {
             foreignKey: 'admin_user_id'
-        });
+        })
 
         User.hasMany(models.Appointment, {
             foreignKey: 'medical_user_id'
-        });
+        })
+
+        User.hasMany(models.CashBox, {
+            foreignKey: 'user_id'
+        })
+
+        User.hasMany(models.CashMovement, {
+            foreignKey: 'user_id'
+        })
     }
 
     return User;

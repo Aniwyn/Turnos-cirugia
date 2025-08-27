@@ -20,7 +20,7 @@ import useLabelStore from '../../store/useCashMovementLabelStore'
 import useCashMovementStore from '../../store/useCashMovementStore'
 import { updateCashMovement } from '../../services/cashMovementService'
 
-const UpdateCashMovement = ({ movement }) => {
+const ViewCashBoxDetail = ({ movement }) => {
     const [cmAmount, setCmAmount] = useState()
     const [cmCurrency, setCmCurrency] = useState("ARS")
     const [cmType, setCmType] = useState("income")
@@ -143,4 +143,4 @@ const UpdateCashMovement = ({ movement }) => {
     )
 }
 
-export default UpdateCashMovement
+export default ViewCashBoxDetail

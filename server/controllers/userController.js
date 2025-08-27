@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { userId: user.id, name: user.name, role: user.role },
+            { userId: user.id, name: user.name, role: user.role, role_group: user.role_group },
             process.env.JWT_SECRET,
             { expiresIn: "6h" }
         )
@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
         res.status(200).json({
             message: "Login successful",
             token,
-            user: { id: user.id, name: user.name, role: user.role }
+            user: { id: user.id, name: user.name, role: user.role, role_group: user.role_group }
         })
 
     } catch (error) {
@@ -63,7 +63,7 @@ exports.getAuthenticatedUser = async (req, res) => {
 
         const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET)
         const user = await db.User.findByPk(decoded.userId, {
-            attributes: ["id", "name", "role"]
+            attributes: ["id", "name", "role", "role_group"]
         })
 
         if (!user) {
@@ -74,4 +74,4 @@ exports.getAuthenticatedUser = async (req, res) => {
     } catch (error) {
         return res.status(401).json({ message: "Invalid or expired token" })
     }
-};
+}

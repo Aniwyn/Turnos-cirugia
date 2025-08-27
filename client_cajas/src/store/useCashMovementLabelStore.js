@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import { getAllLabels, getLabelById } from '../services/labelService'
+import { getAllLabels, getLabelById } from '../services/cashMovementLabelService'
 
-const useLabelStore = create((set, get) => ({
+const useCashMovementStore = create((set, get) => ({
     labels: [],
     isLoading: false,
     error: null,
@@ -24,4 +24,4 @@ const useLabelStore = create((set, get) => ({
     }
 }))
 
-export default useLabelStore
+export default useCashMovementStore

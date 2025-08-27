@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
-import { 
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+    Chip,
     DatePicker,
     Pagination,
     Table,
@@ -8,235 +9,131 @@ import {
     TableColumn,
     TableHeader,
     TableRow,
-    Spinner,
-    getKeyValue
+    Spinner
 } from "@heroui/react"
-import { useAsyncList } from "@react-stately/data"
 import { today } from "@internationalized/date"
+import useCashBoxStore from '../store/useCashBoxStore'
+import EditOpenCashBox from '../components/MyCashClosures/EditOpenCashBox'
+import { capitalizeFirstLetter } from '../Helper'
+
+const originColorMap = {
+    admin: "warning",
+    manual: "primary",
+    medical: "secondary",
+    own: "success"
+}
+
+const originTextMap = {
+    admin: "Administración",
+    manual: "Manual",
+    medical: "Medicos",
+    own: "Propia"
+}
+
+const stateTextMap = {
+    closed: "Cerrada",
+    open: "Abierta",
+    cancelled: "Cancelada"
+}
+
+const stateColorMap = {
+    closed: "primary",
+    open: "success",
+    cancelled: "danger"
+}
 
 const CashBox = () => {
-    const [isLoading, setIsLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [date, setDate] = useState()
+    const [sortDescriptor, setSortDescriptor] = useState({ column: "none", direction: "ascending" })
     const rowsPerPage = Math.trunc((window.innerHeight - 200) / 36)
+    const { boxes, fetchBoxes, isLoading } = useCashBoxStore()
 
-    let list = useAsyncList({
-        //DATOS DE PRUEBA - BORRAR
-        async load({ signal }) {
-            let items = [
-                {
-                    key: "1",
-                    name: "Tony Reichert",
-                    role: "CEO",
-                    status: "Active",
-                    date: "2025-06-01"
-                },
-                {
-                    key: "2",
-                    name: "Zoey Lang",
-                    role: "Technical Lead",
-                    status: "Paused",
-                    date: "2025-06-05"
-                },
-                {
-                    key: "3",
-                    name: "Jane Fisher",
-                    role: "Senior Developer",
-                    status: "Active",
-                    date: "2025-06-03"
-                },
-                {
-                    key: "4",
-                    name: "William Howard",
-                    role: "Community Manager",
-                    status: "Vacation",
-                    date: "2025-07-02"
-                },
-                {
-                    key: "5",
-                    name: "Emily Collins",
-                    role: "Marketing Manager",
-                    status: "Active",
-                    date: "2025-07-01"
-                },
-                {
-                    key: "6",
-                    name: "Brian Kim",
-                    role: "Product Manager",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "7",
-                    name: "Laura Thompson",
-                    role: "UX Designer",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "8",
-                    name: "Michael Stevens",
-                    role: "Data Analyst",
-                    status: "Paused",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "9",
-                    name: "Sophia Nguyen",
-                    role: "Quality Assurance",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "10",
-                    name: "James Wilson",
-                    role: "Front-end Developer",
-                    status: "Vacation",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "11",
-                    name: "Ava Johnson",
-                    role: "Back-end Developer",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "12",
-                    name: "Isabella Smith",
-                    role: "Graphic Designer",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "13",
-                    name: "Oliver Brown",
-                    role: "Content Writer",
-                    status: "Paused",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "14",
-                    name: "Lucas Jones",
-                    role: "Project Manager",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "15",
-                    name: "Grace Davis",
-                    role: "HR Manager",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "16",
-                    name: "Elijah Garcia",
-                    role: "Network Administrator",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "17",
-                    name: "Emma Martinez",
-                    role: "Accountant",
-                    status: "Vacation",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "18",
-                    name: "Benjamin Lee",
-                    role: "Operations Manager",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "19",
-                    name: "Mia Hernandez",
-                    role: "Sales Manager",
-                    status: "Paused",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "20",
-                    name: "Daniel Lewis",
-                    role: "DevOps Engineer",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "21",
-                    name: "Amelia Clark",
-                    role: "Social Media Specialist",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "22",
-                    name: "Jackson Walker",
-                    role: "Customer Support",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "23",
-                    name: "Henry Hall",
-                    role: "Security Analyst",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "24",
-                    name: "Charlotte Young",
-                    role: "PR Specialist",
-                    status: "Paused",
-                    date: "2025-07-03"
-                },
-                {
-                    key: "25",
-                    name: "Liam King",
-                    role: "Mobile App Developer",
-                    status: "Active",
-                    date: "2025-07-03"
-                },
-            ]
-            setIsLoading(false)
-            return { items }
-        },
-
-        async sort({ items, sortDescriptor }) {
-            return {
-                items: items.sort((a, b) => {
-                    let first = a[sortDescriptor.column]
-                    let second = b[sortDescriptor.column]
-                    let cmp = (parseInt(first) || first) < (parseInt(second) || second) ? -1 : 1
-
-                    if (sortDescriptor.direction === "descending") {
-                        cmp *= -1
-                    }
-
-                    return cmp
-                }),
-            }
-        },
-    })
+    useEffect(() => {
+        fetchBoxes()
+    }, [])
 
     const filteredItems = useMemo(() => {
-        if (!date) return list.items
+        if (!date) return boxes
 
-        //REVISAR (revisar item.date si es que va a existir)
+        let filtered = [...boxes]
         const selectedDateStr = date.toDate?.().toISOString().slice(0, 10)
-        return list.items.filter(item => item.date === selectedDateStr)
-    }, [date, list.items])
 
-    const pages = Math.ceil(list.items.length / rowsPerPage)
+        filtered = filtered.filter(item => item.closed_at?.slice(0, 10) === selectedDateStr)
+
+        return filtered
+    }, [boxes, date])
+
+    const sortedItems = useMemo(() => {
+        return [...filteredItems].sort((a, b) => {
+            const first = a[sortDescriptor.column]
+            const second = b[sortDescriptor.column]
+            const cmp = first < second ? -1 : first > second ? 1 : 0
+
+            return sortDescriptor.direction === "descending" ? -cmp : cmp
+        })
+    }, [filteredItems, sortDescriptor])
+
+    const pages = useMemo(() => {
+        return Math.ceil(sortedItems.length / rowsPerPage) || 1
+    }, [sortedItems])
 
     const items = useMemo(() => {
         const start = (page - 1) * rowsPerPage
         const end = start + rowsPerPage
 
-        return filteredItems.slice(start, end)
-    }, [page, filteredItems])
+        return sortedItems.slice(start, end)
+    }, [page, sortedItems])
+
+    const formatter = (number) => {
+        return new Intl.NumberFormat('es-AR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(number)
+    }
+
+    const renderCell = useCallback((item, columnKey) => {
+        const cellValue = item[columnKey]
+
+        switch (columnKey) {
+            case "closed_at":
+                if (!cellValue) return "-"
+                return `${cellValue.slice(8, 10)}/${cellValue.slice(5, 7)}/${cellValue.slice(0, 4)}`
+            case "description":
+                if (!cellValue) return "-"
+                return cellValue
+            case "user":
+                return capitalizeFirstLetter(cellValue.name)
+            case "origin":
+                return <Chip color={originColorMap[cellValue]} size="sm" variant="flat">{originTextMap[cellValue]}</Chip>
+            case "state":
+                return (<Chip color={stateColorMap[cellValue]} size="sm" variant="flat">{stateTextMap[cellValue]}</Chip>)
+            case "total_ars":
+                if (item.state == "open") return <span className="flex justify-end">-</span>
+                return (
+                    <div className="flex justify-end">
+                        <span className="pr-4">$</span>
+                        <span className="font-semibold" style={{ color: cellValue < 0 ? "#82181a" : "#0d542b" }}>{cellValue ? formatter(cellValue) : "0"}</span>
+                    </div>
+                )
+            case "total_usd":
+                if (item.state == "open") return <span className="flex justify-end">-</span>
+                return (
+                    <div className="flex justify-end">
+                        <span className="pr-4">USD</span>
+                        <span className="font-semibold" style={{ color: cellValue < 0 ? "#82181a" : "#0d542b" }}>{cellValue ? formatter(cellValue) : "-"}</span>
+                    </div>
+                )
+            case "actions":
+                return (
+                    <div className="relative flex items-center justify-end">
+                        { item.state == 'open' ? <EditOpenCashBox /> : <></> }
+                    </div>
+                )
+            default:
+                return cellValue
+        }
+    }, [])
 
     return (
         <div className='flex flex-col'>
@@ -250,14 +147,8 @@ const CashBox = () => {
                 </div>
                 <div className='h-full w-full'>
                     <Table
-                        aria-label="Example table with client side sorting"
+                        aria-label='Tabla de cierres de cajas'
                         isHeaderSticky
-                        className='h-full max-h-full w-full'
-                        removeWrapper
-                        maxTableHeight={200}
-                        color='primary'
-                        sortDescriptor={list.sortDescriptor}
-                        onSortChange={list.sort}
                         bottomContent={
                             <div className="flex w-full justify-center">
                                 <Pagination
@@ -271,22 +162,32 @@ const CashBox = () => {
                                 />
                             </div>
                         }
+                        className='h-full max-h-full w-full'
+                        removeWrapper
+                        maxTableHeight={200}
+                        color='primary'
+                        sortDescriptor={sortDescriptor}
+                        onSortChange={setSortDescriptor}
                     >
                         <TableHeader>
-                            <TableColumn key="date" allowsSorting>Fecha</TableColumn>
-                            <TableColumn key="name" allowsSorting>Responsable</TableColumn>
-                            <TableColumn key="role" allowsSorting>USD</TableColumn>
-                            <TableColumn key="status" allowsSorting>ARS</TableColumn>
-                            <TableColumn key="key" allowsSorting>Acciones</TableColumn>
+                            <TableColumn key="closed_at" allowsSorting>Fecha cierre</TableColumn>
+                            <TableColumn key="description" allowsSorting>Descripcion</TableColumn>
+                            <TableColumn key="user" allowsSorting>Responsable</TableColumn>
+                            <TableColumn key="origin" allowsSorting>Origen</TableColumn>
+                            <TableColumn key="state" allowsSorting>Estado</TableColumn>
+                            <TableColumn key="total_ars" allowsSorting>USD</TableColumn>
+                            <TableColumn key="total_usd" allowsSorting>ARS</TableColumn>
+                            <TableColumn key="actions" allowsSorting>Acciones</TableColumn>
                         </TableHeader>
                         <TableBody
                             isLoading={isLoading}
                             items={items}
                             loadingContent={<Spinner label="Loading..." />}
+                            emptyContent={"No se registran cajas para este usuario."}
                         >
                             {(item) => (
-                                <TableRow key={item.name}>
-                                    {(columnKey) => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+                                <TableRow key={item.id}>
+                                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                                 </TableRow>
                             )}
                         </TableBody>

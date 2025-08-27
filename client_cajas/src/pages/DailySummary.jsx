@@ -18,7 +18,6 @@ import {
 } from "@heroui/react"
 import { ChevronDown } from 'lucide-react'
 import useCashMovementStore from '../store/useCashMovementStore'
-import useCashBoxStore from "../store/useCashBoxStore"
 import CreateCashMovement from "../components/CashBox/CreateCashMovement"
 import UpdateCashMovement from "../components/CashBox/UpdateCashMovement"
 import DeleteCashMovement from "../components/CashBox/DeleteCashMovement"
@@ -50,22 +49,16 @@ const currencyColorMap = {
     USD: "warning"
 }
 
-const CashBox = () => {
+const DailySummary = () => {
     const [currencyFilter, setCurrencyFilter] = useState("all")
-    const [sortDescriptor, setSortDescriptor] = useState({ column: "none", direction: "ascending" })
+    const [sortDescriptor, setSortDescriptor] = useState({ column: "age", direction: "ascending" })
     const [page, setPage] = useState(1)
-    const [boxName, setBoxName] = useState("")
-    const { movements, fetchMyActiveCashMovements, isLoading: isLoadingMovements } = useCashMovementStore()
-    const { fetchOpenBox, openCashBox, isLoading: isLoadingBox } = useCashBoxStore()
+    const [boxName, setBoxName] = useState("Caja del 29/07")
+    const { movements, fetchCashMovements, isLoading } = useCashMovementStore()
 
     useEffect(() => {
-        fetchMyActiveCashMovements()
-        fetchOpenBox()
+        fetchCashMovements()
     }, [])
-
-    useEffect(() => {
-        setBoxName(openCashBox?.description)
-    }, [openCashBox])
 
     const rowsPerPage = Math.trunc((window.innerHeight - 300) / 56)
 
@@ -167,8 +160,6 @@ const CashBox = () => {
         )
     }, [items.length, page, pages])
 
-    if (isLoadingMovements || isLoadingBox) return ("CARGANDO...")
-
     return (
         <div className="flex-col">
             <div className="flex justify-end mx-10 mb-4 gap-8">
@@ -192,8 +183,8 @@ const CashBox = () => {
             </div>
             <div className="flex flex-row">
                 <div className="flex flex-col justify-between min-w-48">
-                    <div className="flex flex-col gap-5 mb-12">
-                        <CreateCashMovement boxId={openCashBox?.id} />
+                    <div className="flex flex-col gap-5">
+                        <CreateCashMovement />
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
                                 <Button endContent={<ChevronDown height={20}/>} variant="flat">Moneda</Button>
@@ -212,10 +203,9 @@ const CashBox = () => {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
-                    <CloseCashBox summary={summary} boxName={boxName} setBoxName={setBoxName} boxId={openCashBox?.id} />
+                    <CloseCashBox summary={summary} boxName={boxName} setBoxName={setBoxName} boxId={1} />
                 </div>
                 <Table
-                    aria-label="Tabla de movimientos de caja"
                     isHeaderSticky
                     bottomContent={bottomContent}
                     bottomContentPlacement="outside"
@@ -247,4 +237,4 @@ const CashBox = () => {
     )
 }
 
-export default CashBox
+export default DailySummary

@@ -2,7 +2,7 @@ import api from './api'
 
 export const getAllLabels = async () => {
     try {
-        const response = await api.get('/labels/')
+        const response = await api.get('/cash-movement/label/')
         return response.data
     } catch (error) {
         console.error("Error fetching labels:", error)
@@ -12,7 +12,7 @@ export const getAllLabels = async () => {
 
 export const getLabelById = async (id) => {
     try {
-        const response = await api.get(`/labels/${id}`)
+        const response = await api.get(`/cash-movement/label/${id}`)
         return response.data
     } catch (error) {
         console.error("Error fetching label:", error)

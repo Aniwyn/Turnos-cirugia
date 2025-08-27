@@ -24,13 +24,26 @@ const NavbarLayout = () => {
             <NavbarItem>
               <DropdownTrigger>
                 <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base" endContent={icons.chevron} variant="flat">
-                  Cajas
+                  Contabilidad
                 </Button>
               </DropdownTrigger>
             </NavbarItem>
             <DropdownMenu aria-label="ACME features" itemClasses={{ base: "gap-4" }}>
-              <DropdownItem key="autoscaling" description='Cierre de caja diaria' startContent={icons.scale}><Link to="/caja/cierre">Caja diaria</Link></DropdownItem>
+              <DropdownItem key="autoscaling" description='Cierre de caja' startContent={icons.scale}><Link to="/caja/cierre">Caja</Link></DropdownItem>
               <DropdownItem key="usage_metrics" description="Historial de cajas" startContent={icons.activity}><Link to="/caja/historial">Mis cajas</Link></DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+
+          <Dropdown>
+            <NavbarItem>
+              <DropdownTrigger>
+                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base" endContent={icons.chevron} variant="flat">
+                  Utilidades
+                </Button>
+              </DropdownTrigger>
+            </NavbarItem>
+            <DropdownMenu aria-label="ACME features" itemClasses={{ base: "gap-4" }}>
+              <DropdownItem key="autoscaling" startContent={icons.scale}><Link to="/caja/cierre">Presupuestos</Link></DropdownItem>
             </DropdownMenu>
           </Dropdown>
 

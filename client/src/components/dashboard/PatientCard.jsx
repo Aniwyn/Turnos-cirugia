@@ -46,6 +46,7 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment, ed
                                 userName={appointment.AdminUser?.name}
                                 status={appointment.AdministrativeStatus}
                                 note={appointment.admin_notes}
+                                incident={appointment.admin_incidents}
                             />
                         </div>
                         <div className='pt-2'>
@@ -54,6 +55,8 @@ const PatientCard = ({ openNumber, openStatus, handleOpenStatus, appointment, ed
                                 userName={appointment.MedicalUser?.name}
                                 status={appointment.MedicalStatus}
                                 note={appointment.nurse_notes}
+                                error={appointment.error}
+                                incident={appointment.nurse_incidents}
                             />
                         </div>
                     </div>

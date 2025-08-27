@@ -17,7 +17,15 @@ function appointment(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
+        admin_incidents: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         nurse_notes: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        nurse_incidents: {
             type: DataTypes.STRING,
             allowNull: true
         },
