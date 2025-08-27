@@ -20,6 +20,7 @@
     "@react-stately/data": "^3.13.1",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
+    "dotenv": "^17.2.1",
     "framer-motion": "^12.23.5",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.5",
