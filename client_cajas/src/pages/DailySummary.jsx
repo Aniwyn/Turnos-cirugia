@@ -53,7 +53,7 @@ const DailySummary = () => {
     const [currencyFilter, setCurrencyFilter] = useState("all")
     const [sortDescriptor, setSortDescriptor] = useState({ column: "age", direction: "ascending" })
     const [page, setPage] = useState(1)
-    const [boxName, setBoxName] = useState("Caja del 29/07")
+    const [boxName, setBoxName] = useState("CECI PRUEBAS")
     const { movements, fetchCashMovements, isLoading } = useCashMovementStore()
 
     useEffect(() => {
@@ -218,8 +218,10 @@ const DailySummary = () => {
                     className="mx-10"
                 >
                     <TableHeader>
+                        <TableColumn key="notes" allowsSorting>Fecha</TableColumn>
                         <TableColumn key="notes" allowsSorting>Descripción</TableColumn>
-                        <TableColumn key="label" align="center">Etiqueta</TableColumn>
+                        <TableColumn key="notes" allowsSorting>Responsable</TableColumn>
+                        <TableColumn key="label" align="center">Origen</TableColumn>
                         <TableColumn key="amount" width={150} align="center" allowsSorting>Monto</TableColumn>
                         <TableColumn key="currency" width={50} align="center" allowsSorting>Moneda</TableColumn>
                         <TableColumn key="actions" width={120} align="center">Acciones</TableColumn>

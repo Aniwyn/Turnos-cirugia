@@ -68,6 +68,8 @@ exports.processPDF = async (req, res) => {
     try {
         const { folderPath, files } = req.body
 
+        console.log(folderPath, "\n\n")
+
         if (!folderPath || !files || files.length === 0) {
             return res.status(400).json({ error: "Missing data" })
         }

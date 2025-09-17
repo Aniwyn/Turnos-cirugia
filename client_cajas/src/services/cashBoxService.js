@@ -2,7 +2,6 @@ import api from './api'
 
 export const getAllCashBox = async () => {
     try {
-
         const response = await api.get('/cash-box/')
         return response.data
     } catch (error) {

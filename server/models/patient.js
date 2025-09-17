@@ -36,6 +36,10 @@ function patient(sequelize, DataTypes) {
         dni: {
             type: DataTypes.STRING,
             allowNull: true
+        },
+        notes: {
+            type: DataTypes.STRING,
+            allowNull: true
         }
     }, {
         tableName: 'patient',

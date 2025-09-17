@@ -4,25 +4,28 @@ import { CalendarDate, getLocalTimeZone, today } from "@internationalized/date"
 import { Time } from "@internationalized/date"
 
 function extractDataFromPdfContent(content) {
-    const regex = /Apellido y Nombre:\s*(.*?)\s*Teléfono[\s\S]*?Solicitante:\s*(.*?)\s*\nNombre Prestador/
+    //const regex  = /Apellido y Nombre:\s*(.*?)\s*Teléfono[\s\S]*?Solicitante:\s*(.*?)\s*\nNombre Prestador/ NO CAPTURA BIEN MULTILINEAS
+    const regex = /Apellido y Nombre:\s*([\s\S]*?)\s*Tel[eé]fono[\s\S]*?Solicitante:\s*([\s\S]*?)\s*\nNombre Prestador/
     const match = content.match(regex)
 
     let patientName = match[1].trim()
     let medicName = match[2].trim()
+    console.log(patientName, "  ", medicName)
 
     return { patientName, medicName }
 }
 
 export const medics = [
     { id: "SIUFIL", label: "Siufi Lucas", key: "SIUFI LUCAS" },
-    { id: "SIUFIL", label: "Siufi Lucas", key: "SIUFI ERNESTO" }, //Cambiado a Dr Lucas por que Dr Ernesto no opera
-    { id: "JURE", label: "Jure Francisco", key: "JURE" },
-    { id: "ABUD", label: "Abud Valeria", key: "ABUD" },
+    { id: "SIUFIE", label: "Siufi Ernesto", key: "SIUFI ERNESTO" },
+    { id: "JURE", label: "Jure Francisco", key: "JURE FRANCISCO" },
+    { id: "ABUD", label: "Abud Valeria", key: "ABUD VALERIA" },
     { id: "ALCOBA", label: "Alcoba Emilio", key: "ALCOBA" },
     { id: "DIPIERRI", label: "Dipierri Maite", key: "DIPIERRI" },
-    { id: "ZARIFJ", label: "Zarif Jose Luis", key: "ZARIFJ" },
+    { id: "ZARIFJ", label: "Zarif Jose Luis", key: "ZARIF JOSE" },
     { id: "ZARIFA", label: "Zarif Agustina", key: "ZARIFA" },
     { id: "TONELLI", label: "Tonelli Mariela", key: "TONELLI" },
+    { id: "ASE", label: "Ase Verónica", key: "ASE VERONICA" },
     { id: "VALDEZ", label: "Valdez Laura", key: "VALDEZ" }
 ]
 

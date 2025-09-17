@@ -1,7 +1,7 @@
 import useAuthStore from "../store/useAuthStore"
 import { Link, Outlet } from 'react-router-dom'
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react"
-import { BanknoteArrowUp, ChevronDown, Eye, SquareStack } from 'lucide-react'
+import { ClipboardClock, BanknoteArrowUp, ChevronDown, Eye, SquareStack } from 'lucide-react'
 
 const NavbarLayout = () => {
   const { logout } = useAuthStore()
@@ -9,7 +9,8 @@ const NavbarLayout = () => {
   const icons = {
     chevron: <ChevronDown size={16} />,
     scale: <BanknoteArrowUp size={30} />,
-    activity: <SquareStack size={30} />
+    activity: <SquareStack size={30} />,
+    clipboardClock: <ClipboardClock size={30} />
   }
 
   return (
@@ -31,6 +32,7 @@ const NavbarLayout = () => {
             <DropdownMenu aria-label="ACME features" itemClasses={{ base: "gap-4" }}>
               <DropdownItem key="autoscaling" description='Cierre de caja' startContent={icons.scale}><Link to="/caja/cierre">Caja</Link></DropdownItem>
               <DropdownItem key="usage_metrics" description="Historial de cajas" startContent={icons.activity}><Link to="/caja/historial">Mis cajas</Link></DropdownItem>
+              <DropdownItem key="usage_metrics" description="Historial de cajas" startContent={icons.clipboardClock}><Link to="/cierre_de_caja">Cierre de cajas</Link></DropdownItem>
             </DropdownMenu>
           </Dropdown>
 
@@ -43,9 +45,21 @@ const NavbarLayout = () => {
               </DropdownTrigger>
             </NavbarItem>
             <DropdownMenu aria-label="ACME features" itemClasses={{ base: "gap-4" }}>
-              <DropdownItem key="autoscaling" startContent={icons.scale}><Link to="/caja/cierre">Presupuestos</Link></DropdownItem>
+              <DropdownItem key="autoscaling" startContent={icons.scale}><Link to="/presupuesto">Presupuestos</Link></DropdownItem>
             </DropdownMenu>
           </Dropdown>
+
+          <NavbarItem>
+            <Link to="/pacientes">
+              Pacientes
+            </Link>
+          </NavbarItem>
+
+          <NavbarItem>
+            <Link to="/practicas">
+              Practicas
+            </Link>
+          </NavbarItem>
 
           {/* BOORAR SI NO LO USO */}
           <NavbarItem className="invisible">

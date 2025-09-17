@@ -3,6 +3,7 @@ import api from './api'
 export const getAllCashMovements = async () => {
     try {
         const response = await api.get('/cash-movement/')
+        console.log(response)
         return response.data
     } catch (error) {
         console.error("Error fetching movements: ", error)
