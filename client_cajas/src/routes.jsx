@@ -7,9 +7,11 @@ import MyCashClosures from './pages/MyCashClosures'
 import DailySummary from './pages/DailySummary'
 import DailySummaryDashboard from './pages/DailySummaryDashboard'
 import Budget from './pages/Budget'
+import Budgets from './pages/Budgets'
 import Patients from './pages/Patients'
 import Practices from './pages/Practices'
 import Patient from './pages/Patient'
+import PatientProfile from './pages/PatientProfile'
 import NavbarLayout from './layouts/NavbarLayout'
 //import NotFound from "./pages/NotFound"
 import useAuthStore from "./store/useAuthStore"
@@ -48,6 +50,14 @@ const AppRoutes = () => {
                         <Route path="/caja/historial" element={<MyCashClosures />} />
                         <Route path="/cierre_de_caja" element={<DailySummary />} />
                         <Route path="/dashboard/cierres_de_caja" element={<DailySummaryDashboard />} />
+                        <Route path="/presupuesto" element={<Budget />} />
+                        <Route path='/presupuesto/:id' element={<Budget />} />
+                        <Route path='/pacientes' element={<Patients />} />
+                        <Route path='/practicas' element={<Practices />} />
+                        <Route path='/pacientes/crear' element={<Patient />} />
+                        <Route path='/pacientes/actualizar/:id' element={<Patient />} />
+                        <Route path='/presupuestos' element={<Budgets />} />
+                        <Route path='/pacientes/perfil/:id' element={<PatientProfile />} />
                     </Route>
                 </Route>
 
@@ -57,15 +67,8 @@ const AppRoutes = () => {
                 <Route element={<NavbarLayout />}>
                     <Route path="/test" element={<TEST />} />
                     <Route path="/test2" element={<TEST2 />} />
-                    <Route path="/presupuesto" element={<Budget />} />
-                    <Route path='/presupuesto/:id' element={<Budget />} />
-                    <Route path='/pacientes' element={<Patients />} />
-                    <Route path='/practicas' element={<Practices />} />
-                    <Route path='/pacientes/crear' element={<Patient />} />
-                    <Route path='/pacientes/actualizar/:id' element={<Patient />} />
-
                 </Route>
-                
+
                 {/*<Route path="*" element={<NotFound />} />*/}
             </Routes>
         </Router>
