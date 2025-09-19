@@ -13,8 +13,6 @@ const generateBudgetPDF = async (budgetData) => {
     const pages = pdfDoc.getPages()
     const page = pages[0]
 
-    console.log("pdfgenerartor", budgetData)
-
     const drawCenteredText = (page, text, y, containerX, containerWidth, size, font, color = rgb(0, 0, 0)) => {
         if (!text) return
 
@@ -33,12 +31,8 @@ const generateBudgetPDF = async (budgetData) => {
         page.drawText(text, { x, y, size, font })
     }
 
-    const formattedDate = new Date(budgetData.budget_date)
-        .toLocaleDateString("es-AR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        })
+    const [anio, mes, dia] = budgetData.budget_date.split("-");
+    const formattedDate = `${dia}/${mes}/${anio}`
 
     const eyeMap = {
         AO: "Ambos",
