@@ -1,5 +1,5 @@
 const db = require('../models')
-const fs = require("fs").promises
+const fs = require("fs")
 const path = require("path")
 const pdfParse = require("pdf-parse")
 const { PDFDocument, rgb, StandardFonts } = require("pdf-lib")
@@ -177,5 +177,24 @@ exports.processPDF = async (req, res) => {
     } catch (error) {
         console.error("Error en processPDF:", error)
         res.status(500).json({ error: "Error procesando PDFs", message: error.message })
+    }
+}
+
+exports.saveURL = async (req, res) => {
+    try {
+        const { url, time } = req.body
+        const logFile = path.join(__dirname, "../logs/captured_pdfs.txt")
+
+        fs.mkdirSync(path.dirname(logFile), { recursive: true })
+
+        const line = `[${time}] ${url}\n`
+
+        fs.appendFileSync(logFile, line)
+
+        console.log("Guardado en log:", line.trim())
+        res.send("OK")
+    } catch (error) {
+        console.error("Error guardando log:", error)
+        res.status(500).send("Error al guardar log")
     }
 }

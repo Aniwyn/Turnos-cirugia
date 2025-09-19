@@ -1,0 +1,2 @@
+[2025-09-19T15:48:19.075Z] http://genos.isj.gov.ar/emision/apraorda5.aspx?10506,SCR,350315,56,11911956,0,C,REIMPRESO
+[2025-09-19T15:48:22.132Z] http://genos.isj.gov.ar/emision/apraorda5.aspx?10506,SCR,350315,56,11911956,0,C,REIMPRESO
