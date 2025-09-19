@@ -27,7 +27,7 @@ const usePatientStore = create((set, get) => ({
         set({ isLoadingPatientStore: true, errorPatientStore: null })
 
         try {
-            const patient = await createPatient(newPatient, data)
+            const patient = await createPatient(newPatient)
             await get().fetchPatients()
             return patient
         } catch (error) {
