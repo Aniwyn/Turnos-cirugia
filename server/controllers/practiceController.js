@@ -2,7 +2,10 @@ const db = require('../models')
 
 exports.getAllPractices = async (req, res) => {
     try {
-        const practices = await db.Practice.findAll()
+        const practices = await db.Practice.findAll({
+            order: [['id', 'DESC']]
+        })
+        console.log(practices)
         res.status(200).json(practices)
     } catch (err) {
         console.log(err)

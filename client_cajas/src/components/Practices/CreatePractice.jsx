@@ -7,7 +7,6 @@ import {
     ModalContent,
     ModalHeader,
     ModalBody,
-    NumberInput,
     Select,
     SelectItem,
     useDisclosure
@@ -65,14 +64,22 @@ const CreatePractice = () => {
                                         value={name}
                                         onValueChange={setName}
                                     />
-                                    <NumberInput
+                                    <Input
                                         hideStepper
                                         isRequired
                                         startContent={<DollarSign strokeWidth={0.75} size={16} />}
                                         label="Valor"
                                         labelPlacement="outside"
-                                        value={price}
-                                        onValueChange={setPrice}
+                                        value={price || 0}
+                                        onValueChange={(n) => setPrice(n)}
+                                        onBlur={() => {
+                                            const normalized = (price || "").replace(",", ".")
+                                            const num = parseFloat(normalized)
+                                            setPrice(isNaN(num) ? "" : num.toFixed(2))
+                                        }}
+                                        classNames={{
+                                            input: "text-right"
+                                        }}
                                     />
                                     <div className="flex gap-4">
                                         <Input

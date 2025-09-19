@@ -23,7 +23,7 @@ export const columns = [
 
 const Practices = () => {
     const [filterValue, setFilterValue] = useState("")
-    const [sortDescriptor, setSortDescriptor] = useState({ column: "id", direction: "ascending" })
+    const [sortDescriptor, setSortDescriptor] = useState({ column: "id", direction: "descending" })
     const { practices, fetchPractices, updatePracticeLocal, saveAllPractices, isLoadingPracticeStore } = usePracticeStore()
     const hasSearchFilter = Boolean(filterValue)
 

@@ -28,6 +28,7 @@ const usePracticeStore = create((set, get) => ({
 
         try {
             const practiceCreated = await createPractice(practice)
+            get().fetchPractices()
             set({ isLoadingPracticeStore: false })
         } catch (error) {
             console.error('Error al cargar practicas:', error)
