@@ -30,12 +30,14 @@ exports.getBudgetByID = async (req, res) => {
 exports.createBudget = async (req, res) => {
     const t = await db.sequelize.transaction()
     try {
-        const { patient_id, patient_dni, patient_name, validity_days, recipient, extra_line, total, items } = req.body
+        const { patient_id, patient_dni, patient_name, budget_date, validity_days, recipient, extra_line, total, items } = req.body
         const responsible_id = req.user.userId
         const responsible_name = req.user.name
 
+        console.log(req.body)
+
         const budget = await db.Budget.create(
-            { patient_id, patient_dni, patient_name, validity_days, recipient, extra_line, total, responsible_id, responsible_name },
+            { patient_id, patient_dni, patient_name, budget_date, validity_days, recipient, extra_line, total, responsible_id, responsible_name },
             { transaction: t }
         )
 
@@ -63,7 +65,6 @@ exports.createBudget = async (req, res) => {
         const savedBudget = await db.Budget.findByPk(budget.id, {
             include: [{ association: 'items' }]
         })
-
         res.status(201).json(savedBudget)
     } catch (err) {
         await t.rollback()

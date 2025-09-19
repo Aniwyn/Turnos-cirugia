@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import { Button, Checkbox, Form, Input } from '@heroui/react'
+import { Button, Checkbox, DateInput, Form, Input } from '@heroui/react'
 import { CircleX, Search } from 'lucide-react'
 import usePatientStore from '../store/usePatientStore'
 import { useEffect, useState } from "react"
@@ -8,10 +8,12 @@ import usePracticeStore from "../store/usePracticeStore"
 import useBudgetStore from "../store/useBudgetStore"
 import LoadingPage from "./LoadingPage"
 import generateBudgetPDF from "../tools/generateBudgetPDF"
+import { now } from "@internationalized/date";
 
 const Budget = () => {
     const [addressedTo, setAddressedTo] = useState("HOSPITAL PABLO SORIA")
     const [extraLine, setExtraLine] = useState()
+    const [date, setDate] = useState(() => now("America/Argentina/Buenos_Aires"))
     const [patient, setPatient] = useState()
     const [patientID, setPatienID] = useState()
     const [patientDNI, setPatientDNI] = useState()
@@ -44,6 +46,20 @@ const Budget = () => {
         if (id) { getPatient() }
     }, [])
 
+    const toMySQLDate = (budget_date) => {
+        const dateObject = new Date(
+            budget_date.year,
+            budget_date.month - 1,
+            budget_date.day
+        )
+
+        const yyyy = dateObject.getFullYear()
+        const mm = String(dateObject.getMonth() + 1).padStart(2, "0")
+        const dd = String(dateObject.getDate()).padStart(2, "0")
+        return `${yyyy}-${mm}-${dd}`
+    }
+
+
     const onSubmit = async (e) => {
         e.preventDefault()
 
@@ -60,6 +76,7 @@ const Budget = () => {
             patient_id: patientID,
             patient_dni: patientDNI,
             patient_name: patientName,
+            budget_date: toMySQLDate(date),
             validity_days: 30,
             recipient: addressedTo,
             extra_line: extraLine,
@@ -112,13 +129,24 @@ const Budget = () => {
                         value={addressedTo}
                         onValueChange={(e) => setAddressedTo(e)}
                     />
-                    <Input
-                        label="Linea extra"
-                        labelPlacement="outside"
-                        name="patient_name"
-                        value={extraLine}
-                        onValueChange={(e) => setExtraLine(e)}
-                    />
+                    <div className="flex gap-4">
+                        <Input
+                            label="Linea extra"
+                            labelPlacement="outside"
+                            placeholder="Linea extra"
+                            name="patient_name"
+                            value={extraLine}
+                            onValueChange={(e) => setExtraLine(e)}
+                        />
+                        <DateInput
+                            label="Fecha del presupuesto"
+                            labelPlacement="outside"
+                            name="patient_name"
+                            value={date}
+                            onChange={setDate}
+                            granularity="day"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-4 w-full">
