@@ -7,8 +7,7 @@ exports.getAllPatients = async (req, res) => {
             include: [
                 { association: 'Medic' }
             ],
-            order: [['id', 'DESC']],
-            limit: 50
+            order: [['id', 'DESC']]
         })
 
         res.status(200).json(patients)
