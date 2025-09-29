@@ -14,6 +14,7 @@ const dailySummaryRoutes = require("./dailySummaryRoutes")
 const practiceRoutes = require("./practiceRoutes")
 const healthInsuranceRoutes = require("./healthInsuranceRoutes")
 const budgetRoutes = require("./budgetRoutes")
+const utilsRoutes = require("./utilsRoutes")
 const userRoutes = require("./userRoutes")
 const { verifyToken } = require("../middlewares/authMiddleware")
 
@@ -32,6 +33,8 @@ router.use("/daily_summary", verifyToken, dailySummaryRoutes)
 router.use("/budgets", verifyToken, budgetRoutes)
 router.use("/practices", verifyToken, practiceRoutes)
 router.use("/health_insurance", verifyToken, healthInsuranceRoutes)
+
+router.use("/utils", utilsRoutes)
 router.use("/test", test)
 router.use("/users", userRoutes)
 

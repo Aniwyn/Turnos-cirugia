@@ -1,5 +1,5 @@
 const db = require('../models')
-const fs = require("fs")
+const fs = require("fs").promises
 const path = require("path")
 const pdfParse = require("pdf-parse")
 const { PDFDocument, rgb, StandardFonts } = require("pdf-lib")
@@ -8,15 +8,17 @@ const STAMPS = require("../stamps/stamp")
 exports.getPDFFolder = async (req, res) => {
     try {
         const { folderPath } = req.body
+        console.log(folderPath)
 
         if (!folderPath) {
             folderPath = "C:\\Certificados_implantes"
-            // return res.status(400).json({ error: "Folder path is required" })
+            //return res.status(400).json({ error: "Folder path is required" })
         }
 
         try {
             await fs.access(folderPath)
         } catch (error) {
+            console.log(error)
             return res.status(404).json({ error: "Folder not found" })
         }
 
@@ -78,6 +80,7 @@ exports.processPDF = async (req, res) => {
         const font = await finalPdf.embedFont(StandardFonts.Helvetica)
 
         for (const file of files) {
+            console.log(file)
             const { filename, surgeryDate, surgeryTime, surgeonID } = file
 
             const filePath = path.join(folderPath, filename)

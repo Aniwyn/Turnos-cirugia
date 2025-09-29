@@ -61,8 +61,6 @@ const generateBudgetPDF = async (budgetData) => {
         drawCenteredText(page, `${item.iva.replace(".", ",")}%`, y, 682, 30, 9, font)
         drawRightAlignedText(page, `$ ${((item.price * item.quantity * (1 + item.iva / 100)).toFixed(2)).replace(".", ",")}`, y, 730, 70, 9, font)
 
-
-
         y -= 16
     })
 

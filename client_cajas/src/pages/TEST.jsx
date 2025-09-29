@@ -23,10 +23,10 @@ export const medics = [
     { id: "ALCOBA", label: "Alcoba Emilio", key: "ALCOBA" },
     { id: "DIPIERRI", label: "Dipierri Maite", key: "DIPIERRI" },
     { id: "ZARIFJ", label: "Zarif Jose Luis", key: "ZARIF JOSE" },
-    { id: "ZARIFA", label: "Zarif Agustina", key: "ZARIFA" },
+    { id: "ZARIFA", label: "Zarif Agustina", key: "ZARIF AGUSTINA" },
     { id: "TONELLI", label: "Tonelli Mariela", key: "TONELLI" },
     { id: "ASE", label: "Ase Verónica", key: "ASE VERONICA" },
-    { id: "VALDEZ", label: "Valdez Laura", key: "VALDEZ" }
+    { id: "VALDEZ", label: "Valdez Laura", key: "VALDEZ LAURA" }
 ]
 
 const SuppliesStamps = () => {

@@ -12,6 +12,7 @@ import Patients from './pages/Patients'
 import Practices from './pages/Practices'
 import Patient from './pages/Patient'
 import PatientProfile from './pages/PatientProfile'
+import ISJRec from './pages/utils/ISJRec'
 import NavbarLayout from './layouts/NavbarLayout'
 //import NotFound from "./pages/NotFound"
 import useAuthStore from "./store/useAuthStore"
@@ -62,6 +63,7 @@ const AppRoutes = () => {
                 </Route>
 
                 <Route path="/login" element={<Login />} />
+                <Route path='/ISJ' element={<ISJRec />} />
 
                 {/* SIN RUTAS PRIVADAS, SOLO DESARROLLO */}
                 <Route element={<NavbarLayout />}>
