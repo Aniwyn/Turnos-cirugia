@@ -16,7 +16,7 @@ const useUtilsStore = create((set, get) => ({
             return data
         } catch (error) {
             console.error('Error al cargar cajas:', error)
-            set({ isLoadingUtilsStore: false, errorUtilsStore: 'No se pudieron cargar las cajas' })
+            set({ errorUtilsStore: 'No se pudieron cargar las cajas' })
         } finally {
             set({ isLoadingUtilsStore: false })
         }
