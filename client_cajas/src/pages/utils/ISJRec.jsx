@@ -12,9 +12,9 @@ import {
     Input,
     Spinner
 } from "@heroui/react"
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { now } from "@internationalized/date"
-// import useMedicStore from '../../store/useMedicStore'
+// import useMedicStore from '../../store/useMedicStore' // PROBLEMA CON TOKEN (VA A REQUERIR LOGEO)
 import useUtilsStore from '../../store/useUtilsStore'
 import precessPdfIsj from "../../tools/precessPdfIsj"
 import generateISJPDF from "../../tools/generateISJPDF"
@@ -47,9 +47,8 @@ export default function App() {
     const [pdfData, setPdfData] = useState()
     const [anchorsPDF, setAnchorsPDF] = useState()
     const [medic, setMedic] = useState()
-    const [warningState, setWarningState] = useState()
     const [warningMessage, setWarningMessage] = useState("")
-    // const { medics, fetchMedics, isLoadingMedicStore, errorMedicStore } = useMedicStore()
+    // const { medics, fetchMedics, isLoadingMedicStore, errorMedicStore } = useMedicStore() // PROBLEMA CON TOKEN (VA A REQUERIR LOGEO)
     const { fetchPdfIsj, isLoadingUtilsStore } = useUtilsStore()
 
     const STAMPS = [
@@ -164,12 +163,10 @@ export default function App() {
                 await fetchPDF(genosurl)
             }
         }
-
         getUrl()
     }, [])
 
     const handleMedic = (e) => {
-        console.log("MEDICOCO: ", e)
         setMedicID(e)
         const foundStamp = STAMPS.find(stamp => stamp.medic_id == e)
         if (foundStamp) {
@@ -193,6 +190,7 @@ export default function App() {
             setAlertType2("")
             setAlertMessage2("")
             setAlertColor2("default")
+            setWarningMessage("")
             setMedicID({})
 
             const urlToFetch = url || urlParam
@@ -233,20 +231,8 @@ export default function App() {
                     console.log("Médico en línea de abajo: ", medicName, "\nMédico (sello) encontrado: ", foundStamp.name_to_compare)
 
                     if (medicName.toUpperCase() !== foundStamp.name_to_compare.toUpperCase()) {
-                        setWarningMessage("Advertencia: el médico prestador y el medico solicitante no coinciden.")
-                        setWarningState(true)
-                    } else {
-                        setWarningState(false)
-
-                        // BORRAR SOLO PRUEBA
-                        // setWarningMessage("Advertencia: el médico prestador y el medico solicitante no coinciden.")
-                        // setWarningState(true)
+                        setWarningMessage("El médico prestador y el medico solicitante no coinciden.")
                     }
-                } else {
-                    // Preguntar si es una alerta esto o sino borrar (las 2 lineas)
-                    setWarningMessage("Advertencia: No se encontro segunda Linea")
-                    setWarningState(false)
-
                 }
             }
         }
@@ -255,7 +241,7 @@ export default function App() {
     }
 
     const printPDF = async () => {
-        const printDate = `${date.day}/${date.month}/${date.year}`
+        const printDate = date ? `${date.day}/${date.month}/${date.year}` : ""
         await generateISJPDF(pdfData, anchorsPDF, printDate, diagnostic, medic)
     }
 
@@ -287,7 +273,7 @@ export default function App() {
                                     value={date}
                                     onChange={setDate}
                                     granularity="day"
-
+                                    endContent={date && <Button onPress={() => setDate(null)} variant="light"  radius="full" size="sm" color="none" isIconOnly><X size={14} /></Button>}
                                 />
                                 <Input
                                     label="Diagnóstico"
@@ -295,6 +281,7 @@ export default function App() {
                                     placeholder="Diagnóstico"
                                     value={diagnostic}
                                     onValueChange={setDiagnostic}
+                                    endContent={diagnostic && <Button onPress={() => setDiagnostic("")} variant="light" radius="full" size="sm" isIconOnly><X size={14} color="gray" /></Button>}
                                 />
                             </div>
                             <Autocomplete
@@ -310,15 +297,13 @@ export default function App() {
                             </Autocomplete>
                         </div>
                         <Button className="w-full mt-10" color="primary" onPress={() => printPDF()}>Imprimir</Button>
-                        {
-                            warningState && <Alert color="warning" title="ADVERTENCIA" description="El médico prestador y el medico solicitante no coinciden." className="mt-3" />
-                        }
                     </Form>
                 </CardBody>
             </Card>
             <div className="w-1/2 m-6">
                 {alertMessage && <Alert className="mb-4" color={alertColor} title={alertType} description={alertMessage} />}
                 {alertMessage2 && <Alert className="mb-4" color={alertColor2} title={alertType2} description={alertMessage2} />}
+                {warningMessage && <Alert color="warning" variant="solid" title="ADVERTENCIA" description={warningMessage} className="mt-3" />}
                 {isLoadingUtilsStore && 
                     <div className="flex my-20 justify-center">
                         <Spinner size="lg" label="Cargando PDF..." />
