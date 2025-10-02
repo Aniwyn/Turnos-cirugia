@@ -4,8 +4,29 @@ export const getAllPatients = async () => {
     try {
         const response = await api.get('/patients/')
         return response.data
-    } catch (error) {
-        console.error("Error fetching patients: ", error)
+    } catch (err) {
+        console.error("Error fetching patients: ", err)
+        return []
+    }
+}
+
+export const getPatientsPaginated = async (query, page, limit) => {
+    try {
+        const response = await api.get('/patients/paginated', { params: { query, page, limit } })
+        return response.data
+    } catch (err) {
+        console.error("Error fetching patients in getPatientsPaginated: ", err)
+        return []
+    }
+}
+
+export const getFilteredPatients = async (query, page, limit) => {
+    try {
+        const response = await api.get('/patients/filter', { params: { query, page, limit } })
+        console.log(response.data)
+        return response.data
+    } catch (err) {
+        console.error("Error fetching patients in getFilteredPatients: ", err)
         return []
     }
 }
@@ -14,9 +35,9 @@ export const getPatientById = async (id) => {
     try {
         const response = await api.get(`/patients/${id}`)
         return response.data
-    } catch (error) {
-        console.error(`Error fetching patient id ${id}: `, error)
-        throw error
+    } catch (err) {
+        console.error(`Error fetching patient id ${id}: `, err)
+        throw err
     }
 }
 

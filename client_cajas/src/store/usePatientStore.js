@@ -1,8 +1,13 @@
 import { create } from 'zustand'
-import { getAllPatients, createPatient, updatePatient } from '../services/patientService'
+import { getAllPatients, getPatientsPaginated, getFilteredPatients, createPatient, updatePatient } from '../services/patientService'
 
 const usePatientStore = create((set, get) => ({
     patients: [],
+    totalPatients: 0,
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 20,
+    queryTerms: {},
     isLoadingPatientStore: false,
     errorPatientStore: null,
 
@@ -15,6 +20,44 @@ const usePatientStore = create((set, get) => ({
         } catch (error) {
             console.error('Error al cargar pacientes:', error)
             set({ isLoadingPatientStore: false, errorPatientStore: 'No se pudieron cargar los pacientes' })
+        }
+    },
+
+    fetchPatientsPaginated: async (page = 1, limit = get().pageSize) => {
+        set({ isLoadingPatientStore: true, errorPatientStore: null })
+        try {
+            const { patients, total, totalPages } = await getPatientsPaginated(get().queryTerms, page, limit)
+            set({
+                patients,
+                totalPatients: total,
+                totalPages,
+                currentPage: page,
+                isLoadingPatientStore: false
+            })
+        } catch (error) {
+            console.error('Error al cargar pacientes:', error)
+            set({ isLoadingPatientStore: false, errorPatientStore: 'No se pudieron cargar los pacientes' })
+        }
+    },
+
+    fetchPatientsFiltered: async (query = {}) => {
+        set({ isLoadingPatientStore: true, errorPatientStore: null })
+        console.log(query)
+        try {
+            const page = 1
+            const limit = get().pageSize
+            const { patients, total, totalPages } = await getFilteredPatients(query, page, limit)
+            set({
+                patients,
+                totalPatients: total,
+                totalPages,
+                currentPage: page,
+                queryTerms: query,
+                isLoadingPatientStore: false
+            })
+        } catch (error) {
+            console.error('Error al cargar pacientes filtrados: ', error)
+            set({ isLoadingPatientStore: false, errorPatientStore: 'No se pudieron cargar los pacientes filtrados' })
         }
     },
 
