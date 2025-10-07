@@ -42,7 +42,7 @@ const NavbarLayout = () => {
 
     return (
         <>
-            <Navbar>
+            <Navbar className='bg-gradient-to-tr from-lime-500 to-green-400 backdrop-blur-md text-base text-stone-100 font-semibold'>
                 <NavbarBrand className="flex items-center">
                     <Eye />
                     <p className="font-bold text-inherit pl-2">Clínica de Ojos</p>
@@ -51,7 +51,7 @@ const NavbarLayout = () => {
                     <Dropdown>
                         <NavbarItem>
                             <DropdownTrigger>
-                                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base" endContent={icons.chevron} variant="flat">
+                                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold" endContent={icons.chevron} variant="flat">
                                     Contabilidad
                                 </Button>
                             </DropdownTrigger>
@@ -75,6 +75,7 @@ const NavbarLayout = () => {
                                 key="close_boxes"
                                 description="Historial de cajas"
                                 startContent={icons.clipboardClock}
+                                
                             >
                                 Cierre de cajas
                             </DropdownItem>
@@ -84,7 +85,7 @@ const NavbarLayout = () => {
                     <Dropdown>
                         <NavbarItem>
                             <DropdownTrigger>
-                                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base" endContent={icons.chevron} variant="flat">
+                                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold" endContent={icons.chevron} variant="flat">
                                     Utilidades
                                 </Button>
                             </DropdownTrigger>
@@ -121,16 +122,7 @@ const NavbarLayout = () => {
                 </NavbarContent>
                 <NavbarContent justify="end">
                     <NavbarItem>
-                        <Button as={Link} onPress={logout} color="danger" href="#" variant="bordered">Cerrar sesión</Button>
-                        {/*
-          <User
-                        avatarProps={{ radius: "lg", src: user.avatar }}
-                        description={user.email}
-                        name={cellValue}
-                    >
-                        {user.email}
-                    </User>
-          */}
+                        <Button as={Link} onPress={logout} color="danger" href="#" variant="solid">Cerrar sesión</Button>
                     </NavbarItem>
                 </NavbarContent>
             </Navbar>
