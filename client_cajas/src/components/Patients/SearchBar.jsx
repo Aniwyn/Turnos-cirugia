@@ -10,7 +10,7 @@ const SearchBar = ({queryTerms, handleFilters, handleSearch}) => {
                 value={queryTerms.id || ""} 
                 onChange={(e) => handleFilters("id", e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }}
-                className="w-full max-w-[80px]"
+                className="w-full max-w-[90px]"
                 isClearable
                 onClear={() => handleFilters("id", "")}
             />

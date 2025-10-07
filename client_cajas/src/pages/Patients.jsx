@@ -22,7 +22,6 @@ import LoadingPage from './LoadingPage'
 import usePatientStore from '../store/usePatientStore'
 import SearchBar from "../components/Patients/SearchBar";
 
-//cambiar campos
 export const columns = [
     { name: "ID", uid: "id", sortable: true, size: 70 },
     { name: "DNI", uid: "dni", sortable: true, size: 100 },

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { getAllPatients, getPatientsPaginated, getFilteredPatients, createPatient, updatePatient } from '../services/patientService'
+import { getAllPatients, getPatientsPaginated, getFilteredPatients, getPatientByDNI, createPatient, updatePatient } from '../services/patientService'
 
 const usePatientStore = create((set, get) => ({
     patients: [],
@@ -61,8 +61,15 @@ const usePatientStore = create((set, get) => ({
         }
     },
 
+    //MODIFICAR, NO FUNCIONA CON BUSQUEDAS PAGINADAS
     getPatientByID: async (id) => {
         const patient = get().patients.find((l) => l.id == id)
+        return patient || null
+    },
+
+    getPatientByDNI: async (dni) => {
+        const patient = await getPatientByDNI(dni)
+        if (!patient) return null
         return patient || null
     },
 
@@ -71,7 +78,7 @@ const usePatientStore = create((set, get) => ({
 
         try {
             const patient = await createPatient(newPatient)
-            await get().fetchPatients()
+            await get().fetchPatientsFiltered()
             return patient
         } catch (error) {
             console.error('Error al crear paciente:', error)
@@ -85,7 +92,7 @@ const usePatientStore = create((set, get) => ({
 
         try {
             const updated = await updatePatient(id, updatedFields)
-            await get().fetchPatients()
+            await get().fetchPatientsFiltered()
             return updated
         } catch (error) {
             console.error('Error al actualizar paciente:', error)

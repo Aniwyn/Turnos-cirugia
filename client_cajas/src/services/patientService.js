@@ -46,6 +46,7 @@ export const getPatientByDNI = async (dni) => {
         const response = await api.get(`/patients/dni/${dni}`)
         return response.data
     } catch (error) {
+        if (error.response.status === 404) return null
         console.error(`Error fetching patient dni ${dni}: `, error)
         throw error
     }
