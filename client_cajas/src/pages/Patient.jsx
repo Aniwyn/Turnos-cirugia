@@ -42,11 +42,11 @@ const Patient = () => {
                 setFirstName(fetchedPatient?.first_name)
                 setLastName(fetchedPatient?.last_name)
                 setMedicID(fetchedPatient.medic_id)
-                //setHealthInsuranceID(fetchedPatient.health_insurance_id) //IMPLEMENTAR ID DE OBRA SOCIAL
-                setPhone1(fetchedPatient.phone1)
-                setPhone2(fetchedPatient.phone2)
-                setEmail(fetchedPatient.email)
-                setNotes(fetchedPatient.notes)
+                setHealthInsuranceID(fetchedPatient.health_insurance_id)
+                setPhone1(fetchedPatient.phone1 || "")
+                setPhone2(fetchedPatient.phone2 || "")
+                setEmail(fetchedPatient.email || "")
+                setNotes(fetchedPatient.notes || "")
             }
         }
         
@@ -112,11 +112,11 @@ const Patient = () => {
 
         if (id) {
             updatePatient(id, patientToSend)
-            navigate("/pacientes")
         } else {
             createPatient(patientToSend)
-            navigate("/pacientes")
         }
+        
+        navigate("/pacientes")
     }
 
     if (isLoadingMedicStore || isLoadingHealthInsuranceStore) return (<>Cargando...</>)

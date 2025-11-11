@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-
 import Login from "./pages/Login"
 import Home from "./pages/Home"
 import CashBox from './pages/CashBox'
+import CashBoxes from './pages/CashBoxes'
+import MainBox from './pages/MainBox'
+import MainBoxes from './pages/MainBoxes'
 import MyCashClosures from './pages/MyCashClosures'
-import DailySummary from './pages/DailySummary'
 import DailySummaryDashboard from './pages/DailySummaryDashboard'
 import Budget from './pages/Budget'
 import Budgets from './pages/Budgets'
@@ -19,6 +21,9 @@ import useAuthStore from "./store/useAuthStore"
 
 import TEST from "./pages/TEST"
 import TEST2 from "./pages/SuppliesStamps"
+import LoadingPage from './pages/LoadingPage'
+import AccountingPanel from './pages/accountingPanel'
+import NotFound from './pages/NotFound'
 
 const PrivateRoute = () => {
     const { isAuthenticated, checkAuth } = useAuthStore()
@@ -46,11 +51,18 @@ const AppRoutes = () => {
             <Routes>
                 <Route element={<PrivateRoute> <Outlet /> </PrivateRoute>}>
                     <Route element={<NavbarLayout />}>
-                        <Route path="/" element={<MyCashClosures />} />
-                        <Route path="/caja/cierre" element={<CashBox />} />
-                        <Route path="/caja/historial" element={<MyCashClosures />} />
-                        <Route path="/cierre_de_caja" element={<DailySummary />} />
+                        <Route path="/" element={<CashBoxes />} />
+                        <Route path="/caja" element={<CashBox />} />
+                        <Route path="/cajas" element={<CashBoxes />} />
+                        <Route path="/caja-general" element={<MainBox />} />
+                        <Route path="/cajas-generales" element={<MainBoxes />} />
+
+                        {/* FALTAN */}
+                        <Route path="/panel-contabilidad" element={<AccountingPanel />} />
+
+                        {/* BORRAR */}
                         <Route path="/dashboard/cierres_de_caja" element={<DailySummaryDashboard />} />
+
                         <Route path="/presupuesto" element={<Budget />} />
                         <Route path='/presupuesto/:id' element={<Budget />} />
                         <Route path='/pacientes' element={<Patients />} />
@@ -62,8 +74,11 @@ const AppRoutes = () => {
                     </Route>
                 </Route>
 
+                <Route path="/404" element={<NotFound />} />
+
                 <Route path="/login" element={<Login />} />
                 <Route path='/ISJ' element={<ISJRec />} />
+                <Route path='/loading' element={<LoadingPage />} />
 
                 {/* SIN RUTAS PRIVADAS, SOLO DESARROLLO */}
                 <Route element={<NavbarLayout />}>

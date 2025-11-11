@@ -33,6 +33,10 @@ function patient(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: true
         },
+        health_insurance_id: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         dni: {
             type: DataTypes.STRING,
             allowNull: true
@@ -53,6 +57,10 @@ function patient(sequelize, DataTypes) {
 
         Patient.belongsTo(models.Medic, { 
             foreignKey: 'medic_id'
+        })
+
+        Patient.belongsTo(models.HealthInsurance, {
+            foreignKey: 'health_insurance_id'
         })
     }
 

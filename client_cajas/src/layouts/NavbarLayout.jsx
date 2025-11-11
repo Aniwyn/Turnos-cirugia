@@ -1,6 +1,31 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react"
-import { ClipboardClock, BanknoteArrowUp, ChevronDown, Eye, SquareStack } from 'lucide-react'
+import { 
+    Button,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
+    Navbar,
+    NavbarBrand,
+    NavbarContent,
+    NavbarItem
+} from "@heroui/react"
+import { 
+    Banknote,
+    BanknoteArrowUp,
+    Boxes,
+    ClipboardClock,
+    ChevronDown,
+    Eye,
+    List,
+    ListOrdered,
+    Package,
+    PersonStanding,
+    Square,
+    SquareStack,
+    Tablets,
+    Turntable
+} from 'lucide-react'
 import useAuthStore from "../store/useAuthStore"
 
 const NavbarLayout = () => {
@@ -13,17 +38,41 @@ const NavbarLayout = () => {
         activity: <SquareStack size={30} />,
         clipboardClock: <ClipboardClock size={30} />
     }
-
     const accountingDropdown = (key) => {
         switch (key) {
             case "box":
-                navigate("/caja/cierre")
+                navigate("/caja")
                 break
-            case "my_boxes":
-                navigate("/caja/historial")
+            case "boxes":
+                navigate("/cajas")
                 break
-            case "close_boxes":
-                navigate("/cierre_de_caja")
+            case "mainBox":
+                navigate("/caja-general")
+                break
+            case "mainBoxes":
+                navigate("/cajas-generales")
+                break
+            case "accountingPanel":
+                navigate("/panel-contabilidad")
+                break
+            default:
+                console.warn("Opción no manejada:", key)
+        }
+    }
+
+    const clinicalManagementDropdown = (key) => {
+        switch (key) {
+            case "patients":
+                navigate("/pacientes")
+                break
+            case "practices":
+                navigate("/practicas")
+                break
+            case "budgets":
+                navigate("/404")
+                break
+            case "diagnosticos":
+                navigate("/404")
                 break
             default:
                 console.warn("Opción no manejada:", key)
@@ -41,8 +90,8 @@ const NavbarLayout = () => {
     }
 
     return (
-        <>
-            <Navbar className='bg-gradient-to-tr from-lime-500 to-green-400 backdrop-blur-md text-base text-stone-100 font-semibold'>
+        <div className='flex flex-col min-h-dvh'>
+            <Navbar className='bg-gradient-to-tr from-emerald-600 to-lime-500 backdrop-blur-md text-base text-stone-100 font-semibold'>
                 <NavbarBrand className="flex items-center">
                     <Eye />
                     <p className="font-bold text-inherit pl-2">Clínica de Ojos</p>
@@ -56,29 +105,13 @@ const NavbarLayout = () => {
                                 </Button>
                             </DropdownTrigger>
                         </NavbarItem>
-                        <DropdownMenu aria-label="ACME features" itemClasses={{ base: "gap-4" }} onAction={(key) => accountingDropdown(key)} >
-                            <DropdownItem
-                                key="box"
-                                description='Cierre de caja'
-                                startContent={icons.scale}
-                            >
-                                Caja
-                            </DropdownItem>
-                            <DropdownItem
-                                key="my_boxes"
-                                description="Historial de cajas"
-                                startContent={icons.activity}
-                            >
-                                Mis cajas
-                            </DropdownItem>
-                            <DropdownItem
-                                key="close_boxes"
-                                description="Historial de cajas"
-                                startContent={icons.clipboardClock}
-                                
-                            >
-                                Cierre de cajas
-                            </DropdownItem>
+                        <DropdownMenu
+                            aria-label="ACME features"
+                            onAction={(key) => accountingDropdown(key)}
+                        >
+                            <DropdownItem key="boxes" startContent={<SquareStack size={16} strokeWidth={1.5} />} >Mis cajas</DropdownItem>
+                            <DropdownItem key="mainBoxes" startContent={<Boxes size={16} strokeWidth={1.5} />}>Cajas generales</DropdownItem>
+                            <DropdownItem key="accountingPanel" startContent={<Square size={16} strokeWidth={1.5} />}>Panel de contabilidad</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
 
@@ -86,31 +119,21 @@ const NavbarLayout = () => {
                         <NavbarItem>
                             <DropdownTrigger>
                                 <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold" endContent={icons.chevron} variant="flat">
-                                    Utilidades
+                                    Gestion clínica
                                 </Button>
                             </DropdownTrigger>
                         </NavbarItem>
-                        <DropdownMenu aria-label="ACME features" itemClasses={{ base: "gap-4" }} onAction={(key) => utilsDropdown(key)} >
-                            <DropdownItem
-                                key="budgets"
-                                startContent={icons.scale}
-                            >
-                                Presupuestos
-                            </DropdownItem>
+                        <DropdownMenu
+                            aria-label="ACME features"
+                            // itemClasses={{ base: "gap-4" }}
+                            onAction={(key) => clinicalManagementDropdown(key)}
+                        >
+                            <DropdownItem key="patients" startContent={<PersonStanding size={16} strokeWidth={1.5} />} >Pacientes</DropdownItem>
+                            <DropdownItem key="practices" startContent={<ListOrdered size={16} strokeWidth={1.5} />} >Practicas</DropdownItem>
+                            <DropdownItem key="diagnosticos" startContent={<Tablets size={16} strokeWidth={1.5} />} >Diagnosticos</DropdownItem>
+                            <DropdownItem key="budgets" startContent={<Banknote size={16} strokeWidth={1.5} />} >Presupuestos</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
-
-                    <NavbarItem>
-                        <Link to="/pacientes">
-                            Pacientes
-                        </Link>
-                    </NavbarItem>
-
-                    <NavbarItem>
-                        <Link to="/practicas">
-                            Practicas
-                        </Link>
-                    </NavbarItem>
 
                     {/* BOORAR SI NO LO USO */}
                     <NavbarItem className="invisible">
@@ -126,10 +149,11 @@ const NavbarLayout = () => {
                     </NavbarItem>
                 </NavbarContent>
             </Navbar>
-            <main className="flex-1 p-4">
+            {/* <main className="flex-1 py-4 px-8 bg-gradient-to-tl from-slate-100 via-gray-100 to-stone-100 "> */}
+            <main className="flex-1 py-4 px-8">
                 <Outlet />
             </main>
-        </>
+        </div>
     )
 }
 

@@ -29,6 +29,9 @@ function cashMovement(sequelize, DataTypes) {
         notes: {
             type: DataTypes.STRING
         },
+        created_at:{
+            type: DataTypes.DATE
+        },
         label_id: {
             type: DataTypes.INTEGER
         },

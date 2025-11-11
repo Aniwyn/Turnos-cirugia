@@ -57,6 +57,7 @@ exports.getCashMovementById = async (req, res) => {
 
 exports.createCashMovement = async (req, res) => {
     const user = req.user
+    console.log("asd entre")
 
     try {
         const userId = req.user.userId

@@ -39,7 +39,10 @@ exports.getPaginatedPatients = async (req, res) => {
             where: whereClause,
             offset,
             limit: parseInt(limit),
-            order: [['id', 'DESC']]
+            order: [['id', 'DESC']],
+            include: [
+                { association: 'HealthInsurance' }
+            ]
         })
 
         res.json({
@@ -93,7 +96,8 @@ exports.getPatientById = async (req, res) => {
     try {
         const patient = await db.Patient.findByPk(id, {
             include: [
-                { association: 'Medic' }
+                { association: 'Medic' },
+                { association: 'HealthInsurance' }
             ]
         })
         if (!patient) {
@@ -110,7 +114,10 @@ exports.getPatientByDni = async (req, res) => {
     try {
         const patient = await db.Patient.findOne({
             where: { dni: dni },
-            include: [{ association: 'Medic' }]
+            include: [
+                { association: 'Medic' },
+                { association: 'HealthInsurance' }
+            ]
         })
         if (!patient) {
             return res.status(404).json({ message: 'Paciente no encontrado' })

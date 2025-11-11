@@ -10,10 +10,12 @@ import {
 } from "@heroui/react"
 import { Trash2 } from 'lucide-react'
 import useCashMovementStore from '../../store/useCashMovementStore'
+import useCashBoxStore from '../../store/useCashBoxStore'
 import { deleteCashMovement } from '../../services/cashMovementService'
 
-const DeleteCashMovement = ({ movement }) => {
+const DeleteCashMovement = ({ movement, setMovements }) => {
     const { fetchMyActiveCashMovements } = useCashMovementStore()
+    const { fetchMyActiveCashBox, isLoadingCashBoxStore, errorCashBoxStore } = useCashBoxStore()
 	const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
 	const formatter = (number) => {
@@ -25,7 +27,9 @@ const DeleteCashMovement = ({ movement }) => {
 
 	const submit = async (onClose) => {
 		await deleteCashMovement(movement.id)
-		await fetchMyActiveCashMovements()
+		const box = await fetchMyActiveCashBox()
+        const movements = await fetchMyActiveCashMovements(box.id)
+        setMovements(movements)
 
 		onClose()
 	}

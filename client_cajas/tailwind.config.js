@@ -8,7 +8,11 @@ module.exports = {
     "./node_modules/@heroui/react/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        mono: ['"JetBrains Mono"', '"Fira Code"', '"Roboto Mono"', 'monospace'],
+      },
+    },
   },
   darkMode: "class",
   plugins: [heroui()]

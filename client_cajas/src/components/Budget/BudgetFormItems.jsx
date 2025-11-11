@@ -42,12 +42,19 @@ export default function BudgetFormItems({ practices, items, setItems }) {
         <div className="flex flex-col gap-6 ">
             <h3 className="text-lg font-semibold">Items</h3>
 
+            <div className="grid grid-cols-12 gap-4 items-center">
+                <div className="col-span-4">Práctica</div>
+                <div className="col-span-1">Cant</div>
+                <div className="col-span-1">Ojo</div>
+                <div className="col-span-2">Precio</div>
+                <div className="col-span-1">IVA</div>
+                <div className="col-span-2">Subtotal</div>
+            </div>
+
             {items.map((item, index) => (
                 <div key={index} className="grid grid-cols-12 gap-4 items-center">
                     <div className="col-span-4">
                         <Autocomplete
-                            label="Práctica"
-                            labelPlacement="outside"
                             placeholder="Seleccionar práctica"
                             defaultItems={practices}
                             selectedKey={item.practiceId}
@@ -63,8 +70,6 @@ export default function BudgetFormItems({ practices, items, setItems }) {
                     </div>
                     <div className="col-span-1">
                         <Input
-                            label="Cant"
-                            labelPlacement="outside"
                             value={item.quantity}
                             onValueChange={(val) => updateItem(index, "quantity", parseInt(val) || "0")}
                             classNames={{
@@ -74,8 +79,6 @@ export default function BudgetFormItems({ practices, items, setItems }) {
                     </div>
                     <div className="col-span-1">
                         <Select
-                            label="Ojo"
-                            labelPlacement="outside"
                             selectedKeys={[item.eye]}
                             onSelectionChange={(keys) => updateItem(index, "eye", [...keys][0])}
                         >
@@ -86,8 +89,6 @@ export default function BudgetFormItems({ practices, items, setItems }) {
                     </div>
                     <div className="col-span-2">
                         <Input
-                            label="Precio"
-                            labelPlacement="outside"
                             value={item.price || 0}
                             onValueChange={(val) => { updateItem(index, "price", val)}}
                             onBlur={() => {
@@ -103,8 +104,6 @@ export default function BudgetFormItems({ practices, items, setItems }) {
                     </div>
                     <div className="col-span-1">
                         <Input
-                            label="IVA"
-                            labelPlacement="outside"
                             value={item.iva || 0}
                             onValueChange={(val) => updateItem(index, "iva", val)}
                             onBlur={() => updateItem(index, "iva", isNaN(parseFloat(item.iva)) ? 0 : parseFloat(item.iva).toFixed(1))}
@@ -116,8 +115,6 @@ export default function BudgetFormItems({ practices, items, setItems }) {
                     </div>
                     <div className="col-span-2">
                         <Input
-                            label="Subtotal"
-                            labelPlacement="outside"
                             value={(item.price * item.quantity * (1 + item.iva / 100)).toFixed(2) || "0"}
                             startContent={<DollarSign strokeWidth={0.75} size={16} />}
                             classNames={{

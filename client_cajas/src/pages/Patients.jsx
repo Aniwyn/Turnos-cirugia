@@ -27,7 +27,7 @@ export const columns = [
     { name: "DNI", uid: "dni", sortable: true, size: 100 },
     { name: "APELLIDO", uid: "last_name", sortable: true, size: 150 },
     { name: "NOMBRE", uid: "first_name", sortable: true, size: 150 },
-    { name: "OBRA SOCIAL", uid: "health_insurance", sortable: true, size: 100 },
+    { name: "OBRA SOCIAL", uid: "HealthInsurance", sortable: true, size: 100 },
     { name: "TEL 1", uid: "phone1", size: 100 },
     { name: "TEL 2", uid: "phone2", size: 100 },
     { name: "LOCALIDAD", uid: "localidad", size: 200 },
@@ -74,13 +74,15 @@ const Patients = () => {
             const cmp = first < second ? -1 : first > second ? 1 : 0;
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp
-        });
+        })
     }, [sortDescriptor, patients])
 
     const renderCell = useCallback((patient, columnKey) => {
         const cellValue = patient[columnKey]
 
         switch (columnKey) {
+            case "HealthInsurance":
+                return(cellValue?.name || "")
             case "localidad":
                 return ("SAN SALVADOR DE JUJUY")
             case "actions":
@@ -108,8 +110,6 @@ const Patients = () => {
                 return cellValue
         }
     }, [])
-
-
 
     const handlePage = (page) => {
         fetchPatientsPaginated(page)
@@ -139,13 +139,13 @@ const Patients = () => {
         return (
             <div className="py-2 px-2 flex justify-center items-center">
                 <Pagination
-                    isCompact
-                    showControls
-                    showShadow
-                    color="primary"
                     page={currentPage}
                     total={totalPages}
                     onChange={handlePage}
+                    color="primary"
+                    isCompact
+                    showControls
+                    showShadow
                 />
             </div>
         )
@@ -155,8 +155,6 @@ const Patients = () => {
 
     return (
         <Table
-            isHeaderSticky
-            aria-label="Tabla de pacientes"
             topContent={topContent}
             topContentPlacement="outside"
             bottomContent={bottomContent}
@@ -167,9 +165,11 @@ const Patients = () => {
             classNames={{
                 wrapper: "max-h-[382px]",
             }}
+            isHeaderSticky
             isStriped
             removeWrapper
             isCompact
+            aria-label="Tabla de pacientes"
         >
             <TableHeader columns={columns}>
                 {(column) => (
@@ -183,7 +183,10 @@ const Patients = () => {
                     </TableColumn>
                 )}
             </TableHeader>
-            <TableBody emptyContent={"No se encontraron pacientes."} items={sortedItems}>
+            <TableBody
+                emptyContent={"No se encontraron pacientes."}
+                items={sortedItems}
+            >
                 {(item) => (
                     <TableRow key={item.id}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

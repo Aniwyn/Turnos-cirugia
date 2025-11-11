@@ -16,7 +16,7 @@ export const getUserCashMovements = async () => {
         const response = await api.get('/cash-movement/my')
         return response.data
     } catch (error) {
-        console.error("Error fetching movements: ", error)
+        console.error("Error fetching movement: ", error)
         return []
     }
 }

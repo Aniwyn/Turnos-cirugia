@@ -1,4 +1,8 @@
+const { Op } = require('sequelize')
 const db = require('../models')
+
+const defaultPage = 1
+const defaultLimit = 20
 
 exports.getAllCashBox = async (req, res) => {
     try {
@@ -18,26 +22,146 @@ exports.getAllCashBox = async (req, res) => {
     }
 }
 
-exports.getUserCashBoxes = async (req, res) => {
-    const user = req.user
-
+exports.getPaginatedCashBoxes = async (req, res) => {
+    const { query: filters = {}, page = defaultPage, limit = defaultLimit } = req.query
     try {
         const userId = req.user.userId
 
-        const boxes = await db.CashBox.findAll({
-            where: { user_id: userId },
+        const user = await db.User.findByPk(userId)
+
+        const { id, start_date, end_date, description} = filters
+        const whereConditions = []
+
+        if (id) { whereConditions.push({ id: { [Op.like]: `%${id}%` } }) }
+        if (description) { whereConditions.push({ description: { [Op.like]: `%${description}%` } }) }
+        if (start_date || end_date) {
+            const dateFilter = {}
+
+            if (start_date) {
+                dateFilter[Op.gte] = new Date(start_date)
+            }
+
+            if (end_date) {
+                const [year, month, day] = end_date.split('-').map(Number)
+                const end = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999))
+                dateFilter[Op.lte] = end
+            }
+
+            whereConditions.push({
+                closed_at: dateFilter
+            })
+        }
+
+
+        const whereClause = whereConditions.length > 0 ? { [Op.and]: whereConditions } : {}
+
+        const pageNumber = parseInt(page, 10) || defaultPage
+        const limitNumber = parseInt(limit, 10) || defaultLimit
+
+        const offset = (pageNumber - 1) * limitNumber
+        const { rows, count } = await db.CashBox.findAndCountAll({
+            where: whereClause,
+            offset,
+            limit: limitNumber,
+            order: [['id', 'DESC']],
             include: [
                 {
                     association: 'user',
                     attributes: ['name', 'role']
-                },
-            ],
-            order: [['created_at', 'DESC']]
+                }
+            ]
         })
 
-        res.json(boxes)
+        res.json({
+            boxes: rows,
+            total: count,
+            page: pageNumber,
+            totalPages: Math.ceil(count / limitNumber)
+        })
     } catch (err) {
-        res.status(500).json({ message: 'Error al obtener cajas del usuario', error: err })
+        console.error("Error en getPaginatedCashBoxes: ", err)
+        res.status(500).json({ message: 'Error al obtener cajas', error: err })
+    }
+}
+
+exports.getMyActiveCashBox = async (req, res) => {
+    try {
+        const userId = req.user.userId
+
+        const openBox = await db.CashBox.findOne({
+            where: {
+                user_id: userId,
+                state: 'open'
+            }
+        })
+
+        if (!openBox) { return res.status(404).json({ message: 'ERROR: No se encontraron cajas activas para el usuario.' }) }
+
+        return res.json(openBox)
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: 'Error obteniendo la caja activa' })
+    }
+}
+
+exports.getUserCashBoxesPaginated = async (req, res) => {
+    const { query: filters = {}, page = defaultPage, limit = defaultLimit } = req.query
+    try {
+        const userId = req.user.userId
+
+        const { id, start_date, end_date, description } = filters
+        const whereConditions = []
+        console.log(filters)
+        if (userId) { whereConditions.push({ user_id: userId }) }
+        if (id) { whereConditions.push({ id: { [Op.like]: `%${id}%` } }) }
+        if (description) { whereConditions.push({ description: { [Op.like]: `%${description}%` } }) }
+        if (start_date || end_date) {
+            const dateFilter = {}
+
+            if (start_date) {
+                dateFilter[Op.gte] = new Date(start_date)
+            }
+
+            if (end_date) {
+                const [year, month, day] = end_date.split('-').map(Number)
+                const end = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999))
+                dateFilter[Op.lte] = end
+            }
+
+            whereConditions.push({
+                closed_at: dateFilter
+            })
+        }
+
+
+        const whereClause = whereConditions.length > 0 ? { [Op.and]: whereConditions } : {}
+
+        const pageNumber = parseInt(page, 10) || defaultPage
+        const limitNumber = parseInt(limit, 10) || defaultLimit
+
+        const offset = (pageNumber - 1) * limitNumber
+        const { rows, count } = await db.CashBox.findAndCountAll({
+            where: whereClause,
+            offset,
+            limit: limitNumber,
+            order: [['id', 'DESC']],
+            include: [
+                {
+                    association: 'user',
+                    attributes: ['name', 'role']
+                }
+            ]
+        })
+
+        res.json({
+            boxes: rows,
+            total: count,
+            page: pageNumber,
+            totalPages: Math.ceil(count / limitNumber)
+        })
+    } catch (err) {
+        console.error("Error en getPaginatedCashBoxes: ", err)
+        res.status(500).json({ message: 'Error al obtener cajas', error: err })
     }
 }
 
@@ -46,42 +170,90 @@ exports.getCashBoxById = async (req, res) => {
     try {
         const box = await db.CashBox.findByPk(id, {
             include: [
-                { association: 'cashMovement' }
+                { association: 'cashMovement' },
+                {
+                    association: 'user',
+                    attributes: ['name', 'role']
+                },
             ]
         })
         if (!box) {
             return res.status(404).json({ message: 'Caja no encontrada' })
         }
-        res.json(box)
+        res.status(200).json(box)
     } catch (err) {
         res.status(500).json({ message: 'Error al obtener caja', error: err })
     }
 }
 
-exports.createCashBox = async (req, res) => { }
+exports.getAvailableForMainBox = async (req, res) => {
+    try {
+        const boxes = await db.CashBox.findAll({
+            where: {
+                state: "closed",
+                main_box_id: null
+            },
+            include: [
+                {
+                    association: 'user',
+                    attributes: ['name', 'role']
+                },
+            ]
+        })
+        
+        res.status(200).json(boxes)
+    } catch (err) {
+        res.status(500).json({ message: 'Error al obtener las cajas disponible', error: err })
+    }
+}
 
+//Se debería editar?
+exports.createCashBox = async (req, res) => { }
 exports.updateCashBox = async (req, res) => { }
 
-exports.closeCashBox = async (req, res) => {
+exports.linkMainBox = async (req, res) => {
     try {
         const { id } = req.params
-        const { description } = req.body
+        const { mainBoxId } = req.body
+
+        console.log(id, "  ", mainBoxId)
 
         const cashBox = await db.CashBox.findByPk(id)
 
-        if (!cashBox)
-            return res.status(404).json({ message: 'Caja no encontrada' })
+        if (!cashBox) {
+            return res.status(404).json({ message: 'Cash box not found' })
+        }
 
-        if (cashBox.state === 'closed')
-            return res.status(400).json({ message: 'La caja ya está cerrada' })
+        cashBox.main_box_id = mainBoxId
+        await cashBox.save()
 
-        await cashBox.update({ description, state: "closed", closed_at: new Date() })
-
-        res.json({ message: 'Caja cerrada exitosamente' })
-    } catch (err) {
-        res.status(500).json({ message: 'Error al cerrar caja', error: err })
+        res.status(200).json({ message: 'Main box linked successfully' })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Error linked main box' })
     }
 }
+
+exports.unlinkMainBox = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const cashBox = await db.CashBox.findByPk(id)
+
+        if (!cashBox) {
+            return res.status(404).json({ message: 'Cash box not found' })
+        }
+
+        cashBox.main_box_id = null
+        await cashBox.save()
+
+        res.status(200).json({ message: 'Main box unlinked successfully' })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Error unlinking main box' })
+    }
+}
+
 
 exports.closeCashBox = async (req, res) => {
     try {
@@ -89,7 +261,6 @@ exports.closeCashBox = async (req, res) => {
         const { description } = req.body
         const userId = req.user.userId
         const userName = req.user.name
-        console.log("\n\n", req.user, "\n\n")
 
         const cashBox = await db.CashBox.findByPk(id, {
             include: [{ association: 'cashMovement' }]
@@ -137,26 +308,6 @@ exports.closeCashBox = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).json({ message: 'Error al cerrar caja' })
-    }
-}
-
-exports.getMyOpenCashBox = async (req, res) => {
-    try {
-        const userId = req.user.userId
-
-        const openBox = await db.CashBox.findOne({
-            where: {
-                user_id: userId,
-                state: 'open'
-            }
-        })
-
-        if (!openBox) { return res.status(404).json({ message: 'ERROR: No tienes una caja abierta.' }) }
-
-        return res.json(openBox)
-    } catch (error) {
-        console.error(error)
-        return res.status(500).json({ message: 'Error obteniendo la caja abierta' })
     }
 }
 

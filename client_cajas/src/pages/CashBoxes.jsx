@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
     Chip,
-    DatePicker,
     Pagination,
     Table,
     TableBody,
@@ -11,24 +10,11 @@ import {
     TableRow,
     Spinner
 } from "@heroui/react"
-import { today } from "@internationalized/date"
 import useCashBoxStore from '../store/useCashBoxStore'
-import EditOpenCashBox from '../components/MyCashClosures/EditOpenCashBox'
-import { capitalizeFirstLetter } from '../Helper'
-
-const originColorMap = {
-    admin: "warning",
-    manual: "primary",
-    medical: "secondary",
-    own: "success"
-}
-
-const originTextMap = {
-    admin: "Administración",
-    manual: "Manual",
-    medical: "Medicos",
-    own: "Propia"
-}
+import EditOpenCashBox from '../components/CashBoxes/EditOpenCashBox'
+import ViewCashBoxDetail from '../components/CashBoxes/ViewCashBoxDetail'
+import { capitalizeFirstLetter, formatCurrency } from '../tools/utils'
+import SearchPanel from '../components/CashBoxes/SearchPanel';
 
 const stateTextMap = {
     closed: "Cerrada",
@@ -41,60 +27,30 @@ const stateColorMap = {
     open: "success",
     cancelled: "danger"
 }
- 
+
 const CashBox = () => {
-    const [page, setPage] = useState(1)
-    const [date, setDate] = useState()
     const [sortDescriptor, setSortDescriptor] = useState({ column: "none", direction: "ascending" })
-    const rowsPerPage = Math.trunc((window.innerHeight - 200) / 36)
-    const { boxes, fetchBoxes, isLoading } = useCashBoxStore()
+    const { boxes, fetchCashBoxesPaginated, queryTerms, currentPage, totalPages, isLoadingCashBoxStore } = useCashBoxStore()
+
+    const hasSearchFilter = Boolean(queryTerms)
 
     useEffect(() => {
-        fetchBoxes()
+        fetchCashBoxesPaginated()
     }, [])
 
-    const filteredItems = useMemo(() => {
-        if (!date) return boxes
-
-        let filtered = [...boxes]
-        const selectedDateStr = date.toDate?.().toISOString().slice(0, 10)
-
-        filtered = filtered.filter(item => item.closed_at?.slice(0, 10) === selectedDateStr)
-
-        return filtered
-    }, [boxes, date])
-
     const sortedItems = useMemo(() => {
-        return [...filteredItems].sort((a, b) => {
+        return [...boxes].sort((a, b) => {
             const first = a[sortDescriptor.column]
             const second = b[sortDescriptor.column]
             const cmp = first < second ? -1 : first > second ? 1 : 0
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp
         })
-    }, [filteredItems, sortDescriptor])
-
-    const pages = useMemo(() => {
-        return Math.ceil(sortedItems.length / rowsPerPage) || 1
-    }, [sortedItems])
-
-    const items = useMemo(() => {
-        const start = (page - 1) * rowsPerPage
-        const end = start + rowsPerPage
-
-        return sortedItems.slice(start, end)
-    }, [page, sortedItems])
-
-    const formatter = (number) => {
-        return new Intl.NumberFormat('es-AR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(number)
-    }
+    }, [sortDescriptor, boxes])
 
     const renderCell = useCallback((item, columnKey) => {
         const cellValue = item[columnKey]
-
+        
         switch (columnKey) {
             case "closed_at":
                 if (!cellValue) return "-"
@@ -102,10 +58,6 @@ const CashBox = () => {
             case "description":
                 if (!cellValue) return "-"
                 return cellValue
-            case "user":
-                return capitalizeFirstLetter(cellValue.name)
-            case "origin":
-                return <Chip color={originColorMap[cellValue]} size="sm" variant="flat">{originTextMap[cellValue]}</Chip>
             case "state":
                 return (<Chip color={stateColorMap[cellValue]} size="sm" variant="flat">{stateTextMap[cellValue]}</Chip>)
             case "total_ars":
@@ -113,7 +65,7 @@ const CashBox = () => {
                 return (
                     <div className="flex justify-end">
                         <span className="pr-4">$</span>
-                        <span className="font-semibold" style={{ color: cellValue < 0 ? "#82181a" : "#0d542b" }}>{cellValue ? formatter(cellValue) : "0"}</span>
+                        <span className="font-semibold" style={{ color: cellValue < 0 ? "#82181a" : "#0d542b" }}>{cellValue ? formatCurrency(cellValue) : "0"}</span>
                     </div>
                 )
             case "total_usd":
@@ -121,13 +73,14 @@ const CashBox = () => {
                 return (
                     <div className="flex justify-end">
                         <span className="pr-4">USD</span>
-                        <span className="font-semibold" style={{ color: cellValue < 0 ? "#82181a" : "#0d542b" }}>{cellValue ? formatter(cellValue) : "-"}</span>
+                        <span className="font-semibold" style={{ color: cellValue < 0 ? "#82181a" : "#0d542b" }}>{cellValue ? formatCurrency(cellValue) : "-"}</span>
                     </div>
                 )
             case "actions":
                 return (
                     <div className="relative flex items-center justify-end">
-                        { item.state == 'open' ? <EditOpenCashBox /> : <></> }
+                        { item.state == 'open' && <EditOpenCashBox /> }
+                        { item.state == 'closed' && <ViewCashBoxDetail boxId={item.id} /> }
                     </div>
                 )
             default:
@@ -135,33 +88,39 @@ const CashBox = () => {
         }
     }, [])
 
+    const handlePage = (page) => {
+        fetchCashBoxesPaginated(page)
+    }
+
+    const bottomContent = useMemo(() => {
+        if (!totalPages || totalPages == 0) return
+        return (
+            <div className="py-2 px-2 flex justify-center items-center">
+                <Pagination
+                    page={currentPage}
+                    total={totalPages}
+                    onChange={handlePage}
+                    color="primary"
+                    isCompact
+                    showControls
+                    showShadow
+                />
+            </div>
+        )
+    }, [currentPage, totalPages, hasSearchFilter])
+
     return (
         <div className='flex flex-col'>
             <div className='flex flex-row gap-4 rounded-[14px]'>
-                <div className="flex flex-col min-w-[160px] flex-wrap md:flex-nowrap pt-6">
-                    <h2 className='font-bold text-center hover-bg-transparent bg-red pb-4'>Filtrar</h2>
-                    <div className='flex items-center gap-1'>
-                        <DatePicker className="max-w-[284px]" label="Buscar por fecha" variant="underlined" maxValue={today()} value={date} onChange={setDate} showMonthAndYearPickers />
-                        {/*<button className='flex text-red-600 hover:text-white hover:bg-red-300 rounded-[50%] px-2 pb-1 cursor-pointer text-sm' onClick={clearDate}>x</button>*/}
-                    </div>
+                <div className="flex flex-col w-full max-w-60 flex-wrap md:flex-nowrap pt-2">
+                    <SearchPanel />
                 </div>
                 <div className='h-full w-full'>
                     <Table
                         aria-label='Tabla de cierres de cajas'
                         isHeaderSticky
-                        bottomContent={
-                            <div className="flex w-full justify-center">
-                                <Pagination
-                                    isCompact
-                                    showControls
-                                    showShadow
-                                    color="primary"
-                                    page={page}
-                                    total={pages}
-                                    onChange={(page) => setPage(page)}
-                                />
-                            </div>
-                        }
+                        isCompact
+                        bottomContent={bottomContent}
                         className='h-full max-h-full w-full'
                         removeWrapper
                         maxTableHeight={200}
@@ -170,18 +129,17 @@ const CashBox = () => {
                         onSortChange={setSortDescriptor}
                     >
                         <TableHeader>
+                            <TableColumn key="id" allowsSorting>ID</TableColumn>
                             <TableColumn key="closed_at" allowsSorting>Fecha cierre</TableColumn>
                             <TableColumn key="description" allowsSorting>Descripcion</TableColumn>
-                            <TableColumn key="user" allowsSorting>Responsable</TableColumn>
-                            <TableColumn key="origin" allowsSorting>Origen</TableColumn>
                             <TableColumn key="state" allowsSorting>Estado</TableColumn>
-                            <TableColumn key="total_ars" allowsSorting>USD</TableColumn>
-                            <TableColumn key="total_usd" allowsSorting>ARS</TableColumn>
+                            <TableColumn key="total_ars" allowsSorting>ARS</TableColumn>
+                            <TableColumn key="total_usd" allowsSorting>USD</TableColumn>
                             <TableColumn key="actions" allowsSorting>Acciones</TableColumn>
                         </TableHeader>
                         <TableBody
-                            isLoading={isLoading}
-                            items={items}
+                            items={sortedItems}
+                            isLoading={isLoadingCashBoxStore}
                             loadingContent={<Spinner label="Loading..." />}
                             emptyContent={"No se registran cajas para este usuario."}
                         >

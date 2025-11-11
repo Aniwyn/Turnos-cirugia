@@ -31,12 +31,13 @@ const usePatientStore = create((set, get) => ({
                 patients,
                 totalPatients: total,
                 totalPages,
-                currentPage: page,
-                isLoadingPatientStore: false
+                currentPage: page
             })
         } catch (error) {
             console.error('Error al cargar pacientes:', error)
-            set({ isLoadingPatientStore: false, errorPatientStore: 'No se pudieron cargar los pacientes' })
+            set({ errorPatientStore: 'No se pudieron cargar los pacientes' })
+        } finally {
+            set({ isLoadingPatientStore: false })
         }
     },
 
