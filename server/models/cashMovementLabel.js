@@ -13,6 +13,9 @@ function cashMovementLabel(sequelize, DataTypes) {
         name: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        movement_type: {
+            type: DataTypes.STRING
         }
     }, {
         tableName: 'cash_movement_label',

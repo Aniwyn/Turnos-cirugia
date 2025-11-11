@@ -41,7 +41,7 @@ const stateColorMap = {
     open: "success",
     cancelled: "danger"
 }
-
+ 
 const CashBox = () => {
     const [page, setPage] = useState(1)
     const [date, setDate] = useState()

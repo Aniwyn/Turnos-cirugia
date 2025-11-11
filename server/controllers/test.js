@@ -11,8 +11,7 @@ exports.getPDFFolder = async (req, res) => {
         console.log(folderPath)
 
         if (!folderPath) {
-            folderPath = "C:\\Certificados_implantes"
-            //return res.status(400).json({ error: "Folder path is required" })
+            return res.status(400).json({ error: "Folder path is required" })
         }
 
         try {

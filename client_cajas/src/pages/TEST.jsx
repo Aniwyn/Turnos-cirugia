@@ -21,7 +21,7 @@ export const medics = [
     { id: "JURE", label: "Jure Francisco", key: "JURE FRANCISCO" },
     { id: "ABUD", label: "Abud Valeria", key: "ABUD VALERIA" },
     { id: "ALCOBA", label: "Alcoba Emilio", key: "ALCOBA" },
-    { id: "DIPIERRI", label: "Dipierri Maite", key: "DIPIERRI" },
+    { id: "DIPIERRI", label: "Dipierri Maite", key: "DIPIERRI MAITE" },
     { id: "ZARIFJ", label: "Zarif Jose Luis", key: "ZARIF JOSE" },
     { id: "ZARIFA", label: "Zarif Agustina", key: "ZARIF AGUSTINA" },
     { id: "TONELLI", label: "Tonelli Mariela", key: "TONELLI" },
@@ -36,6 +36,7 @@ const SuppliesStamps = () => {
     const [folderPath, setFolderPath] = useState("C:\\Users\\Gabriel\\Desktop\\Jonathan\\IMPLANTESPDF")
     const [isCharguedPDFs, setIsCharguedPDFs] = useState(false)
     const [successMessage, setSuccessMessage] = useState(null)
+    const [allDates, setAllDates] = useState()
 
     const fetchPDFsFromFolder = async () => {
         setLoading(true)
@@ -85,6 +86,18 @@ const SuppliesStamps = () => {
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleAllDates = (newDate) => {
+        setPdfFiles(prevFiles =>
+            prevFiles.map(file => ({
+                ...file,
+                extraData: {
+                    ...file.extraData,
+                    date: newDate
+                }
+            }))
+        )
     }
 
     const handleDate = (id, newDate) => {
@@ -186,6 +199,12 @@ const SuppliesStamps = () => {
                 </CardHeader>
                 <CardBody>
                     <div className="flex flex-col gap-4">
+                        <DateInput 
+                            value={allDates}
+                            onChange={setAllDates}
+                            className="w-[150px]"
+                            onBlur={() => handleAllDates(allDates)}
+                        />
                         <div className="flex gap-2 items-end">
                             <div className="flex-1">
                                 <label className="block text-sm font-medium mb-2">Ruta de la carpeta:</label>

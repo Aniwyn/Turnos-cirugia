@@ -28,6 +28,9 @@ function cashBox(sequelize, DataTypes) {
         daily_summary_id: {
             type: DataTypes.INTEGER
         },
+        main_box_id: {
+            type: DataTypes.INTEGER
+        },
         total_ars: {
             type: DataTypes.FLOAT
         },
@@ -45,8 +48,8 @@ function cashBox(sequelize, DataTypes) {
             as: 'cashMovement',
         })
 
-        CashBox.belongsTo(models.DailySummary, {
-            foreignKey: 'daily_summary_id'
+        CashBox.belongsTo(models.MainBox, {
+            foreignKey: 'main_box_id'
         })
 
         CashBox.belongsTo(models.User, {

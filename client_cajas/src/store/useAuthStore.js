@@ -17,7 +17,7 @@ const useAuthStore = create((set) => ({
         } catch (error) {
             const msg = error.response?.data?.message || 'Error de autenticación'
             console.error('Error en login:', msg)
-            throw new Error(msg)
+            // throw new Error(msg)
         }
     },
 

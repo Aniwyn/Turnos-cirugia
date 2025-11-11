@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
+    Accordion,
+    AccordionItem,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -18,16 +20,17 @@ import { EllipsisVertical, Plus, Search } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 import LoadingPage from './LoadingPage'
 import usePatientStore from '../store/usePatientStore'
+import SearchBar from "../components/Patients/SearchBar";
 
-//cambiar campos
 export const columns = [
     { name: "ID", uid: "id", sortable: true, size: 70 },
     { name: "DNI", uid: "dni", sortable: true, size: 100 },
     { name: "APELLIDO", uid: "last_name", sortable: true, size: 150 },
     { name: "NOMBRE", uid: "first_name", sortable: true, size: 150 },
-    { name: "OBRA SOCIAL", uid: "health_insurance", sortable: true, size: 100 },
+    { name: "OBRA SOCIAL", uid: "HealthInsurance", sortable: true, size: 100 },
     { name: "TEL 1", uid: "phone1", size: 100 },
     { name: "TEL 2", uid: "phone2", size: 100 },
+    { name: "LOCALIDAD", uid: "localidad", size: 200 },
     { name: "ACCIONES", uid: "actions", size: 100 },
 ];
 
@@ -41,87 +44,47 @@ export function capitalize(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ""
 }
 
-const statusColorMap = {
-    active: "success",
-    paused: "danger",
-    vacation: "warning",
-};
-
 const Patients = () => {
-    const [filterValue, setFilterValue] = useState("")
-    const [sortDescriptor, setSortDescriptor] = useState({ column: "age", direction: "ascending" })
-    const [page, setPage] = useState(1);
+    const [queryTerms, setQueryTerms] = useState({})
+    const [sortDescriptor, setSortDescriptor] = useState({})
     const navigate = useNavigate()
-    const { patients, fetchPatients, isLoadingPatientStore } = usePatientStore()
-    const rowsPerPage = 49
+    const { patients, fetchPatientsPaginated, fetchPatientsFiltered, currentPage, totalPages, isLoadingPatientStore } = usePatientStore()
 
-    //borrar (?)
-    const hasSearchFilter = Boolean(filterValue)
+    const hasSearchFilter = Boolean(queryTerms)
 
     useEffect(() => {
-        fetchPatients()
+        fetchPatientsPaginated()
     }, [])
 
-    const filteredItems = useMemo(() => {
-        let filteredPatients = [...patients]
+    const handleFilters = (name, value) => {
+        setQueryTerms(prev => {
+            const updated = { ...prev }
 
-        if (hasSearchFilter) {
-            filteredPatients = filteredPatients.filter((patient) =>
-                patient.first_name.toLowerCase().includes(filterValue.toLowerCase()) ||
-                patient.last_name.toLowerCase().includes(filterValue.toLowerCase()) ||
-                patient.dni.toLowerCase().includes(filterValue.toLowerCase())
-            )
-        }
+            if (value === "") { delete updated[name] }
+            else { updated[name] = value }
 
-        return filteredPatients
-    }, [patients, filterValue])
-
-    const pages = Math.ceil(filteredItems.length / rowsPerPage) || 1
-
-    const items = useMemo(() => {
-        const start = (page - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-
-        return filteredItems.slice(start, end)
-    }, [page, filteredItems, rowsPerPage])
+            return updated
+        })
+    }
 
     const sortedItems = useMemo(() => {
-        return [...items].sort((a, b) => {
+        return [...patients].sort((a, b) => {
             const first = a[sortDescriptor.column];
             const second = b[sortDescriptor.column];
             const cmp = first < second ? -1 : first > second ? 1 : 0;
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp
-        });
-    }, [sortDescriptor, items])
+        })
+    }, [sortDescriptor, patients])
 
     const renderCell = useCallback((patient, columnKey) => {
         const cellValue = patient[columnKey]
 
         switch (columnKey) {
-            //case "name":
-            //    return (
-            //        <User
-            //            avatarProps={{ radius: "lg", src: user.avatar }}
-            //            description={user.email}
-            //            name={cellValue}
-            //        >
-            //            {user.email}
-            //        </User>
-            //    );
-            //case "role":
-            //    return (
-            //        <div className="flex flex-col">
-            //            <p className="text-bold text-small capitalize">{cellValue}</p>
-            //            <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
-            //        </div>
-            //    );
-            //case "status":
-            //    return (
-            //        <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
-            //            {cellValue}
-            //        </Chip>
-            //    );
+            case "HealthInsurance":
+                return(cellValue?.name || "")
+            case "localidad":
+                return ("SAN SALVADOR DE JUJUY")
             case "actions":
                 return (
                     <div className="relative flex justify-end items-center gap-2">
@@ -146,88 +109,67 @@ const Patients = () => {
             default:
                 return cellValue
         }
-    }, []);
-
-    const onSearchChange = useCallback((value) => {
-        if (value) {
-            setFilterValue(value)
-            setPage(1)
-        } else {
-            setFilterValue("")
-        }
     }, [])
 
-    const onClear = useCallback(() => {
-        setFilterValue("")
-        setPage(1)
-    }, [])
+    const handlePage = (page) => {
+        fetchPatientsPaginated(page)
+    }
 
     const handleNewPatient = () => {
         navigate('/pacientes/crear')
     }
 
+    const handleSearch = () => {
+        fetchPatientsFiltered(queryTerms)
+    }
+
     const topContent = useMemo(() => {
         return (
-            <div className="flex flex-col gap-4 mb-4">
-                <div className="flex justify-between gap-3 items-end">
-                    <Input
-                        isClearable
-                        className="w-full sm:max-w-[44%]"
-                        placeholder="Buscar por nombre, apellido o dni..."
-                        startContent={<Search />}
-                        value={filterValue}
-                        onClear={() => onClear()}
-                        onValueChange={onSearchChange}
-                    />
-                    <div className="flex gap-3">
-                        <Button color="primary" endContent={<Plus size={20} />} onPress={handleNewPatient}>
-                            Nuevo paciente
-                        </Button>
-                    </div>
-                </div>
+            <div className="flex gap-10 justify-between items-end mb-2">
+                <Button color="primary" startContent={<Plus size={18} />} onPress={handleNewPatient}>
+                    Nuevo paciente
+                </Button>
+                <SearchBar queryTerms={queryTerms} handleFilters={handleFilters} handleSearch={handleSearch}/>
             </div>
         )
-    }, [
-        filterValue,
-        onSearchChange,
-        hasSearchFilter,
-    ])
+    }, [queryTerms, hasSearchFilter])
 
     const bottomContent = useMemo(() => {
+        if (!totalPages || totalPages == 0) return
         return (
             <div className="py-2 px-2 flex justify-center items-center">
                 <Pagination
+                    page={currentPage}
+                    total={totalPages}
+                    onChange={handlePage}
+                    color="primary"
                     isCompact
                     showControls
                     showShadow
-                    color="primary"
-                    page={page}
-                    total={pages}
-                    onChange={setPage}
                 />
             </div>
-        );
-    }, [items.length, page, pages, hasSearchFilter])
+        )
+    }, [currentPage, totalPages, hasSearchFilter])
 
     if (isLoadingPatientStore) return (<LoadingPage />)
 
     return (
         <Table
-            isHeaderSticky
-            aria-label="Example table with custom cells, pagination and sorting"
+            topContent={topContent}
+            topContentPlacement="outside"
             bottomContent={bottomContent}
             bottomContentPlacement="outside"
+            sortDescriptor={sortDescriptor}
+            onSortChange={setSortDescriptor}
+            className="max-w-[1250px] mx-auto"
             classNames={{
                 wrapper: "max-h-[382px]",
             }}
-            className="max-w-[1000px] mx-auto"
-            sortDescriptor={sortDescriptor}
-            topContent={topContent}
-            topContentPlacement="outside"
-            onSortChange={setSortDescriptor}
+            isHeaderSticky
             isStriped
             removeWrapper
             isCompact
+            aria-label="Tabla de pacientes"
         >
             <TableHeader columns={columns}>
                 {(column) => (
@@ -241,7 +183,10 @@ const Patients = () => {
                     </TableColumn>
                 )}
             </TableHeader>
-            <TableBody emptyContent={"No users found"} items={sortedItems}>
+            <TableBody
+                emptyContent={"No se encontraron pacientes."}
+                items={sortedItems}
+            >
                 {(item) => (
                     <TableRow key={item.id}>
                         {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

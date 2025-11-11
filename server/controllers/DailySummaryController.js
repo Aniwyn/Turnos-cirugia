@@ -1,6 +1,7 @@
 const db = require('../models')
 
-exports.getAllDailySummary = async (req, res) => {
+//listo para borrar
+exports.getAllDailySummaryEX = async (req, res) => {
     try {
         const dailySummaries = await db.DailySummary.findAll()
         res.json(dailySummaries)
@@ -9,7 +10,8 @@ exports.getAllDailySummary = async (req, res) => {
     }
 }
 
-exports.getDailySummaryById = async (req, res) => {
+//listo para borrar
+exports.getDailySummaryByIdEX = async (req, res) => {
     const { id } = req.params
     try {
         const dailySummary = await db.DailySummary.findByPk(id)
@@ -23,6 +25,10 @@ exports.getDailySummaryById = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener caja', error: err })
     }
 }
+
+exports.getAllDailySummaryEX = async (req, res) => { }
+
+exports.getDailySummaryByIdEX = async (req, res) => { }
 
 exports.createDailySummary = async (req, res) => { }
 

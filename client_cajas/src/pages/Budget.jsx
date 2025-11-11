@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom"
 import { Button, Checkbox, DateInput, Form, Input } from '@heroui/react'
-import { CircleX, Search } from 'lucide-react'
 import usePatientStore from '../store/usePatientStore'
 import { useEffect, useState } from "react"
 import BudgetFormItems from "../components/Budget/BudgetFormItems"
@@ -9,6 +8,7 @@ import useBudgetStore from "../store/useBudgetStore"
 import LoadingPage from "./LoadingPage"
 import generateBudgetPDF from "../tools/generateBudgetPDF"
 import { now } from "@internationalized/date";
+import { useNavigate } from "react-router-dom"
 
 const Budget = () => {
     const [addressedTo, setAddressedTo] = useState("HOSPITAL PABLO SORIA")
@@ -20,16 +20,20 @@ const Budget = () => {
     const [patientName, setPatientName] = useState()
     const [items, setItems] = useState([{ practiceId: null, quantity: 1, eye: "AO", price: 0, iva: 21 }])
     const [isSelectedStamp, setIsSelectedStamp] = useState(true)
-    const { getPatientByID, isLoadingPatientStore, errorPatientStore } = usePatientStore()
+    const { getPatientByID, getPatientByDNI, isLoadingPatientStore, errorPatientStore } = usePatientStore()
     const { practices, fetchPractices, isLoadingPracticeStore, errorPracticeStore } = usePracticeStore()
     const { createBudget } = useBudgetStore()
+    const navigate = useNavigate()
+    
 
     const { id } = useParams()
+    if (!id) navigate("/pacientes")
     const errors = {}
 
     useEffect(() => {
         const getPatient = async () => {
             const fetchedPatient = await getPatientByID(id)
+
             if (fetchedPatient) {
                 setPatient(fetchedPatient)
                 setPatienID(fetchedPatient.id)
@@ -43,7 +47,7 @@ const Budget = () => {
         }
 
         getPractices()
-        if (id) { getPatient() }
+        getPatient()
     }, [])
 
     const toMySQLDate = (budget_date) => {
@@ -58,7 +62,6 @@ const Budget = () => {
         const dd = String(dateObject.getDate()).padStart(2, "0")
         return `${yyyy}-${mm}-${dd}`
     }
-
 
     const onSubmit = async (e) => {
         e.preventDefault()
@@ -158,8 +161,8 @@ const Budget = () => {
                             name="patient_id"
                             placeholder="ID del paciente"
                             value={patientID}
-                            onValueChange={(e) => setPatienID(e)}
-                            endContent={<div className="flex items-center gap-1"><Search size={20} /><CircleX size={20} color="red" /></div>}
+                            variant="underlined"
+                            isReadOnly
                         />
                         <Input
                             isRequired
@@ -168,9 +171,8 @@ const Budget = () => {
                             name="patient_dni"
                             placeholder="DNI del paciente"
                             value={patientDNI}
-                            onValueChange={(e) => setPatienDNI(e)}
-                            isDisabled={patientID ? true : false}
-                            endContent={!patientID ? <div className="flex items-center gap-1"><Search size={20} /></div> : <></>}
+                            variant="underlined"
+                            isReadOnly
                         />
                     </div>
                     <Input
@@ -180,6 +182,7 @@ const Budget = () => {
                         name="patient_name"
                         placeholder="Paciente"
                         value={patientName}
+                        variant="underlined"
                         isReadOnly
                     />
                 </div>
@@ -194,7 +197,7 @@ const Budget = () => {
             </div>
 
             <div className="flex gap-4 justify-end w-full max-w-5xl">
-                <Button variant="bordered">Calcelar</Button>
+                <Button variant="bordered">Cancelar</Button>
                 <Button className="" color="primary" type="submit">Crear presupuesto</Button>
             </div>
         </Form>
