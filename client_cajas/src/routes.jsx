@@ -22,7 +22,7 @@ import useAuthStore from "./store/useAuthStore"
 import TEST from "./pages/TEST"
 import TEST2 from "./pages/SuppliesStamps"
 import LoadingPage from './pages/LoadingPage'
-import AccountingPanel from './pages/accountingPanel'
+import AccountingPanel from './pages/AccountingPanel'
 import NotFound from './pages/NotFound'
 
 const PrivateRoute = () => {
