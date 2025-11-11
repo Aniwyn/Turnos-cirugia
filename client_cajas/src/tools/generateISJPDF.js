@@ -19,7 +19,6 @@ const drawCenteredText = (page, text, y, containerX, size, font, color = rgb(0, 
 }
 
 const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
-    console.log(medic)
     try {
         const pdfDoc = await PDFDocument.load(pdfData)
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
@@ -28,7 +27,6 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
         const page = pages[0]
 
         anchorsPDF.forEach(anchor => {
-            console.log(anchor)
             if (anchor.key === 'fecha') {
                 drawCenteredText(
                     page,
@@ -49,6 +47,7 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
                 })
             }
             if (anchor.key === 'firma') {
+                /*
                 drawCenteredText(
                     page,
                     medic.name,
@@ -81,6 +80,7 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
                     8,
                     font
                 )
+                */
             }
 
 
