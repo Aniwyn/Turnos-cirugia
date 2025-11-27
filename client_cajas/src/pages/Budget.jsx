@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import BudgetFormItems from "../components/Budget/BudgetFormItems"
 import usePracticeStore from "../store/usePracticeStore"
 import useBudgetStore from "../store/useBudgetStore"
+import useStampStore from "../store/useStampStore"
 import LoadingPage from "./LoadingPage"
 import generateBudgetPDF from "../tools/generateBudgetPDF"
 import { now } from "@internationalized/date";
@@ -22,6 +23,7 @@ const Budget = () => {
     const [isSelectedStamp, setIsSelectedStamp] = useState(true)
     const { getPatientByID, getPatientByDNI, isLoadingPatientStore, errorPatientStore } = usePatientStore()
     const { practices, fetchPractices, isLoadingPracticeStore, errorPracticeStore } = usePracticeStore()
+    const { fetchStampByID, isLoadingStampStore, errorStampStore } = useStampStore()
     const { createBudget } = useBudgetStore()
     const navigate = useNavigate()
     
@@ -103,7 +105,8 @@ const Budget = () => {
 
         try {
             const saved = await createBudget(newBudget)
-            await generateBudgetPDF(saved)
+            const stamp = await fetchStampByID(id)
+            await generateBudgetPDF(saved, isSelectedStamp, stamp)
         } catch (err) {
             console.error("Error guardando presupuesto", err)
         }

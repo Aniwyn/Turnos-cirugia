@@ -282,7 +282,10 @@ exports.closeCashBox = async (req, res) => {
         }
 
         await db.CashMovement.update(
-            { closed: 1 },
+            { 
+                closed: 1,
+                cash_box_id: id
+            },
             { where: { cash_box_id: id } }
         )
 

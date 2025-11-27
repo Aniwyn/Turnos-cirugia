@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
-import { 
+import {
     Button,
     Dropdown,
     DropdownItem,
@@ -10,7 +10,7 @@ import {
     NavbarContent,
     NavbarItem
 } from "@heroui/react"
-import { 
+import {
     Banknote,
     BanknoteArrowUp,
     Boxes,
@@ -27,10 +27,28 @@ import {
     Turntable
 } from 'lucide-react'
 import useAuthStore from "../store/useAuthStore"
+import { ACCOUNTING_ITEMS, CLINICAL_ITEMS } from '../config/navigation'
+import { userCanSeeItem } from '../tools/utils'
+import { useEffect } from 'react'
+
 
 const NavbarLayout = () => {
-    const { logout } = useAuthStore()
+    const { user, logout } = useAuthStore()
     const navigate = useNavigate()
+
+    const userRole = user?.role
+    const userRoleGroup = user?.role_group
+
+    const visibleAccountingItems = ACCOUNTING_ITEMS.filter(item =>
+        userCanSeeItem(item, userRole, userRoleGroup)
+    )
+
+    const visibleClinicalItems = CLINICAL_ITEMS.filter(item =>
+        userCanSeeItem(item, userRole, userRoleGroup)
+    )
+
+    const hasAccountingAccess = visibleAccountingItems.length > 0
+    const hasClinicalAccess = visibleClinicalItems.length > 0
 
     const icons = {
         chevron: <ChevronDown size={16} />,
@@ -38,6 +56,7 @@ const NavbarLayout = () => {
         activity: <SquareStack size={30} />,
         clipboardClock: <ClipboardClock size={30} />
     }
+
     const accountingDropdown = (key) => {
         switch (key) {
             case "box":
@@ -69,20 +88,10 @@ const NavbarLayout = () => {
                 navigate("/practicas")
                 break
             case "budgets":
-                navigate("/404")
+                navigate("/presupuestos")
                 break
-            case "diagnosticos":
+            case "diagnostics":
                 navigate("/404")
-                break
-            default:
-                console.warn("Opción no manejada:", key)
-        }
-    }
-
-    const utilsDropdown = (key) => {
-        switch (key) {
-            case "budgets":
-                navigate("/presupuesto")
                 break
             default:
                 console.warn("Opción no manejada:", key)
@@ -97,43 +106,65 @@ const NavbarLayout = () => {
                     <p className="font-bold text-inherit pl-2">Clínica de Ojos</p>
                 </NavbarBrand>
                 <NavbarContent className="hidden sm:flex gap-4" justify="center">
-                    <Dropdown>
-                        <NavbarItem>
-                            <DropdownTrigger>
-                                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold" endContent={icons.chevron} variant="flat">
-                                    Contabilidad
-                                </Button>
-                            </DropdownTrigger>
-                        </NavbarItem>
-                        <DropdownMenu
-                            aria-label="ACME features"
-                            onAction={(key) => accountingDropdown(key)}
-                        >
-                            <DropdownItem key="boxes" startContent={<SquareStack size={16} strokeWidth={1.5} />} >Mis cajas</DropdownItem>
-                            <DropdownItem key="mainBoxes" startContent={<Boxes size={16} strokeWidth={1.5} />}>Cajas generales</DropdownItem>
-                            <DropdownItem key="accountingPanel" startContent={<Square size={16} strokeWidth={1.5} />}>Panel de contabilidad</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                    {hasAccountingAccess && (
+                        <Dropdown>
+                            <NavbarItem>
+                                <DropdownTrigger>
+                                    <Button
+                                        disableRipple
+                                        className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold"
+                                        endContent={icons.chevron}
+                                        variant="flat"
+                                    >
+                                        Contabilidad
+                                    </Button>
+                                </DropdownTrigger>
+                            </NavbarItem>
+                            <DropdownMenu
+                                aria-label="Contabilidad"
+                                onAction={(key) => accountingDropdown(key)}
+                            >
+                                {visibleAccountingItems.map(item => (
+                                    <DropdownItem
+                                        key={item.key}
+                                        startContent={item.icon}
+                                    >
+                                        {item.label}
+                                    </DropdownItem>
+                                ))}
+                            </DropdownMenu>
+                        </Dropdown>
+                    )}
 
-                    <Dropdown>
-                        <NavbarItem>
-                            <DropdownTrigger>
-                                <Button disableRipple className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold" endContent={icons.chevron} variant="flat">
-                                    Gestion clínica
-                                </Button>
-                            </DropdownTrigger>
-                        </NavbarItem>
-                        <DropdownMenu
-                            aria-label="ACME features"
-                            // itemClasses={{ base: "gap-4" }}
-                            onAction={(key) => clinicalManagementDropdown(key)}
-                        >
-                            <DropdownItem key="patients" startContent={<PersonStanding size={16} strokeWidth={1.5} />} >Pacientes</DropdownItem>
-                            <DropdownItem key="practices" startContent={<ListOrdered size={16} strokeWidth={1.5} />} >Practicas</DropdownItem>
-                            <DropdownItem key="diagnosticos" startContent={<Tablets size={16} strokeWidth={1.5} />} >Diagnosticos</DropdownItem>
-                            <DropdownItem key="budgets" startContent={<Banknote size={16} strokeWidth={1.5} />} >Presupuestos</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                    {hasClinicalAccess && (
+                        <Dropdown>
+                            <NavbarItem>
+                                <DropdownTrigger>
+                                    <Button
+                                        disableRipple
+                                        className="p-0 bg-transparent data-[hover=true]:bg-transparent text-base text-stone-100 font-semibold"
+                                        endContent={icons.chevron}
+                                        variant="flat"
+                                    >
+                                        Gestion clínica
+                                    </Button>
+                                </DropdownTrigger>
+                            </NavbarItem>
+                            <DropdownMenu
+                                aria-label="Gestión clínica"
+                                onAction={(key) => clinicalManagementDropdown(key)}
+                            >
+                                {visibleClinicalItems.map(item => (
+                                    <DropdownItem
+                                        key={item.key}
+                                        startContent={item.icon}
+                                    >
+                                        {item.label}
+                                    </DropdownItem>
+                                ))}
+                            </DropdownMenu>
+                        </Dropdown>
+                    )}
 
                     {/* BOORAR SI NO LO USO */}
                     <NavbarItem className="invisible">

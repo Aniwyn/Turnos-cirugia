@@ -2,13 +2,10 @@ import { PDFDocument, rgb } from 'pdf-lib'
 import budgetTemplate from "../assets/budget.pdf"
 import stampImage from "./stamp.png"
 
-const generateBudgetPDF = async (budgetData) => {
+const generateBudgetPDF = async (budgetData, isSelectedStamp, stamp) => {
     const existingPdfBytes = await fetch(budgetTemplate).then(res => res.arrayBuffer())
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
     const font = await pdfDoc.embedFont('Helvetica')
-
-    const pngBytes = await fetch(stampImage).then(res => res.arrayBuffer())
-    const pngImage = await pdfDoc.embedPng(pngBytes)
 
     const pages = pdfDoc.getPages()
     const page = pages[0]
@@ -65,10 +62,20 @@ const generateBudgetPDF = async (budgetData) => {
     })
 
     drawRightAlignedText(page, `$ ${budgetData.total.replace(".", ",")}`, 142, 730, 70, 9, font)
-    
+
     //CAMBIAR!!!
-    page.drawText("Norma, Raquel Arias", { x: 145, y: 84, size: 11, color: rgb(0, 0, 0) })
-    page.drawImage(pngImage, { x: 145, y: 90, width: 80, height: 80 })
+    if (isSelectedStamp) {
+        console.log()
+        const pngBytes = await fetch(stampImage).then(res => res.arrayBuffer())
+        const pngImage = await pdfDoc.embedPng(pngBytes)
+
+        //drawCenteredText("Norma, Raquel Aria", { x: 145, y: 84, size: 11, color: rgb(0, 0, 0) })
+        drawCenteredText(page, stamp.first_line, 93, 180, 50, 9, font)
+        drawCenteredText(page, stamp.second_line, 85, 180, 50, 9, font)
+        drawCenteredText(page, stamp.third_line, 77, 180, 50, 9, font)
+        drawCenteredText(page, stamp.fourth_line, 69, 180, 50, 9, font)
+        page.drawImage(pngImage, { x: 170, y: 90, width: 80, height: 80 })
+    }
 
     const pdfBytes = await pdfDoc.save()
     const blob = new Blob([pdfBytes], { type: 'application/pdf' })

@@ -28,8 +28,7 @@ const useMainBoxStore = create((set, get) => ({
         try {
             const { user } = useAuthStore.getState()
 
-            //                                 QUITAR LA PARTE DE ""ADMIN"" (No deberían tener permiso)
-            if (user?.role !== 'accountant' && user?.role !== 'admin') {
+            if (user?.role !== 'accountant' && user?.role !== 'superadmin') {
                 set({ errorMainBoxStore: "El usuario no posee permisos para esta sección" })
                 return
             }
@@ -49,12 +48,6 @@ const useMainBoxStore = create((set, get) => ({
 
         try {
             const { user } = useAuthStore.getState()
-            
-            //                                 QUITAR LA PARTE DE ""ADMIN"" (No deberían tener permiso)
-            if (user?.role !== 'accountant' && user?.role !== 'admin') {
-                set({ errorMainBoxStore: "El usuario no posee permisos para esta sección" })
-                return
-            }
 
             const { mainBoxes, total, totalPages } = await getMainBoxesPaginated(get().queryTerms, page, limit)
             
@@ -111,8 +104,6 @@ const useMainBoxStore = create((set, get) => ({
         
         try {
             const data = await getMainBoxById(id)
-            console.log("AAAAAAAAAAAA", data)
-
             return data
         } catch (error) {
             console.error('Error al cargar la caja general por ID:', error)

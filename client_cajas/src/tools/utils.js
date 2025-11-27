@@ -25,3 +25,15 @@ export const formatTimeFromDB = (stringDate) => {
         hour12: false
     })
 }
+
+export const userCanSeeItem = (item, userRole, userRoleGroup) => {
+    if (item.roles && item.roles.includes(userRole)) {
+        return true
+    }
+
+    if (item.roleGroups && item.roleGroups.includes(userRoleGroup)) {
+        return true
+    }
+
+    return false
+}

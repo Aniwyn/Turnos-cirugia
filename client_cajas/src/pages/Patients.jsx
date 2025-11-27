@@ -82,16 +82,12 @@ const Patients = () => {
 
         switch (columnKey) {
             case "HealthInsurance":
-                return(cellValue?.name || "")
+                return(cellValue?.name || patient.health_insurance ||"")
             case "localidad":
-                return ("SAN SALVADOR DE JUJUY")
+                return ("-")
             case "actions":
                 return (
                     <div className="relative flex justify-end items-center gap-2">
-                        {/*
-                            
-                        <EllipsisVertical className="text-default-300" />
-                            */}
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button isIconOnly size="sm" variant="light">

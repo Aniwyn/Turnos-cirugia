@@ -13,7 +13,7 @@ import useMainBoxStore from "../../store/useMainBoxStore"
 import { formatCurrency } from '../../tools/utils'
 
 
-const CloseMainBox = ({ summary, mainBoxId }) => {
+const CloseMainBox = ({ summary, mainBoxId, cashBoxes }) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const { closeMainBox, isLoadingMainBoxStore } = useMainBoxStore()
     const navigate = useNavigate()
@@ -36,7 +36,7 @@ const CloseMainBox = ({ summary, mainBoxId }) => {
                 variant="flat"
                 startContent={<LockKeyhole size={18} />}
                 onPress={onOpen}
-                isDisabled={summary?.ARS <= 0 && summary?.USD <= 0}
+                isDisabled={!Array.isArray(cashBoxes) || cashBoxes.length <= 0}
             >
                 Cerrar caja general
             </Button>

@@ -1,19 +1,15 @@
 import { useCallback, useEffect, useState } from "react"
 import {
     Button,
-    Form,
     Modal,
     ModalContent,
-    ModalHeader,
     ModalBody,
-    ModalFooter,
     Table,
     TableHeader,
     TableColumn,
     TableBody,
     TableRow,
     TableCell,
-    Tooltip,
     useDisclosure,
 } from "@heroui/react"
 import { Link, Plus } from 'lucide-react'
@@ -32,6 +28,7 @@ const ViewAvailableCashBoxes = ({ linkCashBoxesToMainBox, loadingSubmit }) => {
         const init = async () => {
             const fetchedCashBoxes = await fetchAvailableForMainBox()
             setCashBoxes(fetchedCashBoxes)
+            setSelectedKeys(new Set())
         }
 
         if (isOpen) init()

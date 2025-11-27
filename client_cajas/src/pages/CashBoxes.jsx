@@ -13,7 +13,7 @@ import {
 import useCashBoxStore from '../store/useCashBoxStore'
 import EditOpenCashBox from '../components/CashBoxes/EditOpenCashBox'
 import ViewCashBoxDetail from '../components/CashBoxes/ViewCashBoxDetail'
-import { capitalizeFirstLetter, formatCurrency } from '../tools/utils'
+import { formatCurrency } from '../tools/utils'
 import SearchPanel from '../components/CashBoxes/SearchPanel';
 
 const stateTextMap = {

@@ -25,9 +25,6 @@ function cashBox(sequelize, DataTypes) {
         state: {
             type: DataTypes.STRING
         },
-        daily_summary_id: {
-            type: DataTypes.INTEGER
-        },
         main_box_id: {
             type: DataTypes.INTEGER
         },

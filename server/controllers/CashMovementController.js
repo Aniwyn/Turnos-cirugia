@@ -15,6 +15,7 @@ exports.getAllCashMovements = async (req, res) => {
 }
 
 exports.getUserCashMovements = async (req, res) => {
+    const { id } = req.params
     const user = req.user
 
     try {

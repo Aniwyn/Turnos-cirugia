@@ -32,11 +32,11 @@ const UnlinkCashBoxForMainBox = ({ box, fetchMainBox }) => {
                     <Unlink size={20} strokeWidth={2} color="#F44336" />
                 </Button>
             </Tooltip>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                <ModalContent className="border-3 border-red-600">
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} backdrop="blur">
+                <ModalContent className="">
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1">¿Esta seguro/a que desea quitar este item?</ModalHeader>
+                            <ModalHeader className="flex flex-col gap-1">¿Esta seguro/a que desea desvincular esta caja?</ModalHeader>
                             <ModalBody>
                                 <Form
                                     onSubmit={(e) => onSubmit(e, onClose)}
@@ -53,19 +53,19 @@ const UnlinkCashBoxForMainBox = ({ box, fetchMainBox }) => {
                                         <span className="font-bold">Cerrada el:</span>
                                         <span className="">{formatDateFromDB(box.closed_at)}</span>
                                     </div>
-                                    <div className="flex flex-col justify-center mt-4 text-2xl font-mono">
+                                    <div className="flex flex-col justify-center mt-4 text-2xl">
                                         <div className="flex gap-4 justify-between">
-                                            <span className="font-bold">ARS</span>
+                                            <span className="font-semibold">ARS</span>
                                             <span>{formatCurrency(box.total_ars)}</span>
                                         </div>
                                         <div className="flex gap-4 justify-between">
-                                            <span className="font-bold">USD</span>
+                                            <span className="font-semibold">USD</span>
                                             <span>{formatCurrency(box.total_usd)}</span>
                                         </div>
                                     </div>
                                     <div className="flex gap-2 w-full justify-end ">
-                                        <Button color="default" variant="light" onPress={onClose}>Cerrar</Button>
-                                        <Button color="danger" type="submit">Eliminar</Button>
+                                        <Button color="default" variant="light" onPress={onClose}>Cancelar</Button>
+                                        <Button color="danger" type="submit">Desvincular</Button>
                                     </div>
                                 </Form>
                             </ModalBody>

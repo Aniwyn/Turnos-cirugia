@@ -12,7 +12,7 @@ import {
     NumberInput,
     RadioGroup,
     Radio,
-    useDisclosure,
+    useDisclosure
 } from "@heroui/react"
 import { DollarSign, NotebookPen, Plus } from 'lucide-react'
 import useCashMovementStore from '../../store/useCashMovementStore'
@@ -23,7 +23,7 @@ import { createCashMovement } from '../../services/cashMovementService'
 const CreateCashMovement = ({ boxId, setMovements }) => {
     const [cmAmount, setCmAmount] = useState()
     const [cmCurrency, setCmCurrency] = useState("ARS")
-    const [cmType, setCmType] = useState("income") //expense
+    const [cmType, setCmType] = useState("income") //o expense
     const [cmLabel, setCmLabel] = useState()
     const [cmDescription, setCmDescription] = useState()
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -33,8 +33,15 @@ const CreateCashMovement = ({ boxId, setMovements }) => {
     const errors = {}
 
     useEffect(() => {
-        fetchLabels()
-    }, [])
+        if (isOpen) {
+            fetchLabels()
+            setCmAmount(null)
+            setCmCurrency("ARS")
+            setCmType("income")
+            setCmLabel(null)
+            setCmDescription("")
+        }
+    }, [isOpen])
 
     const formatter = (number) => {
         return new Intl.NumberFormat('es-AR', {

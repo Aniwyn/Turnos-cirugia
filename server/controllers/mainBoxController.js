@@ -9,7 +9,7 @@ exports.getAllMainBoxes = async (req, res) => {
         const userId = req.user.userId
 
         const user = await db.User.findByPk(userId)
-        if (user?.role !== 'accountant' && user?.role !== 'admin') {
+        if (user?.role !== 'accountant' && user?.role !== 'superadmin') {
             return res.status(403).json({ message: 'Access Denied' })
         }
 
@@ -30,11 +30,13 @@ exports.getAllMainBoxes = async (req, res) => {
 
 exports.getPaginatedMainBoxes = async (req, res) => {
     const { query: filters = {}, page = defaultPage, limit = defaultLimit } = req.query
+    const userId = req.user.userId
+
     try {
         const userId = req.user.userId
 
         const user = await db.User.findByPk(userId)
-        if (user?.role !== 'accountant' && user?.role !== 'admin') {
+        if (user?.role !== 'accountant' && user?.role !== 'superadmin') {
             return res.status(403).json({ message: 'Access Denied' })
         }
 
@@ -59,7 +61,17 @@ exports.getPaginatedMainBoxes = async (req, res) => {
                 closed_at: dateFilter
             })
         }
-
+        whereConditions.push({
+            [Op.or]: [
+                { state: "closed" },
+                {
+                    [Op.and]: [
+                        { state: "open" },
+                        { user_id: userId }
+                    ]
+                }
+            ]
+        })
 
         const whereClause = whereConditions.length > 0 ? { [Op.and]: whereConditions } : {}
 
@@ -97,8 +109,8 @@ exports.getMyActiveMainBox = async (req, res) => {
         const userId = req.user.userId
 
         const user = await db.User.findByPk(userId)
-        //Solo para test, borrar role = admin
-        if (user?.role !== 'accountant' && user?.role !== 'admin') {
+
+        if (user?.role !== 'accountant' && user?.role !== 'superadmin') {
             return res.status(403).json({ message: 'Access Denied' })
         }
 
@@ -158,6 +170,15 @@ exports.getMainBoxById = async (req, res) => {
                 {
                     association: 'user',
                     attributes: ['name', 'role']
+                },
+                {
+                    association: 'cashBox',
+                    include: [
+                        {
+                            association: 'user',
+                            attributes: ['name', 'role']
+                        },
+                    ]
                 }
             ]
         })
@@ -172,28 +193,39 @@ exports.getMainBoxById = async (req, res) => {
 
 exports.closeMainBox = async (req, res) => {
     const { id } = req.params
-    const userId = req.user.userId
+    const { userId } = req.user
+    const t = await db.sequelize.transaction()
 
     try {
-        const user = await db.User.findByPk(userId)
-        const mainBox = await db.MainBox.findByPk(id)
+        const [user, mainBox, lastLedger] = await Promise.all([
+            db.User.findByPk(userId, { transaction: t }),
+            db.MainBox.findByPk(id, { transaction: t }),
+            db.MainBoxLedger.findOne({ order: [['id', 'DESC']], transaction: t })
+        ])
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' })
+            await t.rollback()
+            return res.status(404).json({ message: 'Usuario no encontrado' })
         }
 
         if (!mainBox) {
-            return res.status(404).json({ message: 'MainBox not found' })
+            await t.rollback()
+            return res.status(404).json({ message: 'Caja general no encontrada' })
         }
 
         if (mainBox.user_id !== user.id) {
-            return res.status(403).json({ message: 'Access Denied' })
+            await t.rollback()
+            return res.status(403).json({ message: 'Acceso denegado: esta caja no le pertenece' })
+        }
+
+        if (mainBox.state === 'closed') {
+            await t.rollback()
+            return res.status(400).json({ message: 'Esta caja ya ha sido cerrada' })
         }
 
         const cashBoxes = await db.CashBox.findAll({
-            where: {
-                main_box_id: id
-            }
+            where: { main_box_id: id },
+            transaction: t
         })
 
         const totalARS = cashBoxes.reduce((sum, box) => sum + (parseFloat(box.total_ars) || 0), 0)
@@ -203,13 +235,29 @@ exports.closeMainBox = async (req, res) => {
         mainBox.closed_at = new Date()
         mainBox.total_ars = totalARS
         mainBox.total_usd = totalUSD
-        await mainBox.save()
+        await mainBox.save({ transaction: t })
 
-        const newMainBox = await db.MainBox.create({ user_id: userId, state: 'open' })
+        await db.MainBoxLedger.create({
+            main_box_id: mainBox.id,
+            amount_ars: mainBox.total_ars,
+            amount_usd: mainBox.total_usd,
+            balance_ars_after: (lastLedger?.balance_ars_after || 0) + mainBox.total_ars,
+            balance_usd_after: (lastLedger?.balance_usd_after || 0) + mainBox.total_usd
+        }, { transaction: t })
 
-        return res.status(200).json(mainBox)
+        const newMainBox = await db.MainBox.create({ user_id: userId, state: 'open' }, { transaction: t })
+
+        await t.commit()
+
+        return res.status(200).json({
+            message: 'Caja cerrada exitosamente.',
+            closedBox: mainBox,
+            newBox: newMainBox
+        })
+
     } catch (error) {
-        console.error(error)
-        return res.status(500).json({ message: 'Error cerrando la caja general' })
+        await t.rollback()
+        console.error('Error al cerrar la caja general:', error)
+        return res.status(500).json({ message: 'Error interno del servidor al cerrar la caja.' })
     }
 }

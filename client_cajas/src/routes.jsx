@@ -6,8 +6,6 @@ import CashBox from './pages/CashBox'
 import CashBoxes from './pages/CashBoxes'
 import MainBox from './pages/MainBox'
 import MainBoxes from './pages/MainBoxes'
-import MyCashClosures from './pages/MyCashClosures'
-import DailySummaryDashboard from './pages/DailySummaryDashboard'
 import Budget from './pages/Budget'
 import Budgets from './pages/Budgets'
 import Patients from './pages/Patients'
@@ -16,14 +14,13 @@ import Patient from './pages/Patient'
 import PatientProfile from './pages/PatientProfile'
 import ISJRec from './pages/utils/ISJRec'
 import NavbarLayout from './layouts/NavbarLayout'
-//import NotFound from "./pages/NotFound"
 import useAuthStore from "./store/useAuthStore"
+import NotFound from './pages/NotFound'
 
 import TEST from "./pages/TEST"
 import TEST2 from "./pages/SuppliesStamps"
 import LoadingPage from './pages/LoadingPage'
-import AccountingPanel from './pages/accountingPanel'
-import NotFound from './pages/NotFound'
+import AccountingPanel from './pages/AccountingPanel'
 
 const PrivateRoute = () => {
     const { isAuthenticated, checkAuth } = useAuthStore()
@@ -60,9 +57,6 @@ const AppRoutes = () => {
                         {/* FALTAN */}
                         <Route path="/panel-contabilidad" element={<AccountingPanel />} />
 
-                        {/* BORRAR */}
-                        <Route path="/dashboard/cierres_de_caja" element={<DailySummaryDashboard />} />
-
                         <Route path="/presupuesto" element={<Budget />} />
                         <Route path='/presupuesto/:id' element={<Budget />} />
                         <Route path='/pacientes' element={<Patients />} />
@@ -86,7 +80,7 @@ const AppRoutes = () => {
                     <Route path="/test2" element={<TEST2 />} />
                 </Route>
 
-                {/*<Route path="*" element={<NotFound />} />*/}
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </Router>
     )

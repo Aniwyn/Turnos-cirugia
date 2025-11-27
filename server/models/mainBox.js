@@ -40,6 +40,10 @@ function mainBox(sequelize, DataTypes) {
             foreignKey: 'user_id',
             as: "user"
         })
+
+        MainBox.hasMany(models.AccountingLedger, {
+            foreignKey: 'main_box_id'
+        })
     }
 
     return MainBox

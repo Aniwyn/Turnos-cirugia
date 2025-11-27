@@ -131,7 +131,7 @@ const MainBox = () => {
                     <CardBody className="flex flex-col justify-end p-0">
                         <div className="flex gap-4">
                             <ViewAvailableCashBoxes linkCashBoxesToMainBox={linkCashBoxesToMainBox} loadingSubmit={loadingSubmit} />
-                            <CloseMainBox summary={summary} mainBoxId={mainBox?.id}/>
+                            <CloseMainBox summary={summary} mainBoxId={mainBox?.id} cashBoxes={cashBoxes}/>
                         </div>
                     </CardBody>
                 </Card>

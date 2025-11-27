@@ -5,10 +5,9 @@ exports.getAllPractices = async (req, res) => {
         const practices = await db.Practice.findAll({
             order: [['id', 'DESC']]
         })
-        console.log(practices)
         res.status(200).json(practices)
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ message: 'Error al obtener practicas', error: err })
     }
 }
@@ -19,7 +18,7 @@ exports.createPractice = async (req, res) => {
         const practice = await db.Practice.create({ name, code, module, type, default_price })
         res.status(201).json(practice)
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ message: 'Error al obtener practicas', error: err })
     }
 }
@@ -37,7 +36,7 @@ exports.updatePractice = async (req, res) => {
         await practice.update({ name, code, module, type, default_price })
         res.status(200).json(practice)
     } catch (err) {
-        console.log(err)
+        console.error(err)
         res.status(500).json({ message: 'Error al actualizar práctica', error: err })
     }
 }
@@ -65,7 +64,7 @@ exports.updatePractices = async (req, res) => {
         res.status(200).json({ message: 'Prácticas actualizadas correctamente', data: data })
     } catch (err) {
         await t.rollback()
-        console.log(err)
+        console.error(err)
         res.status(500).json({ message: 'Error al actualizar prácticas', error: err })
     }
 }
@@ -84,7 +83,7 @@ exports.updatePractices = async (req, res) => {
 //        await practice.destroy()
 //        res.status(200).json({ message: 'Práctica eliminada correctamente' })
 //    } catch (err) {
-//        console.log(err)
+//        console.error(err)
 //        res.status(500).json({ message: 'Error al eliminar práctica', error: err })
 //    }
 //}
