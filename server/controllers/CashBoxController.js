@@ -154,7 +154,7 @@ exports.getUserCashBoxesPaginated = async (req, res) => {
         })
 
         res.json({
-            boxes: rows,
+            boxes: rows || [],
             total: count,
             page: pageNumber,
             totalPages: Math.ceil(count / limitNumber)

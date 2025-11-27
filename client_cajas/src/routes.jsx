@@ -15,12 +15,11 @@ import PatientProfile from './pages/PatientProfile'
 import ISJRec from './pages/utils/ISJRec'
 import NavbarLayout from './layouts/NavbarLayout'
 import useAuthStore from "./store/useAuthStore"
-import NotFound from './pages/NotFound'
-
 import TEST from "./pages/TEST"
 import TEST2 from "./pages/SuppliesStamps"
 import LoadingPage from './pages/LoadingPage'
 import AccountingPanel from './pages/AccountingPanel'
+import NotFound from './pages/NotFound'
 
 const PrivateRoute = () => {
     const { isAuthenticated, checkAuth } = useAuthStore()

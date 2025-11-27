@@ -4,6 +4,6 @@ const test = require("../controllers/test");
 
 router.post("/", test.getPDFFolder);
 router.post("/process", test.processPDF)
-router.post("/logs", test.saveURL)
+//router.post("/logs", test.saveURL)
 
 module.exports = router;
