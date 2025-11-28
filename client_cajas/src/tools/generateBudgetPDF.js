@@ -1,6 +1,6 @@
 import { PDFDocument, rgb } from 'pdf-lib'
 import budgetTemplate from "../assets/budget.pdf"
-import stampImage from "./stamp.png"
+
 
 const generateBudgetPDF = async (budgetData, isSelectedStamp, stamp) => {
     const existingPdfBytes = await fetch(budgetTemplate).then(res => res.arrayBuffer())
@@ -63,18 +63,25 @@ const generateBudgetPDF = async (budgetData, isSelectedStamp, stamp) => {
 
     drawRightAlignedText(page, `$ ${budgetData.total.replace(".", ",")}`, 142, 730, 70, 9, font)
 
-    //CAMBIAR!!!
-    if (isSelectedStamp) {
-        console.log()
-        const pngBytes = await fetch(stampImage).then(res => res.arrayBuffer())
-        const pngImage = await pdfDoc.embedPng(pngBytes)
+    if (isSelectedStamp && stamp?.imageData) {
+        const imageBytes = await fetch(stamp.imageData).then(res => res.arrayBuffer())
 
-        //drawCenteredText("Norma, Raquel Aria", { x: 145, y: 84, size: 11, color: rgb(0, 0, 0) })
-        drawCenteredText(page, stamp.first_line, 93, 180, 50, 9, font)
-        drawCenteredText(page, stamp.second_line, 85, 180, 50, 9, font)
-        drawCenteredText(page, stamp.third_line, 77, 180, 50, 9, font)
-        drawCenteredText(page, stamp.fourth_line, 69, 180, 50, 9, font)
-        page.drawImage(pngImage, { x: 170, y: 90, width: 80, height: 80 })
+        let embeddedImage
+        if (stamp.imageData.startsWith('data:image/png')) {
+            embeddedImage = await pdfDoc.embedPng(imageBytes)
+        } else if (stamp.imageData.startsWith('data:image/jpeg') || stamp.imageData.startsWith('data:image/jpg') ) {
+            embeddedImage = await pdfDoc.embedJpg(imageBytes)
+        } else {
+            console.error('Unsupported image type for stamp:', stamp.imageData.substring(0, 30))
+        }
+
+        if (embeddedImage) {
+            drawCenteredText(page, stamp.first_line, 93, 180, 50, 9, font)
+            drawCenteredText(page, stamp.second_line, 85, 180, 50, 9, font)
+            drawCenteredText(page, stamp.third_line, 77, 180, 50, 9, font)
+            drawCenteredText(page, stamp.fourth_line, 69, 180, 50, 9, font)
+            page.drawImage(embeddedImage, { x: 150, y: 80, width: 100, height: 100 })
+        }
     }
 
     const pdfBytes = await pdfDoc.save()

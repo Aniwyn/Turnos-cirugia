@@ -23,7 +23,7 @@ const Budget = () => {
     const [isSelectedStamp, setIsSelectedStamp] = useState(true)
     const { getPatientByID, getPatientByDNI, isLoadingPatientStore, errorPatientStore } = usePatientStore()
     const { practices, fetchPractices, isLoadingPracticeStore, errorPracticeStore } = usePracticeStore()
-    const { fetchStampByID, isLoadingStampStore, errorStampStore } = useStampStore()
+    const { fetchMyStamp, isLoadingStampStore, errorStampStore } = useStampStore()
     const { createBudget } = useBudgetStore()
     const navigate = useNavigate()
     
@@ -105,7 +105,9 @@ const Budget = () => {
 
         try {
             const saved = await createBudget(newBudget)
-            const stamp = await fetchStampByID(id)
+            if (isSelectedStamp) {
+            }
+            const stamp = await fetchMyStamp()
             await generateBudgetPDF(saved, isSelectedStamp, stamp)
         } catch (err) {
             console.error("Error guardando presupuesto", err)
@@ -118,7 +120,6 @@ const Budget = () => {
         <Form
             className="w-full justify-center items-center space-y-4"
             validationErrors={errors}
-            onReset={() => setSubmitted(null)}
             onSubmit={onSubmit}
         >
             <div className="flex w-full max-w-5xl">

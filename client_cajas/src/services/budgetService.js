@@ -1,12 +1,11 @@
 import api from './api'
 
 export const getAllBudgets = async () => {
-  const res = await api.get('/budgets')
+  const res = await api.get('/budget')
   return res.data
 }
 
 export const createBudget = async (budget) => {
-  const res = await api.post('/budgets', budget)
-  console.log("111222333", res)
+  const res = await api.post('/budget', budget)
   return res.data
 }

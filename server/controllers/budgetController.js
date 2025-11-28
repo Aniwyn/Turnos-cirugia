@@ -23,7 +23,7 @@ exports.getBudgetByID = async (req, res) => {
         res.status(200).json(budget)
     } catch (err) {
         console.error(err)
-        res.status(500).json({ message: 'Error al obtener presupuesto', error: err })
+        res.status(500).json({ message: 'Error al obtener presupuesto' })
     }
 }
 
@@ -69,6 +69,6 @@ exports.createBudget = async (req, res) => {
     } catch (err) {
         await t.rollback()
         console.error(err)
-        res.status(500).json({ message: 'Error al crear presupuesto', error: err })
+        res.status(500).json({ message: 'Error al crear presupuesto' })
     }
 }

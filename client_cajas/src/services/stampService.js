@@ -9,3 +9,13 @@ export const getStampById = async (id) => {
         return {}
     }
 }
+
+export const getMyStamp = async () => {
+    try {
+        const res = await api.get(`/stamp/my`)
+        return res.data
+    } catch (err) {
+        console.error("Error fetching my stamp: ", err)
+        return {}
+    }
+}
