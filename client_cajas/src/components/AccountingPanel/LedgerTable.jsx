@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownTrigger,
     Table,
     TableHeader,
     TableColumn,
@@ -12,26 +8,23 @@ import {
     TableCell,
     Button,
     Pagination,
-} from "@heroui/react";
-import { EllipsisVertical } from 'lucide-react'
-import { useNavigate } from "react-router-dom"
+} from "@heroui/react"
 import LoadingPage from '../../pages/LoadingPage'
 import useAccountingLedgerStore from '../../store/useAccountingLedgerStore'
 import { formatCurrency, formatDateFromDB } from '../../tools/utils'
 
 export const columns = [
-    { name: "ID", uid: "main_box_id", sortable: true, size: 50, align: "center" },
-    { name: "Fecha", uid: "transaction_date", sortable: true, size: 100, align: "center" },
-    { name: "Monto ARS", uid: "amount_ars", sortable: true, size: 100, align: "end" },
-    { name: "Monto USD", uid: "amount_usd", sortable: true, size: 100, align: "end" },
-    { name: "Saldo ARS", uid: "balance_ars_after", sortable: true, size: 100, align: "end" },
-    { name: "Saldo USD", uid: "balance_usd_after", sortable: true, size: 100, align: "end" }
+    { name: "ID", uid: "main_box_id", sortable: false, size: 50, align: "center" },
+    { name: "Fecha", uid: "transaction_date", sortable: false, size: 100, align: "center" },
+    { name: "Monto ARS", uid: "amount_ars", sortable: false, size: 100, align: "end" },
+    { name: "Monto USD", uid: "amount_usd", sortable: false, size: 100, align: "end" },
+    { name: "Saldo ARS", uid: "balance_ars_after", sortable: false, size: 100, align: "end" },
+    { name: "Saldo USD", uid: "balance_usd_after", sortable: false, size: 100, align: "end" }
 ]
 
 const LedgerTable = () => {
     const [queryTerms, setQueryTerms] = useState({})
     const [sortDescriptor, setSortDescriptor] = useState({})
-    const navigate = useNavigate()
     const { ledgers, fetchPaginatedLedger, pagination, isLoadingLedgerStore } = useAccountingLedgerStore()
 
     const hasSearchFilter = Boolean(queryTerms)
@@ -57,13 +50,13 @@ const LedgerTable = () => {
             case "transaction_date":
                 return(formatDateFromDB(cellValue))
             case "amount_ars":
-                return(<span className={`py-2 px-4 text-right ${cellValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{`$ ${formatCurrency(cellValue)}`}</span>)
+                return(<span className={`py-2 text-right ${cellValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{`$ ${formatCurrency(cellValue)}`}</span>)
             case "amount_usd":
-                return(<span className={`py-2 px-4 text-right ${cellValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{`US$ ${formatCurrency(cellValue)}`}</span>)
+                return(<span className={`py-2 text-right ${cellValue >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{`US$ ${formatCurrency(cellValue)}`}</span>)
             case "balance_ars_after":
-                return(<span className={`py-2 px-4 text-right`}>{`$ ${formatCurrency(cellValue)}`}</span>)
+                return(<span className={`py-2 text-right`}>{`$ ${formatCurrency(cellValue)}`}</span>)
             case "balance_usd_after":
-                return(<span className={`py-2 px-4 text-right`}>{`US$ ${formatCurrency(cellValue)}`}</span>)
+                return(<span className={`py-2 text-right`}>{`US$ ${formatCurrency(cellValue)}`}</span>)
             default:
                 return cellValue
         }

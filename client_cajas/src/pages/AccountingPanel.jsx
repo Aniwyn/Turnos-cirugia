@@ -4,6 +4,8 @@ import TrendKPICard from "../components/AccountingPanel/TrendKPICard"
 import InfoKPICard from "../components/AccountingPanel/InfoKPICard"
 import { formatCurrency } from '../tools/utils'
 import LedgerTable from "../components/AccountingPanel/LedgerTable"
+import InOutGraph from "../components/AccountingPanel/InOutGraph"
+import CakeGraph from "../components/AccountingPanel/CakeGraph"
 
 const mockRows = [
     {
@@ -86,7 +88,7 @@ const AccountingDashboard = () => {
                         title="Ingresos ARS" 
                         period="Últimos 30 días"
                         value={`$ ${formatCurrency(last30DaysArsBalance || 0)}`}
-                        change={last30DaysArsBalance - last60DaysArsBalance} 
+                        change={last30DaysArsBalance - last60DaysArsBalance || 0} 
                         changeType={(last30DaysArsBalance - last60DaysArsBalance > 0) ? "positive" : "negative"}
                         trendType={(last30DaysArsBalance - last60DaysArsBalance > 0) ? "up" : "down"}
                     />
@@ -94,109 +96,21 @@ const AccountingDashboard = () => {
                         title="Ingresos USD"
                         period="Últimos 30 días"
                         value={`$ ${formatCurrency(last30DaysUsdBalance || 0)}`}
-                        change={last30DaysUsdBalance - last60DaysUsdBalance} 
+                        change={last30DaysUsdBalance - last60DaysUsdBalance || 0} 
                         changeType={(last30DaysUsdBalance - last60DaysUsdBalance > 0) ? "positive" : "negative"}
                         trendType={(last30DaysUsdBalance - last60DaysUsdBalance > 0) ? "up" : "down"}
                     />
                 </div>
 
-                {/* ───── Contenido principal: columnas A y B ───── */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                    {/* Columna A: gráfico de líneas + tabla */}
                     <div className="lg:col-span-2 space-y-6">
-
-                        {/* Gráfico de líneas */}
-                        {/* <div className="border border-slate-800 rounded-2xl shadow-sm p-4 md:p-5">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h2 className="text-sm font-medium">
-                                        Ingresos vs Egresos
-                                    </h2>
-                                    <p className="text-xs">
-                                        Últimos 30 días
-                                    </p>
-                                </div>
-                                <div className="text-xs">
-                                    {/* acá podrías poner filtros de rango de fechas *}
-                                    Actualizado hoy
-                                </div>
-                            </div>
-
-                            {/* Contenedor del gráfico (placeholder) *}
-                            <div className="h-56 md:h-64 lg:h-72 rounded-xl border border-dashed border-slate-700 flex items-center justify-center">
-                                <span className="text-xs">
-                                    [ Gráfico de líneas Ingresos / Egresos ]
-                                </span>
-                            </div>
-                        </div> */}
-
+                        {/* <InOutGraph /> */}
                         <LedgerTable />
                     </div>
 
-                    {/* Columna B: tortas de ingresos / egresos */}
                     <div className="space-y-6">
-
-                        {/* Tortas de ingresos */}
-                        <div className="border rounded-2xl shadow-sm p-4 md:p-5">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h2 className="text-sm font-medium ">
-                                        Distribución de ingresos
-                                    </h2>
-                                    <p className="text-xs">
-                                        Por concepto
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col items-center gap-4">
-                                {/* Placeholder torta */}
-                                <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border border-dashed flex items-center justify-center">
-                                    <span className="text-xs text-center px-2">
-                                        [ Gráfico de torta Ingresos ]
-                                    </span>
-                                </div>
-
-                                {/* Leyenda placeholder */}
-                                <div className="w-full space-y-2 text-xs">
-                                    <LegendItem colorClass="bg-emerald-400" label="Cobros cirugías" value="50 %" />
-                                    <LegendItem colorClass="bg-sky-400" label="Pagos coseguros" value="30 %" />
-                                    <LegendItem colorClass="bg-violet-400" label="Otros ingresos" value="20 %" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Tortas de egresos */}
-                        <div className="border rounded-2xl shadow-sm p-4 md:p-5">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h2 className="text-sm font-medium">
-                                        Distribución de egresos
-                                    </h2>
-                                    <p className="text-xs">
-                                        Por concepto
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col items-center gap-4">
-                                {/* Placeholder torta */}
-                                <div className="w-40 h-40 md:w-48 md:h-48 rounded-full border border-dashed flex items-center justify-center">
-                                    <span className="text-xs text-center px-2">
-                                        [ Gráfico de torta Egresos ]
-                                    </span>
-                                </div>
-
-                                {/* Leyenda placeholder */}
-                                <div className="w-full space-y-2 text-xs">
-                                    <LegendItem colorClass="bg-rose-400" label="Honorarios médicos" value="40 %" />
-                                    <LegendItem colorClass="bg-amber-400" label="Gastos operativos" value="35 %" />
-                                    <LegendItem colorClass="bg-slate-400" label="Otros egresos" value="25 %" />
-                                </div>
-                            </div>
-                        </div>
-
+                        {/* <CakeGraph />
+                        <CakeGraph /> */}
                     </div>
                 </div>
 
