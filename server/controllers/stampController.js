@@ -21,7 +21,6 @@ exports.getStampByUserId = async (req, res) => {
 
 exports.getMyStamp = async (req, res) => {
     try {
-        const asd = req.user
         const userId = req.user.userId
         const stamp = await db.Stamp.findOne({ where: { user_id: userId } })
 
