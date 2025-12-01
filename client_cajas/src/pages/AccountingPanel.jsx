@@ -67,13 +67,13 @@ const AccountingDashboard = () => {
     // }, [last60DaysAccountingLedger])
 
     useMemo(() => {
-        if (!last30DaysAccountingLedger) return
+        if (!last30DaysAccountingLedger || last30DaysAccountingLedger.length === 0) return
         setLast30DaysArsBalance(last30DaysAccountingLedger[last30DaysAccountingLedger.length - 1].balance_ars_after - (last30DaysAccountingLedger[0].balance_ars_after - last30DaysAccountingLedger[0].amount_ars))
         setLast30DaysUsdBalance(last30DaysAccountingLedger[last30DaysAccountingLedger.length - 1].balance_usd_after - (last30DaysAccountingLedger[0].balance_usd_after - last30DaysAccountingLedger[0].amount_usd))
     }, [last30DaysAccountingLedger])
 
     useMemo(() => {
-        if (!last60DaysAccountingLedger) return
+        if (!last60DaysAccountingLedger || last60DaysAccountingLedger.length === 0) return
         setLast60DaysArsBalance(last60DaysAccountingLedger[last60DaysAccountingLedger.length - 1].balance_ars_after - (last60DaysAccountingLedger[0].balance_ars_after - last60DaysAccountingLedger[0].amount_ars))
         setLast60DaysUsdBalance(last60DaysAccountingLedger[last60DaysAccountingLedger.length - 1].balance_usd_after - (last60DaysAccountingLedger[0].balance_usd_after - last60DaysAccountingLedger[0].amount_usd))
     }, [last60DaysAccountingLedger])

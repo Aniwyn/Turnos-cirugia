@@ -105,9 +105,10 @@ const Budget = () => {
 
         try {
             const saved = await createBudget(newBudget)
+            let stamp = {}
             if (isSelectedStamp) {
+                stamp = await fetchMyStamp()
             }
-            const stamp = await fetchMyStamp()
             await generateBudgetPDF(saved, isSelectedStamp, stamp)
         } catch (err) {
             console.error("Error guardando presupuesto", err)

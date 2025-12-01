@@ -197,30 +197,32 @@ exports.closeMainBox = async (req, res) => {
     const t = await db.sequelize.transaction()
 
     try {
-        const [user, mainBox, lastLedger] = await Promise.all([
-            db.User.findByPk(userId, { transaction: t }),
-            db.MainBox.findByPk(id, { transaction: t }),
-            db.MainBoxLedger.findOne({ order: [['id', 'DESC']], transaction: t })
-        ])
+        const user = await db.User.findByPk(userId, { transaction: t });
+        const mainBox = await db.MainBox.findByPk(id, { transaction: t });
+        const lastLedger = await db.AccountingLedger.findOne({ order: [['id', 'DESC']], transaction: t });
 
         if (!user) {
             await t.rollback()
-            return res.status(404).json({ message: 'Usuario no encontrado' })
+            res.status(404).json({ message: 'Usuario no encontrado' })
+            return
         }
 
         if (!mainBox) {
             await t.rollback()
-            return res.status(404).json({ message: 'Caja general no encontrada' })
+            res.status(404).json({ message: 'Caja general no encontrada' })
+            return
         }
 
         if (mainBox.user_id !== user.id) {
             await t.rollback()
-            return res.status(403).json({ message: 'Acceso denegado: esta caja no le pertenece' })
+            res.status(403).json({ message: 'Acceso denegado: esta caja no le pertenece' })
+            return
         }
 
         if (mainBox.state === 'closed') {
             await t.rollback()
-            return res.status(400).json({ message: 'Esta caja ya ha sido cerrada' })
+            res.status(400).json({ message: 'Esta caja ya ha sido cerrada' })
+            return
         }
 
         const cashBoxes = await db.CashBox.findAll({
@@ -237,7 +239,7 @@ exports.closeMainBox = async (req, res) => {
         mainBox.total_usd = totalUSD
         await mainBox.save({ transaction: t })
 
-        await db.MainBoxLedger.create({
+        await db.AccountingLedger.create({
             main_box_id: mainBox.id,
             amount_ars: mainBox.total_ars,
             amount_usd: mainBox.total_usd,
