@@ -196,6 +196,8 @@ exports.closeMainBox = async (req, res) => {
     const { userId } = req.user
     const t = await db.sequelize.transaction()
 
+    console.log("YTYTTTTTTTTTT")
+
     try {
         const user = await db.User.findByPk(userId, { transaction: t });
         const mainBox = await db.MainBox.findByPk(id, { transaction: t });
@@ -239,13 +241,15 @@ exports.closeMainBox = async (req, res) => {
         mainBox.total_usd = totalUSD
         await mainBox.save({ transaction: t })
 
-        await db.AccountingLedger.create({
+        const asd = await db.AccountingLedger.create({
             main_box_id: mainBox.id,
             amount_ars: mainBox.total_ars,
             amount_usd: mainBox.total_usd,
-            balance_ars_after: (lastLedger?.balance_ars_after || 0) + mainBox.total_ars,
-            balance_usd_after: (lastLedger?.balance_usd_after || 0) + mainBox.total_usd
+            balance_ars_after: parseFloat(((parseFloat(lastLedger?.balance_ars_after) || 0) + totalARS).toFixed(2)),
+            balance_usd_after: parseFloat(((parseFloat(lastLedger?.balance_usd_after) || 0) + totalUSD).toFixed(2))
         }, { transaction: t })
+
+        console.log("PANLER", asd)
 
         const newMainBox = await db.MainBox.create({ user_id: userId, state: 'open' }, { transaction: t })
 
