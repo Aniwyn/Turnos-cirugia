@@ -24,13 +24,13 @@ import SearchBar from "../components/Patients/SearchBar";
 
 export const columns = [
     { name: "ID", uid: "id", sortable: true, size: 70 },
-    { name: "DNI", uid: "dni", sortable: true, size: 100 },
+    { name: "DNI", uid: "dni", sortable: true, size: 80 },
     { name: "APELLIDO", uid: "last_name", sortable: true, size: 150 },
     { name: "NOMBRE", uid: "first_name", sortable: true, size: 150 },
-    { name: "OBRA SOCIAL", uid: "HealthInsurance", sortable: true, size: 100 },
+    { name: "OBRA SOCIAL", uid: "HealthInsurance", sortable: true, size: 200 },
     { name: "TEL 1", uid: "phone1", size: 100 },
     { name: "TEL 2", uid: "phone2", size: 100 },
-    { name: "LOCALIDAD", uid: "localidad", size: 200 },
+    // { name: "LOCALIDAD", uid: "localidad", size: 200 },
     { name: "ACCIONES", uid: "actions", size: 100 },
 ];
 
