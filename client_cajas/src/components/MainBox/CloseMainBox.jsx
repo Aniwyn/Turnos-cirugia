@@ -25,7 +25,7 @@ const CloseMainBox = ({ summary, mainBoxId, cashBoxes }) => {
         await closeMainBox(mainBoxId)
         onClose()
 
-        navigate('/')
+        navigate('/cajas-generales')
     }
 
     return (
