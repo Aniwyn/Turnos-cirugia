@@ -29,10 +29,10 @@ const mockRows = [
 const AccountingDashboard = () => {
     const [lastAccountingLedger, setLastAccountingLedger] = useState()
     const [last30DaysAccountingLedger, set30DaysAccountingLedger] = useState()
-    const [last30DaysArsBalance, setLast30DaysArsBalance] = useState()
-    const [last30DaysUsdBalance, setLast30DaysUsdBalance] = useState()
-    const [last60DaysArsBalance, setLast60DaysArsBalance] = useState()
-    const [last60DaysUsdBalance, setLast60DaysUsdBalance] = useState()
+    const [last30DaysArsBalance, setLast30DaysArsBalance] = useState(0)
+    const [last30DaysUsdBalance, setLast30DaysUsdBalance] = useState(0)
+    const [last60DaysArsBalance, setLast60DaysArsBalance] = useState(0)
+    const [last60DaysUsdBalance, setLast60DaysUsdBalance] = useState(0)
     const [last60DaysAccountingLedger, set60DaysAccountingLedger] = useState()
     const { ledgers, pagination, fetchLastAccountingLedger, fetchPaginatedLedger, fetchLedgerByRange } = useAccountingLedgerStore()
 
@@ -88,17 +88,17 @@ const AccountingDashboard = () => {
                         title="Ingresos ARS" 
                         period="Últimos 30 días"
                         value={`$ ${formatCurrency(last30DaysArsBalance || 0)}`}
-                        change={last30DaysArsBalance - last60DaysArsBalance || 0} 
-                        changeType={(last30DaysArsBalance - last60DaysArsBalance > 0) ? "positive" : "negative"}
-                        trendType={(last30DaysArsBalance - last60DaysArsBalance > 0) ? "up" : "down"}
+                        change={(last30DaysArsBalance || 0) - (last60DaysArsBalance || 0)} 
+                        changeType={((last30DaysArsBalance || 0) - (last60DaysArsBalance || 0) >= 0) ? "positive" : "negative"}
+                        trendType={((last30DaysArsBalance || 0) - (last60DaysArsBalance || 0) >= 0) ? "up" : "down"}
                     />
                     <TrendKPICard 
                         title="Ingresos USD"
                         period="Últimos 30 días"
                         value={`$ ${formatCurrency(last30DaysUsdBalance || 0)}`}
-                        change={last30DaysUsdBalance - last60DaysUsdBalance || 0} 
-                        changeType={(last30DaysUsdBalance - last60DaysUsdBalance > 0) ? "positive" : "negative"}
-                        trendType={(last30DaysUsdBalance - last60DaysUsdBalance > 0) ? "up" : "down"}
+                        change={(last30DaysUsdBalance || 0) - (last60DaysUsdBalance || 0)} 
+                        changeType={((last30DaysUsdBalance || 0) - (last60DaysUsdBalance || 0) >= 0) ? "positive" : "negative"}
+                        trendType={((last30DaysUsdBalance || 0) - (last60DaysUsdBalance || 0) >= 0) ? "up" : "down"}
                     />
                 </div>
 
