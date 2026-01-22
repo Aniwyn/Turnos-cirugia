@@ -73,7 +73,7 @@ const useMainBoxStore = create((set, get) => ({
             const data = await getMyActiveMainBox()
 
             if (Array.isArray(data) && data.length === 0) { set({ errorMainBoxStore: "No hay una caja activa para este usuario." }) }
-            if (Array.isArray(data) && data.length >= 2) { set({ errorMainBoxStore: "ERROR: Este usuario tiene mas de una caja activa. Por favor comuniquese con personal de sistemas." }) }
+            if (Array.isArray(data) && data.length >= 2) { set({ errorMainBoxStore: "ERROR: Este usuario tiene más de una caja activa. Por favor comuníquese con personal de sistemas." }) }
 
             set({ activeMainBox: data })
             return data

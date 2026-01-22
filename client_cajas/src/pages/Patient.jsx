@@ -261,7 +261,7 @@ const Patient = () => {
                 </div>
                 <div className="flex gap-4 pt-12 justify-end w-full max-w-5xl">
                     <div className="flex gap-4">
-                        <Button variant="bordered" onPress={() => navigate('/pacientes/')}>Calcelar</Button>
+                        <Button variant="bordered" onPress={() => navigate('/pacientes/')}>Cancelar</Button>
                         <Button className="" color="primary" type="submit">{patientID ? "Actualizar" : "Registrar"} paciente</Button>
                     </div>
                 </div>

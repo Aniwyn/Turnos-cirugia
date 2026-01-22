@@ -14,7 +14,7 @@ const useStampStore = create((set, get) => ({
             return data
         } catch (error) {
             console.error('Error al cargar practicas:', error)
-            set({ errorStampStore: 'No se pudieron cargar las practicas' })
+            set({ errorStampStore: 'No se pudieron cargar las prácticas' })
         } finally {
             set({ isLoadingStampStore: false })
         }
@@ -28,7 +28,7 @@ const useStampStore = create((set, get) => ({
             return data
         } catch (error) {
             console.error('Error al cargar practicas:', error)
-            set({ errorStampStore: 'No se pudieron cargar las practicas' })
+            set({ errorStampStore: 'No se pudieron cargar las prácticas' })
         } finally {
             set({ isLoadingStampStore: false })
         }

@@ -1,11 +1,18 @@
 import AppRoutes from "./routes"
 import { HeroUIProvider } from "@heroui/react"
+import { ToastProvider } from "@heroui/toast"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-function App() { 
+function App() {
+    const queryClient = new QueryClient()
+
     return (
-        <HeroUIProvider locale="es-AR">
-            <AppRoutes/>
-        </HeroUIProvider> 
+        <QueryClientProvider client={queryClient}>
+            <HeroUIProvider locale="es-AR">
+                <ToastProvider />
+                <AppRoutes />
+            </HeroUIProvider>
+        </QueryClientProvider>
     )
 }
 

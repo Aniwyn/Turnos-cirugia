@@ -17,6 +17,10 @@ function user(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false
         },
+        role_name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         password_hash: {
             type: DataTypes.STRING,
             allowNull: false

@@ -31,8 +31,10 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" }) 
         }
 
+        console.log(user)
+
         const token = jwt.sign(
-            { userId: user.id, name: user.name, role: user.role, role_group: user.role_group },
+            { userId: user.id, name: user.name, role: user.role, role_group: user.role_group, role_name: user.role_name },
             process.env.JWT_SECRET,
             { expiresIn: "6h" }
         )
@@ -63,7 +65,7 @@ exports.getAuthenticatedUser = async (req, res) => {
 
         const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET)
         const user = await db.User.findByPk(decoded.userId, {
-            attributes: ["id", "name", "role", "role_group"]
+            attributes: ["id", "name", "role", "role_group", "role_name"]
         })
 
         if (!user) {
