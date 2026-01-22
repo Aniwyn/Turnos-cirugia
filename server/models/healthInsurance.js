@@ -5,6 +5,9 @@ function healthInsurance(sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
+        abacus_id: {
+            type: DataTypes.INTEGER
+        },
         name: {
             type: DataTypes.STRING(150),
             allowNull: false

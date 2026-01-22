@@ -160,6 +160,7 @@ const Patients = () => {
             className="max-w-[1250px] mx-auto"
             classNames={{
                 wrapper: "max-h-[382px]",
+                tbody: "bg-white"
             }}
             isHeaderSticky
             isStriped

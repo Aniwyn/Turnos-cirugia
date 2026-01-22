@@ -12,6 +12,9 @@ import Patients from './pages/Patients'
 import Practices from './pages/Practices'
 import Patient from './pages/Patient'
 import PatientProfile from './pages/PatientProfile'
+import RequestStudies from './pages/RequestStudies'
+import RequestStudyCreate from './pages/RequestStudyCreate'
+import PendingRequestedStudies from './pages/PendingRequestedStudies'
 import ISJRec from './pages/utils/ISJRec'
 import NavbarLayout from './layouts/NavbarLayout'
 import useAuthStore from "./store/useAuthStore"
@@ -47,16 +50,15 @@ const AppRoutes = () => {
             <Routes>
                 <Route element={<PrivateRoute> <Outlet /> </PrivateRoute>}>
                     <Route element={<NavbarLayout />}>
-                        <Route path="/" element={<CashBoxes />} />
+                        <Route path="/" element={<Home />} />
                         <Route path="/caja" element={<CashBox />} />
                         <Route path="/cajas" element={<CashBoxes />} />
                         <Route path="/caja-general" element={<MainBox />} />
                         <Route path="/cajas-generales" element={<MainBoxes />} />
 
-                        {/* FALTAN */}
-                        <Route path="/panel-contabilidad" element={<AccountingPanel />} />
 
-                        <Route path="/presupuesto" element={<Budget />} />
+                        <Route path="/presupuesto" element={<Budgets />} />
+                        <Route path="/presupuesto/crear" element={<Budget />} />
                         <Route path='/presupuesto/:id' element={<Budget />} />
                         <Route path='/pacientes' element={<Patients />} />
                         <Route path='/practicas' element={<Practices />} />
@@ -64,6 +66,11 @@ const AppRoutes = () => {
                         <Route path='/pacientes/actualizar/:id' element={<Patient />} />
                         <Route path='/presupuestos' element={<Budgets />} />
                         <Route path='/pacientes/perfil/:id' element={<PatientProfile />} />
+                        <Route path="/panel-contabilidad" element={<AccountingPanel />} />
+
+                        <Route path="/pedidos-estudios" element={<RequestStudies />} />
+                        <Route path="/pedidos-estudios/crear" element={<RequestStudyCreate />} />
+                        <Route path="/pedidos-estudios/pendientes" element={<PendingRequestedStudies />} />
                     </Route>
                 </Route>
 

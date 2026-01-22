@@ -1,9 +1,9 @@
 //const db = require('../models')
 const pdfParse = require('pdf-parse')
 const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.mjs')
-const fsp = require('fs').promises // para logs
+const fsp = require('fs').promises
 
-const norm = (s) => (s || '').replace(/\s+/g, ' ').trim().toUpperCase();
+const norm = (s) => (s || '').replace(/\s+/g, ' ').trim().toUpperCase()
 
 async function extractSinglePageItems(buffer) {
     const uint8Array = new Uint8Array(buffer)   
@@ -118,17 +118,17 @@ exports.getPDFIsj = async (req, res) => {
 
 exports.logsIsj = async (req, res) => {
     try {
-        const { url, time } = req.body || {};
-        if (!url) return res.status(400).send('Falta url');
+        const { url, time } = req.body || {}
+        if (!url) return res.status(400).send('Falta url')
 
-        const logDir = 'logs';
-        const logFile = path.join(logDir, 'captured_pdfs.jsonl');
-        await fsp.mkdir(logDir, { recursive: true });
-        await fsp.appendFile(logFile, JSON.stringify({ url, time: time || new Date().toISOString() }) + '\n', 'utf8');
+        const logDir = 'logs'
+        const logFile = path.join(logDir, 'captured_pdfs.jsonl')
+        await fsp.mkdir(logDir, { recursive: true })
+        await fsp.appendFile(logFile, JSON.stringify({ url, time: time || new Date().toISOString() }) + '\n', 'utf8')
 
-        res.send('OK');
+        res.send('OK')
     } catch (e) {
-        console.error('Error guardando log:', e);
-        res.status(500).send('Error al guardar log');
+        console.error('Error guardando log:', e)
+        res.status(500).send('Error al guardar log')
     }
 }

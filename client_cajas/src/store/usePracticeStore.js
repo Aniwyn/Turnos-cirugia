@@ -14,7 +14,7 @@ const usePracticeStore = create((set, get) => ({
             set({ practices: data, isLoadingPracticeStore: false })
         } catch (error) {
             console.error('Error al cargar practicas:', error)
-            set({ isLoadingPracticeStore: false, errorPracticeStore: 'No se pudieron cargar las practicas' })
+            set({ isLoadingPracticeStore: false, errorPracticeStore: 'No se pudieron cargar las prácticas' })
         }
     },
 
@@ -32,7 +32,7 @@ const usePracticeStore = create((set, get) => ({
             set({ isLoadingPracticeStore: false })
         } catch (error) {
             console.error('Error al cargar practicas:', error)
-            set({ isLoadingPracticeStore: false, errorPracticeStore: 'No se pudieron cargar las practicas' })
+            set({ isLoadingPracticeStore: false, errorPracticeStore: 'No se pudieron cargar las prácticas' })
         }
     },
 

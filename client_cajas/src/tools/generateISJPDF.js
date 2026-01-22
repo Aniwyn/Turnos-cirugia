@@ -47,7 +47,7 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
                 })
             }
             if (anchor.key === 'firma') {
-                /*
+                
                 drawCenteredText(
                     page,
                     medic.name,
@@ -80,7 +80,7 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
                     8,
                     font
                 )
-                */
+                
             }
 
 

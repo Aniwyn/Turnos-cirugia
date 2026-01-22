@@ -1,19 +1,52 @@
 import { create } from 'zustand'
-import { getAllBudgets, createBudget } from '../services/budgetService'
+import { getPaginatedBudgets, getFilteredBudgets, createBudget } from '../services/budgetService'
 
 const useBudgetStore = create((set, get) => ({
     budgets: [],
+    totalBudgets: 0,
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: 20,
+    queryTerms: {},
     isLoadingBudgetStore: false,
     errorBudgetStore: null,
 
-    fetchBudgets: async () => {
+    fetchPaginatedBudgets: async (page = 1, limit = get().pageSize) => {
         set({ isLoadingBudgetStore: true, errorBudgetStore: null })
         try {
-            const data = await getAllBudgets()
-            set({ budgets: data, isLoadingBudgetStore: false })
+            const { budgets, total, totalPages } = await getPaginatedBudgets(get().queryTerms, page, limit)
+            set({
+                budgets,
+                totalBudgets: total,
+                totalPages,
+                currentPage: page
+            })
         } catch (error) {
-            console.error('Error al cargar presupuestos:', error)
-            set({ isLoadingBudgetStore: false, errorBudgetStore: 'No se pudieron cargar los presupuestos' })
+            console.error('Error al cargar presupuestos paginados:', error)
+            set({ errorBudgetStore: 'No se pudieron cargar los presupuestos' })
+        } finally {
+            set({ isLoadingBudgetStore: false })
+        }
+    },
+
+    fetchFilteredBudgets: async (query = {}) => {
+        set({ isLoadingBudgetStore: true, errorBudgetStore: null })
+        try {
+            const page = 1
+            const limit = get().pageSize
+            const { budgets, total, totalPages } = await getFilteredBudgets(query, page, limit)
+            set({
+                budgets,
+                totalBudgets: total,
+                totalPages,
+                currentPage: page,
+                queryTerms: query
+            })
+        } catch (error) {
+            console.error('Error al cargar presupuestos filtrados:', error)
+            set({ errorBudgetStore: 'No se pudieron cargar los presupuestos filtrados' })
+        } finally {
+            set({ isLoadingBudgetStore: false })
         }
     },
 

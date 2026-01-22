@@ -14,7 +14,7 @@ const useMedicStore = create((set, get) => ({
             set({ medics: data, isLoadingMedicStore: false })
         } catch (error) {
             console.error('Error al cargar medicos:', error)
-            set({ isLoadingMedicStore: false, errorMedicStore: 'No se pudieron cargar los medicos' })
+            set({ isLoadingMedicStore: false, errorMedicStore: 'No se pudieron cargar los médicos' })
         }
     },
 
