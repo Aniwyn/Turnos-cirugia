@@ -11,7 +11,8 @@ app.use(express.json({ limit: '2mb' }))
 const allowedOrigins = [
     'http://192.168.0.100',
     'http://192.168.0.100:80',
-    'http://localhost:5173'
+    'http://192.168.0.100:3009',
+    'http://localhost:5173',
 ]
 
 app.use(cors({
