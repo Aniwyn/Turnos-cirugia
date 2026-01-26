@@ -52,12 +52,12 @@ export const CLINICAL_ITEMS = [
         key: 'budgets',
         label: 'Presupuestos',
         icon: <Banknote size={16} strokeWidth={1.5} />,
-        roles: ['superadmin']
+        roles: ['superadmin', 'admin']
     },
     {
         key: 'requestsStudies',
         label: 'Solicitudes de estudios',
         icon: <Tablets size={16} strokeWidth={1.5} />,
-        roles: ['superadmin', 'researchtechnician', 'secretary']
+        roles: ['superadmin', 'researchtechnician', 'secretary', 'admin']
     }
 ]

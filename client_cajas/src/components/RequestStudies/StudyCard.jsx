@@ -35,9 +35,9 @@ const StudyCard = ({ study }) => {
     const displayStudy = localStudy || study
 
     const canTake = ['superadmin', 'researchtechnician'].includes(user?.role) && displayStudy.status?.code === "SUBMITTED"
-    const canViewDetail = ['superadmin', 'secretary'].includes(user?.role) || (['superadmin', 'researchtechnician'].includes(user?.role) && displayStudy.status?.code !== "SUBMITTED")
+    const canViewDetail = ['superadmin', 'secretary', 'admin'].includes(user?.role) || (['superadmin', 'researchtechnician'].includes(user?.role) && displayStudy.status?.code !== "SUBMITTED")
     const canPrint = ['superadmin', 'researchtechnician'].includes(user?.role) && displayStudy.status?.code !== "SUBMITTED"
-    const canCancel = ['superadmin', 'secretary'].includes(user?.role) && displayStudy.status?.code === "SUBMITTED"
+    const canCancel = ['superadmin', 'secretary', 'admin'].includes(user?.role) && displayStudy.status?.code === "SUBMITTED"
 
     const handleTakeStudy = async () => {
         setIsTaking(true)

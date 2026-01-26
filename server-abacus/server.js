@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
 
 app.use('/api/', routes)
 
-const PORT = process.env.PORT || 5050
+const PORT = process.env.PORT || 3012
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`)
 })

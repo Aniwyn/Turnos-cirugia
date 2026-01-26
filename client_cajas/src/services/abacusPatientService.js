@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const ABACUS_API_URL = 'http://localhost:5050/api'
+const ABACUS_API_URL = 'http://192.168.0.100:3012/api'
 
 const apiAbacus = axios.create({
     baseURL: ABACUS_API_URL,
