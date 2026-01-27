@@ -6,15 +6,6 @@ const drawCenteredText = (page, text, y, containerX, size, font, color = rgb(0, 
     const textWidth = font.widthOfTextAtSize(text, size)
     const x = containerX - textWidth / 2
 
-    /*page.drawRectangle({
-        x: x,
-        y: y - size * 0.25, // ajustamos para que cubra detrás del texto
-        width: textWidth,
-        height: size * 1.2, // un poco más alto que el texto
-        color: rgb(1, 0, 0), // rojo
-        opacity: 0.3 // opcional, para ver el texto encima
-    })*/
-
     page.drawText(text, { x, y, size, font, color })
 }
 
@@ -50,25 +41,25 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
                 drawCenteredText(
                     page,
                     medic.name,
-                    anchor.bboxUser.y + anchor.bboxUser.h + 21,
+                    anchor.bboxUser.y + anchor.bboxUser.h + 17,
                     anchor.bboxUser.x + ((anchor.bboxUser.w * 0.75) / 2),
-                    10,
+                    8,
                     font
                 )
                 drawCenteredText(
                     page,
                     medic.prof,
-                    anchor.bboxUser.y + anchor.bboxUser.h + 14,
+                    anchor.bboxUser.y + anchor.bboxUser.h + 11,
                     anchor.bboxUser.x + ((anchor.bboxUser.w * 0.75) / 2),
-                    8,
+                    6.5,
                     font
                 )
                 drawCenteredText(
                     page,
                     medic.esp,
-                    anchor.bboxUser.y + anchor.bboxUser.h + 7,
+                    anchor.bboxUser.y + anchor.bboxUser.h + 5.5,
                     anchor.bboxUser.x + ((anchor.bboxUser.w * 0.75) / 2),
-                    8,
+                    6.5,
                     font
                 )
                 drawCenteredText(
@@ -76,7 +67,7 @@ const generateISJPDF = async (pdfData, anchorsPDF, date, diagnostic, medic) => {
                     medic.mp,
                     anchor.bboxUser.y + anchor.bboxUser.h,
                     anchor.bboxUser.x + ((anchor.bboxUser.w * 0.75) / 2),
-                    8,
+                    6.5,
                     font
                 )
             }
