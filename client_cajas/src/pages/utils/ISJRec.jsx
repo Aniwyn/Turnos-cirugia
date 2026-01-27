@@ -110,7 +110,7 @@ export default function App() {
             mp: "M.P. 4035",
             mp_to_find: "4035",
             medic_id: 1,
-            name_to_compare: "ZARIF AGUSTINA"
+            name_to_compare: "ZARIF AGUSTINA ANDREA" //check
         },
         {
             ID: "MAITE",
