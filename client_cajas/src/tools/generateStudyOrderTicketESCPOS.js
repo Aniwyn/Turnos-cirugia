@@ -68,7 +68,7 @@ const generateTicketBuffer = (studyOrder) => {
     add(COMMANDS.BOLD_ON)
     addText("PACIENTE: ")
     add(COMMANDS.BOLD_OFF)
-    addLine(`${studyOrder.patient_last_name || ''} ${studyOrder.patient_first_name || ''}`)
+    addLine(`${studyOrder.patient_last_name || ''}, ${studyOrder.patient_first_name || ''}`)
 
     add(COMMANDS.BOLD_ON)
     addText("DNI: ")
