@@ -22,11 +22,6 @@ const Budgets = () => {
     const navigate = useNavigate()
     const { budgets, fetchPaginatedBudgets, fetchFilteredBudgets, currentPage, totalPages, isLoadingBudgetStore } = useBudgetStore()
 
-
-    useEffect(() => {
-        console.log(budgets[0])
-    }, [budgets])
-
     const [filters, setFilters] = useState({
         patient_name: "",
         patient_last_name: "",

@@ -102,6 +102,8 @@ const generateTicketBuffer = (studyOrder) => {
         const text = item.description || item.practice_name || "Estudio"
         const eye = item.eye
 
+        console.log(eye)
+
         addText("[ ] ")
         add(COMMANDS.BOLD_ON)
         addText(`${eye}`)

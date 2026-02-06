@@ -43,7 +43,7 @@ const RequestStudyCreate = () => {
     }, [])
 
     const searchAbacusPatient = async (e) => {
-        if (e) { e.preventDefault() }
+        if (e && typeof e.preventDefault === "function") { e.preventDefault() }
 
         let fetchedPatient
 

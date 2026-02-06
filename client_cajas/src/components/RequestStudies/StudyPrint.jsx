@@ -28,10 +28,10 @@ const StudyPrint = ({ id }) => {
     const getEyeName = (eye) => {
         const eyeMap = {
             BOTH: "",
-            LEFT: "OI",
-            RIGHT: "OD",
+            LEFT: "OI ",
+            RIGHT: "OD ",
         }
-        return eyeMap[eye] || `ERROR`
+        return eyeMap[eye] || ""
     }
 
     const handlePrint = async () => {

@@ -202,7 +202,7 @@ const Budget = () => {
             </div>
 
             <div className="flex gap-4 justify-end w-full max-w-5xl">
-                <Button variant="bordered">Cancelar</Button>
+                <Button variant="bordered" onPress={() => navigate('/presupuestos/')}>Cancelar</Button>
                 <Button className="" color="primary" type="submit">Crear presupuesto</Button>
             </div>
         </Form>
