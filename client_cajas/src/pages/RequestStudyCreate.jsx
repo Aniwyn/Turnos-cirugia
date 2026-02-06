@@ -1,5 +1,4 @@
-import { addToast, Autocomplete, AutocompleteItem, Button, Checkbox, CheckboxGroup, DateInput, Form, Input, Textarea } from '@heroui/react'
-import { Search } from 'lucide-react'
+import { addToast, Button, Form } from '@heroui/react'
 import useAbacusPatientStore from '../store/useAbacusPatientStore'
 import useStudiesStore from '../store/useStudiesStore'
 import { parseDate } from "@internationalized/date"
@@ -9,6 +8,8 @@ import useStudyOrderStore from '../store/useStudyOrderStore'
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import LoadingPage from "./LoadingPage"
+import PatientForm from '../components/RequestStudyCreate/PatientForm'
+import StudiesForm from '../components/RequestStudyCreate/StudiesForm'
 
 const RequestStudyCreate = () => {
     const [patient, setPatient] = useState()
@@ -21,7 +22,8 @@ const RequestStudyCreate = () => {
     const [healthInsuranceId, setHealthInsuranceID] = useState()
     const [email, setEmail] = useState()
     const [notes, setNotes] = useState()
-    const [studiesRequested, setStudiesRequested] = useState()
+    const [studiesRequested, setStudiesRequested] = useState([])
+    const [studiesEyes, setStudiesEyes] = useState({})
     const [isFormLocked, setIsFormLocked] = useState(false)
     const { healthInsurances, fetchHealthInsurances, isLoadingHealthInsuranceStore, errorHealthInsuranceStore } = useHealthInsuranceStore()
     const { medics, fetchMedics, isLoadingMedicStore, errorMedicStore } = useMedicStore()
@@ -58,8 +60,8 @@ const RequestStudyCreate = () => {
             setDNI(fetchedPatient.Cliente.num_doc)
             setLastName(fetchedPatient.apellido)
             setFirstName(fetchedPatient.nombre)
-            setBirthDate(fetchedPatient.fec_nacimiento ? parseDate(fetchedPatient.fec_nacimiento) : null) //string en formato "1995-01-10"
-            setHealthInsuranceID(fetchedPatient.ConsulPacientesPrestadores[0].id_prestadora || null)
+            setBirthDate(fetchedPatient.fec_nacimiento ? parseDate(fetchedPatient.fec_nacimiento) : null)
+            setHealthInsuranceID(fetchedPatient.ConsulPacientesPrestadores[0]?.id_prestadora || null)
             setEmail(fetchedPatient.Cliente.mail || "")
             
             addToast({
@@ -87,6 +89,7 @@ const RequestStudyCreate = () => {
         setEmail("")
         setNotes("")
         setStudiesRequested([])
+        setStudiesEyes({})
         setIsFormLocked(true)
     }
 
@@ -97,6 +100,12 @@ const RequestStudyCreate = () => {
         setIsSubmitting(true)
 
         const formattedBirthDate = birthDate ? `${birthDate.year}-${String(birthDate.month).padStart(2, '0')}-${String(birthDate.day).padStart(2, '0')}` : null
+        
+        const studiesWithEyes = studiesRequested.map(id => ({
+            id,
+            eye: studiesEyes[id] || 'BOTH'
+        }))
+
         const patientToSend = {
             idAbacus,
             dni,
@@ -107,20 +116,21 @@ const RequestStudyCreate = () => {
             healthInsuranceId,
             medicId,
             notes,
-            studiesRequested
+            studiesRequested: studiesWithEyes
         }
 
         try {
             await createStudyOrder(patientToSend)
             addToast({
-                title: "ENVIADO!!",
+                title: "Pedido de estudio creado exitosamente",
                 color: "success"
             })
             navigate('/pedidos-estudios')
         } catch (error) {
+            console.error("Error creating study order:", error)
             addToast({
-                title: "Error al enviar",
-                description: "Hubo un problema al procesar el pedido.",
+                title: "Error al crear el pedido",
+                description: error.message || "Hubo un problema al procesar el pedido.",
                 color: "danger"
             })
         } finally {
@@ -130,177 +140,55 @@ const RequestStudyCreate = () => {
 
     const isFormValid = patient && medicId && healthInsuranceId && studiesRequested?.length > 0
 
-    if (isLoadingMedicStore || isLoadingHealthInsuranceStore) return (<LoadingPage />)
+    if (isLoadingMedicStore || isLoadingHealthInsuranceStore || isLoadingStudiesStore) return (<LoadingPage />)
 
     return (
-        <div>
+        <div className='bg-white py-2 rounded-2xl'>
             <Form
-                className="w-full justify-center items-center space-y-4"
+                className="w-full max-w-6xl mx-auto justify-center items-center space-y-4"
                 validationErrors={errors}
                 onSubmit={onSubmit}
             >
-                <div className="flex w-full max-w-5xl">
+                <div className="flex w-full">
                     <h3 className="text-lg font-semibold">Nuevo pedido de estudio</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-8 w-full max-w-5xl">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-end gap-2">
-                            <Input
-                                isDisabled={dni}
-                                label="ID Abacus"
-                                labelPlacement="outside"
-                                placeholder="12345"
-                                color="primary"
-                                variant="faded"
-                                value={idAbacus}
-                                onValueChange={(e) => { setIdAbacus(e) }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault()
-                                        searchAbacusPatient(e)
-                                    }
-                                }}
-                                className="max-w-22"
-                            />
-                            <Input
-                                isDisabled={idAbacus}
-                                label="DNI"
-                                labelPlacement="outside"
-                                name="dni"
-                                placeholder="DNI del paciente"
-                                color="primary"
-                                variant="faded"
-                                value={dni}
-                                onValueChange={(e) => { setDNI(e) }}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault()
-                                        searchAbacusPatient(e)
-                                    }
-                                }}
-                                isClearable={false}
-                            />
-                            {!patient &&
-                                <Button
-                                    onPress={(e) => searchAbacusPatient()}
-                                    isIconOnly color="primary"
-                                    isVisible={false}
-                                >
-                                    <Search size={20} />
-                                </Button>
-                            }
-                        </div>
-                        <div className="flex items-end gap-2">
-                            <Input
-                                isRequired
-                                label="Apellido/s"
-                                labelPlacement="outside"
-                                name="last_name"
-                                placeholder="Apellido/s del paciente"
-                                value={lastName}
-                                onValueChange={(e) => setLastName(e)}
-                                isDisabled
-                            />
-                            <Input
-                                isRequired
-                                label="Nombre/s"
-                                labelPlacement="outside"
-                                name="first_name"
-                                placeholder="Nombre/s del paciente"
-                                value={firstName}
-                                onValueChange={(e) => setFirstName(e)}
-                                isDisabled
+                <div className="grid grid-cols-5 gap-8 w-full">
+                    <PatientForm
+                        patient={patient}
+                        idAbacus={idAbacus}
+                        setIdAbacus={setIdAbacus}
+                        dni={dni}
+                        setDNI={setDNI}
+                        lastName={lastName}
+                        setLastName={setLastName}
+                        firstName={firstName}
+                        setFirstName={setFirstName}
+                        birthDate={birthDate}
+                        setBirthDate={setBirthDate}
+                        email={email}
+                        setEmail={setEmail}
+                        healthInsuranceId={healthInsuranceId}
+                        setHealthInsuranceID={setHealthInsuranceID}
+                        medicId={medicId}
+                        setMedicID={setMedicID}
+                        notes={notes}
+                        setNotes={setNotes}
+                        isFormLocked={isFormLocked}
+                        searchAbacusPatient={searchAbacusPatient}
+                        healthInsurances={healthInsurances}
+                        medics={medics}
+                    />
 
-                            />
-                        </div>
-                        <div className="flex gap-2 items-end">
-                            <DateInput
-                                value={birthDate}
-                                onChange={setBirthDate}
-                                isDisabled
-                                label="Fecha de nacimiento"
-                                labelPlacement="outside"
-                                className="max-w-40"
-                            />
-                            <Input
-                                label="Correo electrónico"
-                                labelPlacement="outside"
-                                name="email"
-                                type="email"
-                                placeholder="Email del paciente"
-                                value={email}
-                                onValueChange={(e) => setEmail(e)}
-                                isDisabled={isFormLocked}
-                            />
-                        </div>
-                        <div className="flex items-end gap-2">
-                            <Autocomplete
-                                isRequired
-                                label="Obra social"
-                                labelPlacement="outside"
-                                placeholder="Obra social"
-                                defaultItems={healthInsurances}
-                                selectedKey={healthInsuranceId ? String(healthInsuranceId) : null}
-                                onSelectionChange={(key) => setHealthInsuranceID(key ? Number(key) : null)}
-                                isDisabled={isFormLocked}
-                            >
-                                {(healthInsurance) => (
-                                    <AutocompleteItem key={healthInsurance.abacus_id}>
-                                        {healthInsurance.name}
-                                    </AutocompleteItem>
-                                )}
-                            </Autocomplete>
-                            <Autocomplete
-                                isRequired
-                                label="Médico"
-                                labelPlacement="outside"
-                                placeholder="Médico"
-                                defaultItems={medics}
-                                selectedKey={medicId ? String(medicId) : null}
-                                onSelectionChange={(key) => setMedicID(key ? Number(key) : null)}
-                                isDisabled={isFormLocked}
-                            >
-                                {(medic) => (
-                                    <AutocompleteItem key={medic.id}>
-                                        {medic.name}
-                                    </AutocompleteItem>
-                                )}
-                            </Autocomplete>
-                        </div>
-                        <Textarea
-                            label="Notas"
-                            labelPlacement="outside"
-                            name="notes"
-                            placeholder="Notas"
-                            value={notes}
-                            onValueChange={(e) => setNotes(e)}
-                            isDisabled={isFormLocked}
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-4 w-full">
-
-                        <div className="flex flex-col gap-2">
-                            <CheckboxGroup
-                                isRequired
-                                value={studiesRequested}
-                                onValueChange={setStudiesRequested}
-                                isDisabled={isFormLocked}
-                                label="Estudios"
-                                classNames={{
-                                    wrapper: "grid grid-cols-2 gap-4"
-                                }}
-                            >
-                                {studies?.map((study) => (
-                                    <Checkbox key={study.id} value={String(study.id)}>
-                                        {study.name}
-                                    </Checkbox>
-                                ))}
-                            </CheckboxGroup>
-                        </div>
-                    </div>
+                    <StudiesForm
+                        studies={studies}
+                        studiesRequested={studiesRequested}
+                        setStudiesRequested={setStudiesRequested}
+                        studiesEyes={studiesEyes}
+                        setStudiesEyes={setStudiesEyes}
+                        isFormLocked={isFormLocked}
+                    />
                 </div>
-                <div className="flex gap-4 pt-12 justify-between w-full max-w-5xl">
+                <div className="flex gap-4 pt-12 justify-between w-full">
                     <div className="flex gap-4">
                         <Button type='button' onPress={handleReset} isDisabled={isSubmitting}>Limpiar</Button>
                     </div>

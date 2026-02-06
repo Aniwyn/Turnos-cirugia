@@ -14,7 +14,6 @@ import {
 } from "@heroui/react"
 import { Search, X } from 'lucide-react'
 import { now } from "@internationalized/date"
-// import useMedicStore from '../../store/useMedicStore' // PROBLEMA CON TOKEN (VA A REQUERIR LOGEO)
 import useUtilsStore from '../../store/useUtilsStore'
 import precessPdfIsj from "../../tools/precessPdfIsj"
 import generateISJPDF from "../../tools/generateISJPDF"
@@ -32,6 +31,8 @@ export const medics = [
     { "id": 10, "name": "Veronica Ase" },
     { "id": 12, "name": "Laura Valdez" }
 ]
+
+const COMMON_DIAGNOSTICS = ["H531", "H521", "H251", "H401", "H101", "H001"]
 
 export default function App() {
     const [url, setUrl] = useState("")
@@ -209,7 +210,6 @@ export default function App() {
             if (!ok) return
 
             setDate(() => now("America/Argentina/Buenos_Aires"))
-            setDiagnostic("H531")
             setPdfData(modifiedPdf)
             setAnchorsPDF(anchors)
 
@@ -265,16 +265,31 @@ export default function App() {
                                 <Search size={20} strokeWidth={2} color="white" />
                             </Button>
                         </div>
-                        <div className="w-full mt-10">
-                            <div className="flex gap-4 w-full">
+                        <div className="w-full mt-4">
+                            <div className="flex gap-4 w-full items-start">
                                 <DateInput
+                                    className="flex-1"
                                     label="Fecha"
                                     labelPlacement="outside"
                                     value={date}
                                     onChange={setDate}
                                     granularity="day"
-                                    endContent={date && <Button onPress={() => setDate(null)} variant="light"  radius="full" size="sm" color="none" isIconOnly><X size={14} /></Button>}
+                                    endContent={date && <Button onPress={() => setDate(null)} variant="light" radius="full" size="sm" color="none" isIconOnly><X size={14} /></Button>}
                                 />
+                                <div className="flex flex-col gap-2 flex-1">
+                                    <Autocomplete
+                                        label="Selecciona un médico"
+                                        labelPlacement="outside"
+                                        placeholder="Selecciona un médico"
+                                        defaultItems={medics}
+                                        selectedKey={medic_id ? String(medic_id) : null}
+                                        onSelectionChange={(key) => handleMedic(key ? Number(key) : null)}
+                                    >
+                                        {(medic) => <AutocompleteItem key={medic.id}>{medic.name}</AutocompleteItem>}
+                                    </Autocomplete>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2 flex-1 mt-4">
                                 <Input
                                     label="Diagnóstico"
                                     labelPlacement="outside"
@@ -283,18 +298,14 @@ export default function App() {
                                     onValueChange={setDiagnostic}
                                     endContent={diagnostic && <Button onPress={() => setDiagnostic("")} variant="light" radius="full" size="sm" isIconOnly><X size={14} color="gray" /></Button>}
                                 />
+                                <div className="flex flex-wrap gap-2">
+                                    {COMMON_DIAGNOSTICS.map((diag) => (
+                                        <Button key={diag} size="sm" variant="flat" className="h-6 min-w-10 px-2 text-xs" onPress={() => setDiagnostic(diag)}>
+                                            {diag}
+                                        </Button>
+                                    ))}
+                                </div>
                             </div>
-                            <Autocomplete
-                                label="Selecciona un médico"
-                                labelPlacement="outside"
-                                placeholder="Selecciona un médico"
-                                className="mt-4"
-                                defaultItems={medics}
-                                selectedKey={medic_id ? String(medic_id) : null}
-                                onSelectionChange={(key) => handleMedic(key ? Number(key) : null)}
-                            >
-                                {(medic) => <AutocompleteItem key={medic.id}>{medic.name}</AutocompleteItem>}
-                            </Autocomplete>
                         </div>
                         <Button className="w-full mt-10" color="primary" onPress={() => printPDF()}>Imprimir</Button>
                     </Form>
@@ -304,7 +315,7 @@ export default function App() {
                 {alertMessage && <Alert className="mb-4" color={alertColor} title={alertType} description={alertMessage} />}
                 {alertMessage2 && <Alert className="mb-4" color={alertColor2} title={alertType2} description={alertMessage2} />}
                 {warningMessage && <Alert color="warning" variant="solid" title="ADVERTENCIA" description={warningMessage} className="mt-3" />}
-                {isLoadingUtilsStore && 
+                {isLoadingUtilsStore &&
                     <div className="flex my-20 justify-center">
                         <Spinner size="lg" label="Cargando PDF..." />
                     </div>

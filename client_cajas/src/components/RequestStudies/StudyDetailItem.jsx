@@ -12,6 +12,15 @@ const getStatusDotColor = (color) => {
     return colorMap[color] || `bg-${color}-500`
 }
 
+const getEyeName = (eye) => {
+    const eyeMap = {
+        BOTH: "AO",
+        LEFT: "OI",
+        RIGHT: "OD",
+    }
+    return eyeMap[eye] || `ERROR`
+}
+
 const StudyDetailItem = ({ item, user, studyStatus, onAction }) => {
     // const canComplete = ['superadmin', 'researchtechnician'].includes(user?.role) && item.status?.code === "PENDING" && (studyStatus.code === "IN_PROGRESS" || studyStatus.code === "PARTIALLY_COMPLETED")
     const canComplete = ['superadmin'].includes(user?.role) && item.status?.code === "PENDING" && (studyStatus.code === "IN_PROGRESS" || studyStatus.code === "PARTIALLY_COMPLETED")
@@ -50,7 +59,7 @@ const StudyDetailItem = ({ item, user, studyStatus, onAction }) => {
                 )}
                 {canSeeObservations && (
                     <Tooltip
-                    placement="left-start"
+                        placement="left-start"
                         content={
                             <div className="px-1 py-2">
                                 <div className="text-small font-bold">Motivo</div>
@@ -76,9 +85,10 @@ const StudyDetailItem = ({ item, user, studyStatus, onAction }) => {
                 )}
             </div>
 
-            <span className="col-span-3 text-sm font-medium text-default-700">
-                {item.study?.name}
-            </span>
+            <div className="col-span-3 flex gap-2 text-sm">
+                <span className="font-semibold">{getEyeName(item.eye)}</span>
+                <span className="font-medium text-default-700">{item.study?.name}</span>
+            </div>
 
             <div className="col-span-1 flex items-center gap-3">
                 {

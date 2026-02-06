@@ -61,6 +61,10 @@ const StudyDetail = ({ id, onUpdate }) => {
         }
     }, [isOpen, id])
 
+    useEffect(() => {
+        if (currentStudyOrder) { console.log(currentStudyOrder) }
+    }, [currentStudyOrder])
+
     const handleOpenAction = (item, type) => {
         setSelectedItem(item)
         setActionType(type)

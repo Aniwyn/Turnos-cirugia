@@ -1,28 +1,32 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from "react-router-dom"
-import Login from "./pages/Login"
-import Home from "./pages/Home"
-import CashBox from './pages/CashBox'
-import CashBoxes from './pages/CashBoxes'
-import MainBox from './pages/MainBox'
-import MainBoxes from './pages/MainBoxes'
+
+import NavbarLayout from './layouts/NavbarLayout'
+
+import AccountingPanel from './pages/AccountingPanel'
+import SurgeryAppointments from './pages/SurgeryAppointments'
 import Budget from './pages/Budget'
 import Budgets from './pages/Budgets'
-import Patients from './pages/Patients'
-import Practices from './pages/Practices'
+import CashBox from './pages/CashBox'
+import CashBoxes from './pages/CashBoxes'
+import Home from "./pages/Home"
+import ISJRec from './pages/utils/ISJRec'
+import LoadingPage from './pages/LoadingPage'
+import Login from "./pages/Login"
+import MainBox from './pages/MainBox'
+import MainBoxes from './pages/MainBoxes'
+import NotFound from './pages/NotFound'
 import Patient from './pages/Patient'
 import PatientProfile from './pages/PatientProfile'
+import Patients from './pages/Patients'
+import Practices from './pages/Practices'
+import PendingRequestedStudies from './pages/PendingRequestedStudies'
 import RequestStudies from './pages/RequestStudies'
 import RequestStudyCreate from './pages/RequestStudyCreate'
-import PendingRequestedStudies from './pages/PendingRequestedStudies'
-import ISJRec from './pages/utils/ISJRec'
-import NavbarLayout from './layouts/NavbarLayout'
-import useAuthStore from "./store/useAuthStore"
 import TEST from "./pages/TEST"
 import TEST2 from "./pages/SuppliesStamps"
-import LoadingPage from './pages/LoadingPage'
-import AccountingPanel from './pages/AccountingPanel'
-import NotFound from './pages/NotFound'
+
+import useAuthStore from "./store/useAuthStore"
 
 const PrivateRoute = () => {
     const { isAuthenticated, checkAuth } = useAuthStore()
@@ -37,7 +41,7 @@ const PrivateRoute = () => {
         verifyAuth()
     }, [checkAuth])
 
-    if (loading) return <div>Cargando...</div>
+    if (loading) return <LoadingPage />
     return isAuthenticated ? <Outlet /> : <Navigate to="/login" />
 }
 
@@ -56,7 +60,6 @@ const AppRoutes = () => {
                         <Route path="/caja-general" element={<MainBox />} />
                         <Route path="/cajas-generales" element={<MainBoxes />} />
 
-
                         <Route path="/presupuesto" element={<Budgets />} />
                         <Route path="/presupuesto/crear" element={<Budget />} />
                         <Route path='/presupuesto/:id' element={<Budget />} />
@@ -71,6 +74,8 @@ const AppRoutes = () => {
                         <Route path="/pedidos-estudios" element={<RequestStudies />} />
                         <Route path="/pedidos-estudios/crear" element={<RequestStudyCreate />} />
                         <Route path="/pedidos-estudios/pendientes" element={<PendingRequestedStudies />} />
+
+                        <Route path="/turnos/cirugias" element={<SurgeryAppointments />} />
                     </Route>
                 </Route>
 

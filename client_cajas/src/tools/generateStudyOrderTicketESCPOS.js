@@ -100,7 +100,13 @@ const generateTicketBuffer = (studyOrder) => {
     const items = studyOrder.items || studyOrder.studies || []
     items.forEach(item => {
         const text = item.description || item.practice_name || "Estudio"
-        addLine(`[ ] ${text}`)
+        const eye = item.eye
+
+        addText("[ ] ")
+        add(COMMANDS.BOLD_ON)
+        addText(`${eye}`)
+        add(COMMANDS.BOLD_OFF)
+        addLine(`${text}`)
     })
 
     // Observaciones

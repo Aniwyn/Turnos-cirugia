@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const studyOrderController = require("../controllers/StudyOrderController")
+const studyOrderController = require("../controllers/studyOrderController")
 
 router.get("/last", studyOrderController.getLastStudyOrders)
 router.get("/pending-overdue", studyOrderController.getPendingOverdueStudyOrders)

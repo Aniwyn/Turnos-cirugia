@@ -182,10 +182,11 @@ exports.createStudyOrder = async (req, res) => {
         }, { transaction: t })
 
         if (studiesRequested && studiesRequested.length > 0) {
-            const items = studiesRequested.map(studyId => ({
+            const items = studiesRequested.map(study => ({
                 study_order_id: order.id,
-                study_id: studyId,
-                status_id: 1
+                study_id: study.id,
+                status_id: 1,
+                eye: study.eye
             }))
             await db.StudyOrderItem.bulkCreate(items, { transaction: t })
         }

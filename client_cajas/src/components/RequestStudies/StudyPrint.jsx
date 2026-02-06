@@ -25,6 +25,15 @@ const StudyPrint = ({ id }) => {
         }
     }, [isOpen, id])
 
+    const getEyeName = (eye) => {
+        const eyeMap = {
+            BOTH: "",
+            LEFT: "OI",
+            RIGHT: "OD",
+        }
+        return eyeMap[eye] || `ERROR`
+    }
+
     const handlePrint = async () => {
         if (!currentStudyOrder) return
         setIsGenerating(true)
@@ -39,7 +48,8 @@ const StudyPrint = ({ id }) => {
                 doctor_name: currentStudyOrder.medic?.name,
                 observations: currentStudyOrder.notes,
                 items: currentStudyOrder.items?.map(item => ({
-                    description: item.study?.name || item.description
+                    description: item.study?.name || item.description,
+                    eye: getEyeName(item.eye)
                 })) || [],
                 date: currentStudyOrder.created_at
             }

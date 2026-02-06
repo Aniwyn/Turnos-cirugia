@@ -41,13 +41,6 @@ const NavbarLayout = () => {
     const hasAccountingAccess = visibleAccountingItems.length > 0
     const hasClinicalAccess = visibleClinicalItems.length > 0
 
-    const icons = {
-        chevron: <ChevronDown size={16} />,
-        scale: <BanknoteArrowUp size={30} />,
-        activity: <SquareStack size={30} />,
-        clipboardClock: <ClipboardClock size={30} />
-    }
-
     const accountingDropdown = (key) => {
         switch (key) {
             case "box":
@@ -86,6 +79,9 @@ const NavbarLayout = () => {
                 break
             case "requestsStudies":
                 navigate("/pedidos-estudios")
+                break
+            case "surgeryAppointments":
+                navigate("/turnos/cirugias")
                 break
             default:
                 console.warn("Opción no manejada:", key)

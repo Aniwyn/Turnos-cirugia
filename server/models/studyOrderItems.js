@@ -18,8 +18,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.SMALLINT.UNSIGNED,
             allowNull: false
         },
-        observations: {
-            type: DataTypes.TEXT,
+        eye: {
+            type: DataTypes.ENUM('BOTH', 'LEFT', 'RIGHT'),
             allowNull: true
         },
         justification: {

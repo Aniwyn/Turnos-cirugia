@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const studyOrderItemController = require("../controllers/StudyOrderItemController")
+const studyOrderItemController = require("../controllers/studyOrderItemController")
 
 router.put("/:id/complete", studyOrderItemController.completeStudyOrderItem)
 router.put("/:id/reject", studyOrderItemController.rejectStudyOrderItem)

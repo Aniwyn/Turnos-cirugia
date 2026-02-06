@@ -48,7 +48,7 @@ function user(sequelize, DataTypes) {
         })
     }
 
-    return User;
+    return User
 }
 
-module.exports = user;
+module.exports = user
